@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "dsa-data"
+version = "0.1.0"
+description = "A dashboard for election and campaign finance data in the St Louis metro region"
+authors = ["Tyler Schlichenmeyer <tyler.schlichenmeyer@gmail.com>"]
+license = "GPL"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+dash = "^1.17.0"
+
+[tool.poetry.dev-dependencies]
+black = "^20.8b1"
+flake8 = "^3.8.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
