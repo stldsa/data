@@ -3,15 +3,12 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.express as px
-
 import pandas as pd
 import geopandas as gp
 
-df = pd.read_csv("data/turnout_20_16_12.csv")
-wards = gp.read_file("data/nbrhds_wards/WARDS_2010.shp")
-
-# TODO: Figure out a better way to handle this candidates stuff, dynamically
-# and by election, ideally
+turnout_df = pd.read_csv("data/tabular_data/turnout_20_16_12.csv")
+with open("data/geodata/nbrhds_wards/WARDS_2010.json") as f:
+    wards = json.load(f)
 
 candidates = df.columns.names
 app = dash.Dash(__name__)

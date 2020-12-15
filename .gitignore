@@ -1,2 +1,6 @@
 data/*
+notebooks/*
+__pycache__
+*/.ipynb_checkpoints/*
 .vscode
+*/.pytest_cache/*
