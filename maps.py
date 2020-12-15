@@ -4,7 +4,7 @@ from pathlib import Path
 import geopandas as gp
 
 
-def download_url(url, output_dir=Path("data/geodata/"), chunk_size=128):
+def download_shp_zip(url, output_dir=Path("data/geodata/"), chunk_size=128):
     r = requests.get(url, stream=True)
     filename = Path(url).name
     with open(output_dir / filename, "wb") as f:
@@ -13,6 +13,7 @@ def download_url(url, output_dir=Path("data/geodata/"), chunk_size=128):
 
 
 def convert_to_geojson(filepath, specifier=""):
+    filepath = Path(filepath)
     if filepath.suffix == ".zip":
         shapefile_dir = filepath.parent
         if specifier:

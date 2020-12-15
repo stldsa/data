@@ -29,11 +29,11 @@ def zip_path(shapefile_dir):
     return zip_path
 
 
-def test_download_url(requests_mock, tmp_path):
+def test_download_shp_zip(requests_mock, tmp_path):
     requests_mock.get("https://www.test-url.com/test_file.zip")
     filepath = tmp_path / "test_file.zip"
 
-    maps.download_url(
+    maps.download_shp_zip(
         "https://www.test-url.com/test_file.zip",
         output_dir=tmp_path,
     )
