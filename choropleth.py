@@ -10,9 +10,8 @@ df = pd.read_csv("data/tabular_data/2020-general-election.csv")
 with open("data/geodata/WARDS_2010.json") as f:
     wards = json.load(f)
 
-options = df.columns.names[1:]
+options = df.columns[1:]
 app = dash.Dash(__name__)
-print(options)
 
 app.layout = html.Div(
     [
@@ -20,6 +19,7 @@ app.layout = html.Div(
         dcc.RadioItems(
             id="candidate",
             options=[{"value": x, "label": x} for x in options],
+            value=options[0],
             labelStyle={"display": "inline-block"},
         ),
         dcc.Graph(id="choropleth", style={"height": "80vh"}),
@@ -29,6 +29,7 @@ app.layout = html.Div(
 
 @app.callback(Output("choropleth", "figure"), [Input("candidate", "value")])
 def display_choropleth(candidate):
+    print(candidate)
     fig = px.choropleth(
         df,
         geojson=wards,
