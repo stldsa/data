@@ -1,28 +1,16 @@
+import json
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.express as px
-
 import pandas as pd
-import json
 
-df = pd.read_csv("data/tabular_data/2020-general-election.csv", dtype={"Ward": str})
-with open("data/geodata/WARDS_2010.json") as read_file:
-    wards_geojson = json.load(read_file)
+df = pd.read_csv("data/tabular_data/2020-general-election.csv")
+with open("data/geodata/WARDS_2010.json") as f:
+    wards = json.load(f)
 
-# TODO: Figure out a better way to handle this candidates stuff, dynamically and by election, ideally
-candidates = [
-    "Trump",
-    "Biden",
-    "Prop D Yes",
-    "Prop D No",
-    "Prop R Yes",
-    "Prop R No",
-    "Prop 1 Yes",
-    "Prop 1 No",
-]
-
+options = df.columns[1:]
 app = dash.Dash(__name__)
 
 app.layout = html.Div(
@@ -30,8 +18,8 @@ app.layout = html.Div(
         html.P("Candidate:"),
         dcc.RadioItems(
             id="candidate",
-            options=[{"value": x, "label": x} for x in candidates],
-            value=candidates[0],
+            options=[{"value": x, "label": x} for x in options],
+            value=options[0],
             labelStyle={"display": "inline-block"},
         ),
         dcc.Graph(id="choropleth", style={"height": "80vh"}),
@@ -41,9 +29,10 @@ app.layout = html.Div(
 
 @app.callback(Output("choropleth", "figure"), [Input("candidate", "value")])
 def display_choropleth(candidate):
+    print(candidate)
     fig = px.choropleth(
         df,
-        geojson=wards_geojson,
+        geojson=wards,
         color=candidate,
         locations="Ward",
         featureidkey="properties.Ward",
