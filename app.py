@@ -17,7 +17,7 @@ app = dash.Dash(
 )
 
 # 	You should be able to use any path to a CSV with a "Ward" column, just modify the process_row function as necessary
-election_data_by_ward_path = "data/elections/2020-general-election.csv"
+election_data_by_ward_path = "data/tabular_data/2020-general-election.csv"
 
 
 def process_election_data_row(row):
