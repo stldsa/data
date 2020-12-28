@@ -4,8 +4,9 @@ import textwrap
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import State, Output, Input
 import dash_leaflet.express as dlx
+from dash.dependencies import State, Output, Input
+from dash_extensions.javascript import arrow_function
 
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
@@ -128,9 +129,9 @@ with open(ward_geojson_path) as read_file:
 			vacant_housing_units_2000=df_ward.values[0][22]
 		)
 wards = dl.GeoJSON(data=ward_geojson,	# TODO: Faster is to get PBFs
-					options={"style":{"color":"red", "fillOpacity":0.3, "weight":2}},
+					options={"style":{"color":"red", "fillOpacity":0.5, "weight":2}},
 					zoomToBoundsOnClick=True,  # when true, zooms to bounds of feature (e.g. polygon) on click
-					hoverStyle={"fillOpacity":0.2, "dashArray":""},  # special style applied on hover)
+					hoverStyle=arrow_function(dict(weight=4, fillOpacity=0.2, dashArray='')),  # special style applied on hover)
 					id="wards-geojson")
 ward_overlay = dl.Overlay(dl.LayerGroup(wards), name="wards", checked=True)
 
@@ -304,18 +305,18 @@ with open(precinct_geojson_path) as read_file:
 precincts = dl.GeoJSON(data=precinct_geojson,
 					options=dict(style=dict(color="purple", fillOpacity=0.5)),
 					zoomToBoundsOnClick=True,
-					hoverStyle=dict(weight=10, fillOpacity=1, dashArray=''),
+					hoverStyle=arrow_function(dict(weight=4, fillOpacity=0.2, dashArray='')),
 					id="precincts-geojson")
 precinct_overlay = dl.Overlay(precincts, name="precincts", checked=False)
 
 #	Precincts: Show est white and black pops on click
-@app.callback(Output("precinct-info-panel", "children"), [Input("precincts-geojson", "click_feature")])
+@app.callback(Output("precinct-info-panel", "children"), [Input("precincts-geojson", "hover_feature")])
 def precinct_click(feature):
 	if feature is not None:
 		return html.Div(
 			# I do not know what data these estimates are derived from, but they were the only precinct level data I had handy
 			[
-				f"Ward {feature['properties']['WARD10']}, Precinct {feature['properties']['WARD10']}:",
+				f"Ward {feature['properties']['WARD10']}, Precinct {feature['properties']['PREC10']}:",
 				html.Br(),
 				f"Estimated black pop: {feature['properties']['extra_data']['est_black']}",
 				html.Br(),
@@ -331,7 +332,7 @@ with open(neighborhodd_geojson_path) as read_file:
 precincts = dl.GeoJSON(data=neighborhodd_geojson,
 					options=dict(style=dict(color="green")),
 					zoomToBoundsOnClick=True,
-					hoverStyle=dict(weight=10, dashArray=''),
+					hoverStyle=arrow_function(dict(weight=4, fillOpacity=0.2, dashArray='')),
 					id="neighborhoods-geojson")
 neighborhood_overlay = dl.Overlay(precincts, name="neighborhood", checked=False)
 
