@@ -1,6 +1,7 @@
 import pytest
 import shapefile
 import shutil
+import pandas as pd
 import geopandas as gp
 import datatest as dt
 from pathlib import Path
@@ -29,6 +30,20 @@ def zip_path(shapefile_dir):
     return zip_path
 
 
+@pytest.fixture(scope="module")
+def results_df():
+    results = pd.read_csv("data/elections/results.csv")
+    return results
+
+
+@pytest.fixture(scope="module")
+def contests_df():
+    contests = pd.read_csv(
+        "data/elections/contests.csv", index_col=["Election Date", "Ballot Item"]
+    )
+    return contests
+
+
 def test_download_shp_zip(requests_mock, tmp_path):
     requests_mock.get("https://www.test-url.com/test_file.zip")
     filepath = tmp_path / "test_file.zip"
@@ -50,3 +65,8 @@ def test_convert_file_to_geojson(zip_path):
     assert ".shp" not in output_path.name
     df = gp.read_file(output_path)
     dt.validate.subset(df.columns, {"field1", "TEXT", "geometry"})
+
+
+def test_ward_contest_results_figures(contests_df):
+    results_figures = maps.results_figures(contests_df)
+    assert len(results_figures.data) == len(contests_df)

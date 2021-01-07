@@ -14,11 +14,13 @@ from plotly.subplots import make_subplots
 import pandas as pd
 import dash_leaflet as dl
 
+import maps
+
 elections = pd.read_csv(
     "data/elections/elections.csv", parse_dates=["Date"], index_col="Date"
 )
-races = pd.read_csv(
-    "data/elections/races.csv",
+contests = pd.read_csv(
+    "data/elections/contests.csv",
     parse_dates=["Election Date"],
     index_col=["Election Date", "Ballot Item"],
 )
@@ -205,80 +207,21 @@ def ward_click(feature, election_selected):
             # 	print(index, data)
             # #TODO: build up multi layout
 
-            elec_races = races.loc[pd.IndexSlice[election_selected]]
+            elec_contests = contests.loc[pd.IndexSlice[election_selected]]
 
             # prebuild subplots stuff
-            subplot_specs = []
-            subplot_titles = []
-            for race in elec_races.index:
-                subplot_specs.append([{"type": "domain"}])
-                split_text = "<br>".join(
-                    textwrap.wrap(elec_races.loc[race, "Name"], width=21)
-                )  # neat little solution for wrapping titles: https://community.plotly.com/t/wrap-long-text-in-title-in-dash/11419
-                subplot_titles.append(split_text)
-            elec_donuts = make_subplots(
-                rows=len(elec_races),
-                cols=1,
-                specs=subplot_specs,
-                subplot_titles=subplot_titles,
-            )
-
-            # add traces
-            i = 0
-            for race in elec_races:
-                race = races_per_election[election_selected][race]
-                race_name = race["name"]
-                race_candidates = race["candidates"]
-                race_legendgroup = "a"
-                race_pie_layout = go.Layout(
-                    title=race_name, showlegend=True, autosize=True
-                )
-                race_pie_labels = []
-                race_pie_counts = []
-                remainder = ballots_cast
-                for cand in race_candidates:
-                    this_cand_vote = df_ward[cand].values[0]
-                    race_pie_labels.append(cand)
-                    race_pie_counts.append(this_cand_vote)
-                    remainder = remainder - this_cand_vote
-                if remainder > 0:
-                    race_pie_labels.append("No vote / other")
-                    race_pie_counts.append(remainder)
-                i = i + 1
-                elec_donuts.append_trace(
-                    go.Pie(
-                        labels=race_pie_labels,
-                        legendgroup=race_legendgroup,
-                        values=race_pie_counts,
-                        name=race_name,
-                        hole=0.35,
-                    ),
-                    i,
-                    1,
-                )
-
-            elec_donuts.update_traces(
-                hoverinfo="label+percent",
-                textinfo="none",
-                textfont_size=15,
-                marker={"line": {"color": "#000000", "width": 2}},
-            )
-            elec_donuts.update(layout_title_text="", layout_showlegend=False)
-            elec_donuts.update_layout(height=(i * 240))
-            elec_donuts = go.Figure(elec_donuts)
-            elec_donuts = px.pie(
-                labels="Ballot Selection",
-            )
-            ward_election_results = dcc.Graph(id="election_pie", figure=elec_donuts)
+            results_figures = maps.results_figures(elec_contests)
             div_children.append(html.Br())
-            ward_election_results_style = {
-                "height": "100%",
-                "maxHeight": "380px",
-                "overflowY": "scroll",
-                "border": "1px solid black",
-            }
             div_children.append(
-                html.Div(ward_election_results, style=ward_election_results_style)
+                html.Div(
+                    children=dcc.Graph(figure=results_figures),
+                    style={
+                        "height": "100%",
+                        "maxHeight": "380px",
+                        "overflowY": "scroll",
+                        "border": "1px solid black",
+                    },
+                )
             )
         else:
             ward_stats = feature["properties"]["extra_data"]
