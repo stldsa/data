@@ -11,6 +11,13 @@ table_settings = {
     "keep_blank_chars": True,
     "text_x_tolerance": 2,
 }
+normal_column_names = ["Reg. Voters", "Cards Cast", "% Turnout", "Times Counted", "Total Votes"]
+special_column_names = ["Write-In Votes"]
+special_contest_names = ["TURN OUT"]
+
+
+import re
+new_contest_match = re.compile(r'(CITYWIDE\n\s*)?W (\d\d) P (\d\d)')
 
 
 def pdf_to_data_pages(pdf):
@@ -73,22 +80,70 @@ def tidy_data(data_pages):
     )
     return df
 
+def parse_page_headers(pdf_obj, page_num):
+    pdf_header_area = pdf_obj.pages[page_num].crop(crop_header_boundaries)
+    headers = pdf_header_area.extract_words(y_tolerance=12, keep_blank_chars=True, use_text_flow=True)
+    return_headers = ["Type"] # first column is always the ward or the vote type
+    page_contests = [] # thus far this is only used when TURN OUT is on the same page as another contest
+    for i in range(len(headers)):
+        col_name = headers[i]["text"]
+        if col_name in special_contest_names:
+            page_contests.append(col_name)
+        elif col_name.isupper() or col_name in normal_column_names or col_name in special_column_names: 
+            return_headers.append(col_name)
+            # candidate vote columns are in all caps and have a vote count and a percent data column, but only have one header column, so we'll add the percent one here 
+            if i+1 == len(headers): 
+                # the last phrase on the page, though, is the contest name, so we ignore that.
+                # TODO: What happens on pages with multiple contests
+                break
+            if col_name.isupper() or col_name in special_column_names:
+                return_headers.append(col_name+" PERCENT")
+    page_contests.append(return_headers.pop())
+    return return_headers
+
+def parse_page_data(pdf_obj, page_num):
+    pdf_data_area = pdf_obj.pages[page_num].crop(crop_data_boundaries)
+    table = pdf_data_area.extract_table(table_settings=table_settings)
+    return table        
 
 def parse_pdf(pdf_path):
-    # page_num = 1
-    # headers = [page.crop(crop_header_boundaries) for page in pdf.pages]
-    # data = [page.crop(crop_data_boundaries) for page in pdf.pages]
-    # table = data[page_num].extract_table(table_settings=table_settings)
-    df = pd.DataFrame(
-        data=[
-            {
-                "Election Date": "2020-06-23",
-                "Ward": 4,
-                "Precinct": 1,
-                "Ballot Selection": "Dwinderlin Evans",
-                "Vote Type": "Polling",
-                "votes": 35,
-            }
-        ]
-    ).set_index(["Election Date", "Ward", "Precinct", "Ballot Selection", "Vote Type"])
+    page_num = 1
+    pdf = pdfplumber.open(pdf_path)    
+    headers = [page.crop(crop_header_boundaries) for page in pdf.pages]
+    
+    data = [page.crop(crop_data_boundaries) for page in pdf.pages]
+    table = data[page_num].extract_table(table_settings=table_settings)
+    df = pd.DataFrame(table)
     return df
+
+def prep_pdf_pages(pdf_path):
+    pdf = pdfplumber.open(pdf_path)
+    pdf_pages = []
+    for i in range(len(pdf.pages)):
+        print("Reading page "+str(i))
+        headers = parse_page_headers(pdf, i)
+        data = parse_page_data(pdf, i)
+        page_df = pd.DataFrame(data)
+        if len(headers) == len(page_df.columns):
+            page_df.columns = headers
+        elif len(headers) == len(page_df.columns)+1: 
+            # this can happen if all of the final vote column have zero votes, and thus 
+            # the "-" for the percents get read as a part of the table's ending line
+            print("1 COLUMN OFF ON PAGE INDEX "+str(i)+": (Popping off seemingly empty column '"+headers.pop()+"')")
+            page_df.columns = headers
+        else:
+            print("PROBLEM WITH PAGE INDEX "+str(i))
+        pdf_pages.append(page_df)
+    return pdf_pages
+
+def read_pages(pdf_page_dfs):
+    for i in range(len(pdf_page_dfs)):
+        for index, row in pdf_page_dfs[i].iterrows():
+            if new_contest_match.match(row.Type):
+                ward_num = int(new_contest_match.match(row.Type).group(2))
+                precinct_num = int(new_contest_match.match(row.Type).group(3))
+                print("New precint: W"+str(ward_num)+" P"+str(precinct_num))
+            else:
+                print(row.Type)
+                for col_name, content in row.iteritems():
+                    print(col_name+": "+str(content))
