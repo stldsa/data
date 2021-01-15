@@ -15,6 +15,8 @@ normal_column_names = ["Reg. Voters", "Cards Cast", "% Turnout", "Times Counted"
 special_column_names = ["Write-In Votes"]
 special_contest_names = ["TURN OUT"]
 
+#TODO:
+election_date = "2020-06-23"
 
 import re
 new_contest_match = re.compile(r'(CITYWIDE\n\s*)?W (\d\d) P (\d\d)')
@@ -93,13 +95,13 @@ def parse_page_headers(pdf_obj, page_num):
             return_headers.append(col_name)
             # candidate vote columns are in all caps and have a vote count and a percent data column, but only have one header column, so we'll add the percent one here 
             if i+1 == len(headers): 
-                # the last phrase on the page, though, is the contest name, so we ignore that.
-                # TODO: What happens on pages with multiple contests
+                # the last phrase on the page is a special case: the contest name
+                # TODO: What happens on pages with multiple contests? We see this with TURN OUT but we handle that specal case
+                page_contests.append(return_headers.pop())
                 break
             if col_name.isupper() or col_name in special_column_names:
                 return_headers.append(col_name+" PERCENT")
-    page_contests.append(return_headers.pop())
-    return return_headers
+    return {"columns":return_headers, "contests":page_contests}
 
 def parse_page_data(pdf_obj, page_num):
     pdf_data_area = pdf_obj.pages[page_num].crop(crop_data_boundaries)
@@ -116,6 +118,37 @@ def parse_pdf(pdf_path):
     df = pd.DataFrame(table)
     return df
 
+def create_dataframe(data, headers):
+    page_df = pd.DataFrame(data)
+    # we have only seen cases where there are two contests when looking at turnout also
+    print(headers["contests"])
+    if len(headers["contests"]) == 2:
+        page_contest = headers["contests"][1]
+    elif len(headers["contests"]) == 1:
+        page_contest = headers["contests"][0]
+    else:
+        print("PAGE CONTESTS")
+        print(page_contests)
+        
+    if len(headers['columns']) == len(page_df.columns):
+        page_df.columns = headers['columns']
+    elif len(headers['columns']) == len(page_df.columns)+1: 
+        # this can happen if all of the final vote column have zero votes, and thus 
+        # the "-" for the percents get read as a part of the table's ending line
+        headers['columns'].pop()
+        page_df.columns = headers['columns']
+    else:
+        print("PROBLEM WITH PAGE")
+        
+    # drop unnecessary percentage columns
+    columns_to_drop = []
+    for col_name in headers["columns"]:
+        if col_name.endswith(" PERCENT") or col_name == "% Turnout":
+            columns_to_drop.append(col_name)
+    page_df = page_df.drop(columns=columns_to_drop)
+    page_df["Contest"] = page_contest
+    return page_df
+
 def prep_pdf_pages(pdf_path):
     pdf = pdfplumber.open(pdf_path)
     pdf_pages = []
@@ -123,27 +156,48 @@ def prep_pdf_pages(pdf_path):
         print("Reading page "+str(i))
         headers = parse_page_headers(pdf, i)
         data = parse_page_data(pdf, i)
-        page_df = pd.DataFrame(data)
-        if len(headers) == len(page_df.columns):
-            page_df.columns = headers
-        elif len(headers) == len(page_df.columns)+1: 
-            # this can happen if all of the final vote column have zero votes, and thus 
-            # the "-" for the percents get read as a part of the table's ending line
-            print("1 COLUMN OFF ON PAGE INDEX "+str(i)+": (Popping off seemingly empty column '"+headers.pop()+"')")
-            page_df.columns = headers
-        else:
-            print("PROBLEM WITH PAGE INDEX "+str(i))
+        page_df = create_dataframe(data, headers)
         pdf_pages.append(page_df)
     return pdf_pages
 
 def read_pages(pdf_page_dfs):
+    tidy_data = []
+    last_column_was_total = False
+    ignoring = False
     for i in range(len(pdf_page_dfs)):
         for index, row in pdf_page_dfs[i].iterrows():
+            # this is kind of a wacky hack but we want to ignore rows that are the accumulated totals: we can tell those begin when we get two totals in a row,
+            if row["Type"] == "Total":
+                if ignoring:
+                    ignoring = False
+                else:
+                    if last_column_was_total:
+                        ignoring = True
+                    else:
+                        last_column_was_total = True
+                continue
+            else:
+                last_column_was_total = False
+            if ignoring:
+                continue
             if new_contest_match.match(row.Type):
                 ward_num = int(new_contest_match.match(row.Type).group(2))
                 precinct_num = int(new_contest_match.match(row.Type).group(3))
                 print("New precint: W"+str(ward_num)+" P"+str(precinct_num))
             else:
-                print(row.Type)
+                row_type = row["Type"]
                 for col_name, content in row.iteritems():
-                    print(col_name+": "+str(content))
+                    if col_name.isupper() or col_name in special_column_names:
+                        if not content.isnumeric():
+                            content = 0
+                        tidy_data.append({
+                            "election_date":election_date,
+                            "ward":ward_num,
+                            "precinct":precinct_num,
+                            "contest_name":row["Contest"],
+                            "candidate_selection":col_name,
+                            "vote_type":row_type,
+                            "vote_count":int(content),
+                        })
+    return tidy_data
+            
