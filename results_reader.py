@@ -128,7 +128,7 @@ def create_dataframe(data, headers):
         page_contest = headers["contests"][0]
     else:
         print("PAGE CONTESTS ISSUE")
-        return []
+        return pd.DataFrame([])
     if len(headers['columns']) == len(page_df.columns):
         page_df.columns = headers['columns']
     elif len(headers['columns']) == len(page_df.columns)+1: 
