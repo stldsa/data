@@ -13,7 +13,7 @@ table_settings = {
 }
 normal_column_names = ["Reg. Voters", "Cards Cast", "% Turnout", "Times Counted", "Total Votes"]
 special_column_names = ["Write-In Votes"]
-special_contest_names = ["TURN OUT"]
+special_contest_names = ["TURN OUT", "TREASURER"] # Treasurer vote is an issue in 2020 nov election
 
 #TODO:
 election_date = "2020-06-23"
@@ -127,9 +127,8 @@ def create_dataframe(data, headers):
     elif len(headers["contests"]) == 1:
         page_contest = headers["contests"][0]
     else:
-        print("PAGE CONTESTS")
-        print(page_contests)
-        
+        print("PAGE CONTESTS ISSUE")
+        return []
     if len(headers['columns']) == len(page_df.columns):
         page_df.columns = headers['columns']
     elif len(headers['columns']) == len(page_df.columns)+1: 
