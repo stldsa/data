@@ -2,8 +2,8 @@ import pdfplumber
 import pandas as pd
 
 crop_boundaries = (35, 133, 575, 755)
-crop_header_boundaries = (35, 133, 575, 208)
-crop_data_boundaries = (35, 208, 575, 755)
+crop_header_boundaries = (35, 133, 575, 205)
+crop_data_boundaries = (35, 205, 575, 755)
 table_settings = {
     "horizontal_strategy": "text",
     "vertical_strategy": "text",
@@ -20,7 +20,6 @@ election_date = "2020-06-23"
 
 import re
 new_contest_match = re.compile(r'(CITYWIDE\n\s*)?W (\d\d) P (\d\d)')
-
 
 def pdf_to_data_pages(pdf):
     data = [page.crop(crop_data_boundaries) for page in pdf.pages]
