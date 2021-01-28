@@ -6,7 +6,7 @@ authors = ["Tyler Schlichenmeyer <tyler.schlichenmeyer@gmail.com>"]
 license = "GPL"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "3.9.1"
 dash = "^1.17.0"
 dash-leaflet = "^0.1.8"
 pandas = "^1.1.4"
