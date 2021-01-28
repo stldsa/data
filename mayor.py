@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 server = Flask(__name__)
-server.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DB_URL")
+server.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 server.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(server)
 
