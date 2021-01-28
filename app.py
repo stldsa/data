@@ -194,7 +194,7 @@ def ward_click(feature, election_selected):
             },
         )
         div_children.append(feature_name)
-        if election_selected is not None:
+        if election_selected:
             elec_ward_data = ward_data.loc[pd.IndexSlice[election_selected], ward_num]
             turnout = elec_ward_data["Turnout %"]
             div_children.append(
