@@ -18,6 +18,9 @@ class Candidate(db.Model):
     name = db.Column(db.String, primary_key=True)
 
 
+db.create_all()
+db.session.commit()
+
 app = dash.Dash(
     __name__,
     server=server,
