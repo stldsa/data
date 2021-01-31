@@ -27,7 +27,7 @@ def get_side_panel_layout(candidates, df):
             get_side_panel_form(candidates, df),
             # side_panel_form,
             # info_panel,
-            get_expand_button(),
+            # get_expand_button(),
             get_side_panel_footer()
         ],
         className='SidePanel_NotExpanded',
@@ -80,14 +80,17 @@ def get_candidate_select(candidates):
         options=[{'value': c.mec_id, 'label': c.name} 
                  for c in candidates],
         value=candidates[0].mec_id,
-        labelStyle={'display': 'inline-block'}
+        labelStyle={'display': 'inline-block'},
+        className='candidateSelect'
     )
     return selection
 
 def get_side_panel_form(candidates, df):
     basic_graph = contrib.base_candidate_fundraising_graph(candidates, df)
-    cand_df = contrib.sum_funds_by_mecid(df)
-    return basic_graph
+    return html.Div(children=[
+        basic_graph,
+        html.Div(id='below-graph')
+    ])
 
 def get_map_panel_zip_layout():
     classes = [0, 100, 500, 1000, 2000, 5000, 10000, 20000]

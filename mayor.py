@@ -48,15 +48,14 @@ root_layout = html.Div(
 app.layout = root_layout
 
 
-@app.callback(
-    [dash.dependencies.Output('panel-side', 'className')],
-    [dash.dependencies.Input('expand-side-swith', 'value')])
-def toggle_expand(value):
-    if not value:
-        return ["SidePanel_NotExpanded"]
-    else:
-        return ["SidePanel_Expanded"]
-        
+# @app.callback(
+#     [dash.dependencies.Output('panel-side', 'className')],
+#     [dash.dependencies.Input('expand-side-swith', 'value')])
+# def toggle_expand(value):
+#     if not value:
+#         return ["SidePanel_NotExpanded"]
+#     else:
+#         return ["SidePanel_Expanded"]
 
 @app.callback(
     dash.dependencies.Output("zips-geojson", "data"), 

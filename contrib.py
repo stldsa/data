@@ -52,7 +52,7 @@ def base_candidate_fundraising_graph(candidates, mec_df):
     fig.update_traces(hoverinfo="skip", hovertemplate='$%{x:.2s} <extra>%{y}</extra>')
     fig.update_layout(uniformtext_minsize=12, uniformtext_mode='show')
     fig.update_layout(title_text='Mayoral Candidate Fundraising (2020-2021)')
-    basic_graph = dcc.Graph(figure=fig, className="FundraisingBaseGraph", style={"width":"60vh"})
+    basic_graph = dcc.Graph(figure=fig, className="FundraisingBaseGraph", style={"width":"40vw"})
 
     return basic_graph
 
