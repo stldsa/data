@@ -1,25 +1,32 @@
 import json
 import contrib
 
+import geopandas as gpd
+
 import dash_leaflet as dl 
 import dash_core_components as dcc 
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+from dash_extensions.javascript import arrow_function
+import dash_daq as daq
 
 # Currently used for handling candidates
-def get_side_panel_layout(candidates):
-    side_panel_style={"width": "40%", "height": "100vh", "maxWidth":"500px",
+def get_side_panel_layout(candidates, df):
+
+    side_panel_style={"height": "100vh", "flexShrink":0,
         "color": "black", "backgroundColor": "white", "borderRight": "8px solid red", "borderLeft": "8px solid red",
         "display":"flex", "flexDirection":"column", "justifyContent":"space-between", "alignItems":"center"}
     side_panel_layout = html.Div(
         children=[
             get_side_panel_header(),
             get_side_panel_intro(),
-            get_side_panel_form(candidates),
+            get_side_panel_form(candidates, df),
             # side_panel_form,
             # info_panel,
+            get_expand_button(),
             get_side_panel_footer()
         ],
+        className='SidePanel_NotExpanded',
         id='panel-side',
         style=side_panel_style
     )
@@ -47,6 +54,12 @@ def get_side_panel_intro():
     ], style=side_panel_intro_style)
     return side_panel_intro
 
+def get_expand_button():
+    expand_button = daq.ToggleSwitch(size=50, id='expand-side-swith')  
+    return expand_button
+
+
+
 def get_side_panel_footer():
     # Side panel footer
     side_panel_footer_box_style = {"textAlign":"center", "textDecoration":"italics", "fontSize":"0.8em", 
@@ -59,17 +72,16 @@ def get_side_panel_footer():
     side_panel_footer = html.Div(children=side_panel_footer_box, style=side_panel_footer_style)
     return side_panel_footer
 
-def get_side_panel_form(candidates):
-    basic_graph = contrib.base_candidate_fundraising_graph(candidates)
-    side_panel_form = html.Div(children=[
-        basic_graph
-    ])
-    return side_panel_form
+def get_side_panel_form(candidates, df):
+    basic_graph = contrib.base_candidate_fundraising_graph(candidates, df)
+    cand_df = contrib.sum_funds_by_mecid(df)
+    return basic_graph
 
 
-def get_map_panel_layout():
+def get_map_panel_layout(mec_df):
+    cand_zip_df = contrib.sum_funds_by_zip_and_mecid(mec_df)
     stl_center = [38.648, -90.253]
-    city_map_style = {"width": "100%", "height": "100vh", "margin": "none", "display": "block"}
+    city_map_style = {"height": "100vh", "margin": "none", "display": "block"}
     city_map = html.Div(
         children=[
             dl.Map(
@@ -77,6 +89,7 @@ def get_map_panel_layout():
                     get_base_toner_tile_layer(), 
                 #    ward_overlay, 
                     get_precinct_overlay(), 
+                    get_zip_overlay(cand_zip_df),
                 #    neighborhood_overlay
                 ]),
                 zoom=12, 
@@ -84,6 +97,7 @@ def get_map_panel_layout():
                 style=city_map_style
             )
         ],
+        className='MapPanel_Show',
         id='city-map-wrapper',
     )
 
@@ -98,16 +112,37 @@ def get_map_panel_layout():
     return map_panel
 
 def get_precinct_overlay():
-    precinct_geojson_path = "data/geojson/stl-city/precincts.geojson"
+    # original file was wrong hand rule, whis one was rewound with geojson-rewind:
+    precinct_geojson_path = "data/geojson/stl-city/precincts_rw.geojson"
     with open(precinct_geojson_path) as read_file:
         precinct_geojson = json.load(read_file)
     precincts = dl.GeoJSON(data=precinct_geojson,
-					options=dict(style=dict(color="purple", fillOpacity=0.5)),
+					options=dict(style=dict(color="blue", fillOpacity=0.5)),
 					zoomToBoundsOnClick=True,
-					# hoverStyle=arrow_function(dict(weight=4, fillOpacity=0.2, dashArray='')),
+					hoverStyle=arrow_function(
+                        dict(weight=4, fillOpacity=0.2, dashArray="")
+                    ),
 					id="precincts-geojson")
-    precinct_overlay = dl.Overlay(precincts, name="precincts", checked=True)
+    precinct_overlay = dl.Overlay(precincts, name="precincts", checked=False)
     return precinct_overlay
+
+def get_zip_overlay(cand_zip_df):
+    # original file was wrong hand rule, whis one was rewound with geojson-rewind:
+    zip_geojson_path = "data/geojson/stl-region-zip_rw.geojson"
+    gdf = gpd.read_file(zip_geojson_path)
+    gdf = gdf.merge(cand_zip_df, left_on="ZCTA5CE10", right_on="ZIP5")
+    print(gdf)
+    with open(zip_geojson_path) as read_file:
+        zip_geojson = json.load(read_file)
+    zips = dl.GeoJSON(data=zip_geojson,
+                    options=dict(style=dict(color="purple", fillOpacity=0.5)),
+                    zoomToBoundsOnClick=True,
+                    hoverStyle=arrow_function(
+                        dict(weight=4, fillOpacity=0.2, dashArray="")
+                    ),
+					id="zips-geojson")
+    zip_overlay = dl.Overlay(zips, name="zips", checked=True)
+    return zip_overlay
 
 
 def get_base_toner_tile_layer():

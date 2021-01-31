@@ -236,6 +236,17 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "dash-daq"
+version = "0.5.0"
+description = "DAQ components for Dash"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+dash = ">=1.6.1"
+
+[[package]]
 name = "dash-extensions"
 version = "0.0.38"
 description = "Extensions for Plotly Dash."
@@ -453,6 +464,14 @@ six = "*"
 
 [package.extras]
 test = ["pytest"]
+
+[[package]]
+name = "geojson-rewind"
+version = "1.0.0"
+description = "A Python library for enforcing polygon ring winding order in GeoJSON"
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "geopandas"
@@ -1475,7 +1494,7 @@ watchdog = ["watchdog"]
 [metadata]
 lock-version = "1.1"
 python-versions = "3.9.1"
-content-hash = "872f26ded0e1b4da95660d97a4ea49560db1262cb6bd6ef31fad6e7954516a5c"
+content-hash = "bcc45983ff8b20c02b290c1bbd5580aa1d5abf63c3e23cda6bc862445d09a17e"
 
 [metadata.files]
 appdirs = [
@@ -1639,6 +1658,9 @@ dash-bootstrap-components = [
 dash-core-components = [
     {file = "dash_core_components-1.15.0.tar.gz", hash = "sha256:b61cb37322de91b4feb0d4d823694cbba8686f6459db774b53d553135350c71e"},
 ]
+dash-daq = [
+    {file = "dash_daq-0.5.0.tar.gz", hash = "sha256:a1d85b6799f7b885652fbc44aebdb58c41254616a8d350b943beeb42ade4256a"},
+]
 dash-extensions = [
     {file = "dash-extensions-0.0.38.tar.gz", hash = "sha256:14220fae949ba9b02634e37c2c50549bab259578f145039e7c7c452f949f80be"},
     {file = "dash_extensions-0.0.38-py3-none-any.whl", hash = "sha256:a3185e00b927e10d7cc08828adf0503716b7db3a0cee617327041250b90b25e6"},
@@ -1720,6 +1742,10 @@ geobuf = [
     {file = "geobuf-1.1.1-py2-none-any.whl", hash = "sha256:e6298e0608b2fcb4fc23530760fbe03862449f44ac5f5065aeb9304ce3d23299"},
     {file = "geobuf-1.1.1-py3-none-any.whl", hash = "sha256:a6b81a0a09505996ee23b6caa303cde8c0d2f75d31826241a452a19bf675f8c2"},
     {file = "geobuf-1.1.1.tar.gz", hash = "sha256:9c645a2ef7c0a8679b1088981e286357823a2291322de6d0b9ee523212933e9a"},
+]
+geojson-rewind = [
+    {file = "geojson-rewind-1.0.0.tar.gz", hash = "sha256:9753b2e90475f07407dd6893779ae72c639c316420cf45eb15f752d052ac9dcf"},
+    {file = "geojson_rewind-1.0.0-py3-none-any.whl", hash = "sha256:0e94a8b13ad33bb8920b94655e49bc7293ef88384a25959a32dc15845f589697"},
 ]
 geopandas = [
     {file = "geopandas-0.8.2-py2.py3-none-any.whl", hash = "sha256:8f53aa98e4ddb054afc46d289c930e96267d32c35c3dc685721ec2fddee77e60"},

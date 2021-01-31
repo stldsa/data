@@ -2,3 +2,11 @@ body {
 	margin: 0;
 	font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
+
+.SidePanel_NotExpanded{
+	width: 40%;
+}
+
+.SidePanel_Expanded{
+	width: 90%;
+}
