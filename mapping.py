@@ -4,11 +4,14 @@ import contrib
 import geopandas as gpd
 
 import dash_leaflet as dl 
+import dash_leaflet.express as dlx
 import dash_core_components as dcc 
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-from dash_extensions.javascript import arrow_function
+from dash_extensions.javascript import arrow_function, Namespace
 import dash_daq as daq
+
+import plotly.express as px
 
 # Currently used for handling candidates
 def get_side_panel_layout(candidates, df):
@@ -20,6 +23,7 @@ def get_side_panel_layout(candidates, df):
         children=[
             get_side_panel_header(),
             get_side_panel_intro(),
+            get_candidate_select(candidates),
             get_side_panel_form(candidates, df),
             # side_panel_form,
             # info_panel,
@@ -58,8 +62,6 @@ def get_expand_button():
     expand_button = daq.ToggleSwitch(size=50, id='expand-side-swith')  
     return expand_button
 
-
-
 def get_side_panel_footer():
     # Side panel footer
     side_panel_footer_box_style = {"textAlign":"center", "textDecoration":"italics", "fontSize":"0.8em", 
@@ -72,43 +74,46 @@ def get_side_panel_footer():
     side_panel_footer = html.Div(children=side_panel_footer_box, style=side_panel_footer_style)
     return side_panel_footer
 
+def get_candidate_select(candidates):
+    selection = dcc.RadioItems(
+        id='candidate-select', 
+        options=[{'value': c.mec_id, 'label': c.name} 
+                 for c in candidates],
+        value=candidates[0].mec_id,
+        labelStyle={'display': 'inline-block'}
+    )
+    return selection
+
 def get_side_panel_form(candidates, df):
     basic_graph = contrib.base_candidate_fundraising_graph(candidates, df)
     cand_df = contrib.sum_funds_by_mecid(df)
     return basic_graph
 
+def get_map_panel_zip_layout():
+    classes = [0, 100, 500, 1000, 2000, 5000, 10000, 20000]
+    colorscale = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026']
+    style = {"weight":2, "opacity":1, "color":"white", "dashArray":3, "fillOpacity":0.7}
 
-def get_map_panel_layout(mec_df):
-    cand_zip_df = contrib.sum_funds_by_zip_and_mecid(mec_df)
+    ctg = ["{}+".format(cls, classes[i + 1]) for i, cls in enumerate(classes[:-1])] + ["{}+".format(classes[-1])]
+    colorbar = dlx.categorical_colorbar(categories=ctg, colorscale=colorscale, width=400, height=30, position="bottomright")
+
+    ns = Namespace("dlx", "choropleth")
+    zip_geojson = dl.GeoJSON(data=None,  # url to geojson file
+                        options=dict(style=ns("style")),  # how to style each polygon
+                        zoomToBounds=False,  # when true, zooms to bounds when data changes (e.g. on load)
+                        zoomToBoundsOnClick=True,  # when true, zooms to bounds of feature (e.g. polygon) on click
+                        hoverStyle=arrow_function(dict(weight=5, color='#666', dashArray='')),  # style applied on hover
+                        hideout=dict(colorscale=colorscale, classes=classes, style=style, colorProp="Amount"),
+                        id="zips-geojson")
+
     stl_center = [38.648, -90.253]
     city_map_style = {"height": "100vh", "margin": "none", "display": "block"}
     city_map = html.Div(
-        children=[
-            dl.Map(
-                dl.LayersControl(children=[
-                    get_base_toner_tile_layer(), 
-                #    ward_overlay, 
-                    get_precinct_overlay(), 
-                    get_zip_overlay(cand_zip_df),
-                #    neighborhood_overlay
-                ]),
-                zoom=12, 
-                center=stl_center, 
-                style=city_map_style
-            )
-        ],
-        className='MapPanel_Show',
-        id='city-map-wrapper',
-    )
-
+        dl.Map(children=[get_base_toner_tile_layer(), zip_geojson, colorbar], zoom=12, center=stl_center), 
+        style=city_map_style, id="map")
     map_panel_style = {'width': '100%', 'height': '100vh', "display": "block"}
-    map_panel = html.Div(
-        id='map-panel',
-        children=[
-            city_map
-        ], 
-        style=map_panel_style
-    )
+    map_panel = html.Div(id='map-panel',
+        children=city_map, style=map_panel_style)
     return map_panel
 
 def get_precinct_overlay():
@@ -126,12 +131,19 @@ def get_precinct_overlay():
     precinct_overlay = dl.Overlay(precincts, name="precincts", checked=False)
     return precinct_overlay
 
-def get_zip_overlay(cand_zip_df):
+def get_zip_overlay(mec_df, candidate):
+    if candidate is not None:
+        cand_df = contrib.sum_funds_by_zip(cand_zip_df)
+    else:
+        df = cand_zip_df[cand_zip_df[' MECID'] == candidate] 
     # original file was wrong hand rule, whis one was rewound with geojson-rewind:
     zip_geojson_path = "data/geojson/stl-region-zip_rw.geojson"
     gdf = gpd.read_file(zip_geojson_path)
     gdf = gdf.merge(cand_zip_df, left_on="ZCTA5CE10", right_on="ZIP5")
-    print(gdf)
+    if candidate is not None:
+        df = contrib.sum_funds_by_zip(cand_zip_df)
+    else:
+        df = cand_zip_df[cand_zip_df[' MECID'] == candidate]
     with open(zip_geojson_path) as read_file:
         zip_geojson = json.load(read_file)
     zips = dl.GeoJSON(data=zip_geojson,
@@ -143,7 +155,6 @@ def get_zip_overlay(cand_zip_df):
 					id="zips-geojson")
     zip_overlay = dl.Overlay(zips, name="zips", checked=True)
     return zip_overlay
-
 
 def get_base_toner_tile_layer():
     # 	Base tile layer

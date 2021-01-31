@@ -1,10 +1,11 @@
-import os
+import os, json
 import dash
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
+import plotly.express as px
 
 import mapping
 import contrib
@@ -39,7 +40,7 @@ root_layout = html.Div(
     id='root',
     children=[
         mapping.get_side_panel_layout(candidates, df),
-        mapping.get_map_panel_layout(df)
+        mapping.get_map_panel_zip_layout()
     ],
     style={"display": "flex", "flexDirection": "row", "margin": 0}
 )
@@ -55,6 +56,15 @@ def toggle_expand(value):
         return ["SidePanel_NotExpanded"]
     else:
         return ["SidePanel_Expanded"]
+        
+
+@app.callback(
+    dash.dependencies.Output("zips-geojson", "data"), 
+    [dash.dependencies.Input("candidate-select", "value")])
+def display_choropleth(mec_id):
+    df = contrib.create_contribution_df(mec_ids)
+    zip_geojson_data = contrib.build_zip_amount_geojson(df, mec_id)
+    return zip_geojson_data
 
 if __name__ == "__main__":
     app.run_server(debug=True)
