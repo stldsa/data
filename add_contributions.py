@@ -41,7 +41,6 @@ Contribution.query.delete()
 # Right now only doing mayoral race, but update as necessary
 mec_ids = ['C201499', 'C201099', 'C201500', 'C211544']
 mec_df = contrib.create_contribution_df(mec_ids)
-print(mec_df)
 
 contributions_to_insert = []
 for index, row in mec_df.iterrows():

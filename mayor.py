@@ -6,6 +6,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import plotly.express as px
+import pandas as pd
 
 import mapping
 import contrib
@@ -20,8 +21,23 @@ db = SQLAlchemy(server)
 
 class Candidate(db.Model):
     name = db.Column(db.String, primary_key=True)
-    mec_id = db.Column(db.String(10), unique=True, nullable=False)
+    mec_id = db.Column(db.String, unique=True, nullable=False)
 
+class Contribution(db.Model):
+    __tablename__ = 'contributions'
+    contribution_id = db.Column(db.Integer, primary_key=True)
+    mec_id = db.Column(db.String, nullable=False)
+    from_committee = db.Column(db.String)
+    name = db.Column(db.String)
+    zip5 = db.Column(db.String)
+    lat = db.Column(db.Float)
+    lon = db.Column(db.Float)
+    employer = db.Column(db.String)
+    occupation = db.Column(db.String)
+    date = db.Column(db.Date)
+    amount = db.Column(db.Float)
+    contribution_type = db.Column(db.String)
+    report = db.Column(db.String)
 
 db.create_all()
 db.session.commit()
@@ -34,12 +50,12 @@ app = dash.Dash(
 candidates = Candidate.query.all()
 
 mec_ids = ['C201499', 'C201099', 'C201500', 'C211544']
-df = contrib.create_contribution_df(mec_ids)
+mec_df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
 
 root_layout = html.Div(
     id='root',
     children=[
-        mapping.get_side_panel_layout(candidates, df),
+        mapping.get_side_panel_layout(candidates, mec_df),
         mapping.get_map_panel_zip_layout()
     ],
     style={"display": "flex", "flexDirection": "row", "margin": 0}
@@ -61,8 +77,8 @@ app.layout = root_layout
     dash.dependencies.Output("zips-geojson", "data"), 
     [dash.dependencies.Input("candidate-select", "value")])
 def display_choropleth(mec_id):
-    df = contrib.create_contribution_df(mec_ids)
-    zip_geojson_data = contrib.build_zip_amount_geojson(df, mec_id)
+    mec_df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
+    zip_geojson_data = contrib.build_zip_amount_geojson(mec_df, mec_id)
     return zip_geojson_data
 
 if __name__ == "__main__":

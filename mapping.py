@@ -15,7 +15,6 @@ import plotly.express as px
 
 # Currently used for handling candidates
 def get_side_panel_layout(candidates, df):
-
     side_panel_style={"height": "100vh", "flexShrink":0,
         "color": "black", "backgroundColor": "white", "borderRight": "8px solid red", "borderLeft": "8px solid red",
         "display":"flex", "flexDirection":"column", "justifyContent":"space-between", "alignItems":"center"}

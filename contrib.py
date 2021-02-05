@@ -22,25 +22,25 @@ def create_contribution_df(mec_ids):
     return frame
 
 def sum_funds_by_zip_and_mecid(mec_df):
-    mec_df.loc[:, 'ZIP5'] = mec_df.loc[:, 'Zip'].astype(str).str[:5]
-    donation_sum_by_zip = mec_df.groupby(by=[' MECID', 'ZIP5'], as_index=False).agg({'Amount':'sum'})
+    mec_df.loc[:, 'zip5'] = mec_df.loc[:, 'Zip'].astype(str).str[:5]
+    donation_sum_by_zip = mec_df.groupby(by=['mec_id', 'zip5'], as_index=False).agg({'Amount':'sum'})
     return donation_sum_by_zip
 
 def sum_funds_by_mecid(mec_df):
-    donations_sum = mec_df.groupby(by=[' MECID']).agg({'Amount':'sum'})
+    donations_sum = mec_df.groupby(by=['mec_id']).agg({'amount':'sum'})
     return donations_sum
 
 def sum_funds_by_zip(mec_df, mec_id=None):
     if mec_id is None:
-        zip_df = mec_df.groupby(by=['ZIP5']).agg({'Amount':'sum'})
+        zip_df = mec_df.groupby(by=['zip5']).agg({'amount':'sum'})
     else:
-        cand_df = mec_df[mec_df[' MECID'] == mec_id]
-        zip_df = cand_df.groupby(by=['ZIP5']).agg({'Amount':'sum'})
+        cand_df = mec_df[mec_df['mec_id'] == mec_id]
+        zip_df = cand_df.groupby(by=['zip5']).agg({'amount':'sum'})
     return zip_df
 
 def base_candidate_fundraising_graph(candidates, mec_df):
     cand_df = sum_funds_by_mecid(mec_df)
-    x_values = [ cand_df.loc[candidate.mec_id]['Amount'] for candidate in candidates ]
+    x_values = [ cand_df.loc[candidate.mec_id]['amount'] for candidate in candidates ]
     y_values = [ candidate.name for candidate in candidates ]
 
     
@@ -58,17 +58,17 @@ def base_candidate_fundraising_graph(candidates, mec_df):
 
 def build_zip_amount_geojson(df, mec_id=None):
     if mec_id is None:
-        zip_df = df.groupby(by=['ZIP5']).agg({'Amount':'sum'})
+        zip_df = df.groupby(by=['zip5']).agg({'amount':'sum'})
     else:
-        cand_df = df[df[' MECID'] == mec_id]
-        zip_df = cand_df.groupby(by=['ZIP5']).agg({'Amount':'sum'})
+        cand_df = df[df['mec_id'] == mec_id]
+        zip_df = cand_df.groupby(by=['zip5']).agg({'amount':'sum'})
     zip_geojson_path = "data/geojson/stl-region-zip_rw.geojson"
     with open(zip_geojson_path) as read_file:
         zip_geojson_data = json.load(read_file)
 
     for feat in zip_geojson_data['features']:
         if feat['properties']['ZCTA5CE10'] in zip_df.index:
-            feat['properties']['Amount'] = zip_df.loc[feat['properties']['ZCTA5CE10']].Amount
+            feat['properties']['Amount'] = zip_df.loc[feat['properties']['ZCTA5CE10']].amount
         else:
             feat['properties']['Amount'] = 0
     return zip_geojson_data
