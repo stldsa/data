@@ -22,8 +22,8 @@ def get_side_panel_layout(candidates, df):
         children=[
             get_side_panel_header(),
             get_side_panel_intro(),
-            get_candidate_select(candidates),
             get_side_panel_form(candidates, df),
+            get_candidate_select(candidates),
             # side_panel_form,
             # info_panel,
             # get_expand_button(),

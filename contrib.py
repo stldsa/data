@@ -44,7 +44,7 @@ def base_candidate_fundraising_graph(candidates, mec_df):
     y_values = [ candidate.name for candidate in candidates ]
 
     
-    fig = px.bar(x=x_values, y=y_values, template="simple_white", labels={'x':'Candidate Fundraising'})
+    fig = px.bar(x=x_values, y=y_values, template="simple_white", labels={'x':'Candidate Fundraising','y':' '})
     # fig.update_layout(yaxis_tickangle=90)
     fig.update_traces(marker_color='rgb(140,190,224)', marker_line_color='rgb(8,47,107)',
                       marker_line_width=1.5, opacity=0.6)
@@ -52,7 +52,15 @@ def base_candidate_fundraising_graph(candidates, mec_df):
     fig.update_traces(hoverinfo="skip", hovertemplate='$%{x:.2s} <extra>%{y}</extra>')
     fig.update_layout(uniformtext_minsize=12, uniformtext_mode='show')
     fig.update_layout(title_text='Mayoral Candidate Fundraising (2020-2021)')
-    basic_graph = dcc.Graph(figure=fig, className="FundraisingBaseGraph", style={"width":"40vw"})
+    basic_graph = dcc.Graph(
+        id="fundraising-graph",
+        figure=fig, 
+        className="FundraisingBaseGraph", 
+        style={"width":"100%"},
+        config={
+            'staticPlot': True
+        }
+    )
 
     return basic_graph
 
