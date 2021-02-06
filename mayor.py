@@ -56,7 +56,8 @@ root_layout = html.Div(
     id='root',
     children=[
         mapping.get_side_panel_layout(candidates, mec_df),
-        mapping.get_map_panel_zip_layout()
+        mapping.get_map_panel_zip_layout(),
+        html.Div(id='float-box')
     ],
     style={"display": "flex", "flexDirection": "row", "margin": 0}
 )
@@ -64,14 +65,31 @@ root_layout = html.Div(
 app.layout = root_layout
 
 
-# @app.callback(
-#     [dash.dependencies.Output('panel-side', 'className')],
-#     [dash.dependencies.Input('expand-side-swith', 'value')])
-# def toggle_expand(value):
-#     if not value:
-#         return ["SidePanel_NotExpanded"]
-#     else:
-#         return ["SidePanel_Expanded"]
+@app.callback(
+    [dash.dependencies.Output('panel-side', 'className')],
+    [dash.dependencies.Input('expand-side-swith', 'value')])
+def toggle_expand(value):
+    if not value:
+        return ["SidePanel_NotExpanded"]
+    else:
+        return ["SidePanel_Expanded"]
+
+@app.callback(dash.dependencies.Output("float-box", "children"), [dash.dependencies.Input("zips-geojson", "hover_feature")])
+def zip_hover(feature):
+    if feature is not None:
+        return False
+
+@app.callback(
+    dash.dependencies.Output("candidate-select", "value"),
+    [dash.dependencies.Input("fundraising-graph", "clickData")]
+)
+def bar_click(clicked_data):
+    if clicked_data is not None:
+        # db.session.commit()
+        clicked_name = clicked_data['points'][0]['label']
+        candidate_row = db.session.query(Candidate).filter_by(name = clicked_name).first()
+        return candidate_row.mec_id
+
 
 @app.callback(
     dash.dependencies.Output("zips-geojson", "data"), 

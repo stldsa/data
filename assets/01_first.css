@@ -22,7 +22,7 @@ input[type="radio"]:checked+label {
 }
 
 .SidePanel_NotExpanded{
-	width: 40%;
+	width: 30%;
 }
 
 .SidePanel_Expanded{
