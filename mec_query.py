@@ -69,11 +69,11 @@ def insert_contributions(mec_df):
 
         contributor_name = "no name"
         if isinstance(row['Committee'], str):
-            contributor_name = str(row['Committee'])
+            contributor_name = row['Committee'].strip()
         elif isinstance(row['Company'], str):
-            contributor_name = str(row['Company'])
+            contributor_name = row['Company'].strip()
         elif isinstance(row['Last Name'], str):
-            contributor_name = str(row['First Name'])+str(" ")+str(row['Last Name'])
+            contributor_name = row['First Name'].strip()+str(" ")+row['Last Name'].strip()
 
         namezip = contributor_name+" "+row['ZIP5']
         if namezip not in contributor_dict:
@@ -103,3 +103,14 @@ def insert_contributions(mec_df):
 
 def get_all_contributions():
     return Contribution.query.all()
+
+def get_all_contributors():
+    contributors = Contributor.query.all()
+    return_contributors = []
+    for contributor in contributors:
+        total_contributions = 0
+        for contribution in contributor.contributions:
+            total_contributions = total_contributions+contribution.amount
+        return_contributors.append({"name":contributor.name, "zip5":contributor.zip5, "total_contribution":total_contributions})
+    return sorted(return_contributors, key=lambda contributor: contributor["total_contribution"])
+    

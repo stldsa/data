@@ -31,6 +31,7 @@ flake8 = "^3.8.4"
 pytest = "^6.2.0"
 requests-mock = {extras = ["fixture"], version = "^1.8.0"}
 python-dotenv = "^0.15.0"
+ipykernel = "^5.4.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
