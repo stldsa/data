@@ -11,7 +11,10 @@ import dash_html_components as html
 
 pd.options.plotting.backend = "plotly"
 
-def create_candidate_funds_bar_plot():
+def create_candidate_funds_bar_plot(candidates, mec_df):
+    cand_df = sum_funds_by_mecid(mec_df)
+    x_values = [ candidate.df.loc[candidate.mec_id]['amount'] for candidate in candidates ]
+    y_values = [ candidate.name for candidate in candidates ]
 
     bar_color = 'rgb(140,190,224)'
     bar_line_width = 1.5
