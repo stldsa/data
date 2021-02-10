@@ -1,10 +1,14 @@
-import os
+import os, json
 import dash
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
+import plotly.express as px
+
+import mapping
+import contrib
 
 load_dotenv()
 
@@ -16,6 +20,7 @@ db = SQLAlchemy(server)
 
 class Candidate(db.Model):
     name = db.Column(db.String, primary_key=True)
+    mec_id = db.Column(db.String(10), unique=True, nullable=False)
 
 
 db.create_all()
@@ -27,10 +32,38 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
 )
 candidates = Candidate.query.all()
-candidate_columns = [
-    dbc.Col(html.P(candidate.name), className="candidate") for candidate in candidates
-]
-app.layout = dbc.Row(id="candidates-row", children=candidate_columns)
+
+mec_ids = ['C201499', 'C201099', 'C201500', 'C211544']
+df = contrib.create_contribution_df(mec_ids)
+
+root_layout = html.Div(
+    id='root',
+    children=[
+        mapping.get_side_panel_layout(candidates, df),
+        mapping.get_map_panel_zip_layout()
+    ],
+    style={"display": "flex", "flexDirection": "row", "margin": 0}
+)
+
+app.layout = root_layout
+
+
+# @app.callback(
+#     [dash.dependencies.Output('panel-side', 'className')],
+#     [dash.dependencies.Input('expand-side-swith', 'value')])
+# def toggle_expand(value):
+#     if not value:
+#         return ["SidePanel_NotExpanded"]
+#     else:
+#         return ["SidePanel_Expanded"]
+
+@app.callback(
+    dash.dependencies.Output("zips-geojson", "data"), 
+    [dash.dependencies.Input("candidate-select", "value")])
+def display_choropleth(mec_id):
+    df = contrib.create_contribution_df(mec_ids)
+    zip_geojson_data = contrib.build_zip_amount_geojson(df, mec_id)
+    return zip_geojson_data
 
 if __name__ == "__main__":
     app.run_server(debug=True)
