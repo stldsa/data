@@ -15,7 +15,6 @@ import plotly.express as px
 
 # Currently used for handling candidates
 def get_side_panel_layout(candidates, df):
-
     side_panel_style={"height": "100vh", "flexShrink":0,
         "color": "black", "backgroundColor": "white", "borderRight": "8px solid red", "borderLeft": "8px solid red",
         "display":"flex", "flexDirection":"column", "justifyContent":"space-between", "alignItems":"center"}
@@ -23,11 +22,12 @@ def get_side_panel_layout(candidates, df):
         children=[
             get_side_panel_header(),
             get_side_panel_intro(),
-            get_candidate_select(candidates),
             get_side_panel_form(candidates, df),
+            get_candidate_select(candidates),
+            reset_selection_button(),
             # side_panel_form,
             # info_panel,
-            # get_expand_button(),
+            get_expand_button(),
             get_side_panel_footer()
         ],
         className='SidePanel_NotExpanded',
@@ -83,14 +83,18 @@ def get_candidate_select(candidates):
         labelStyle={'display': 'inline-block'},
         className='candidateSelect'
     )
-    return selection
+    return selection 
+
+def reset_selection_button():
+    reset_button = html.Button('Reset', id='reset-candidate-button')
+    return reset_button
 
 def get_side_panel_form(candidates, df):
     basic_graph = contrib.base_candidate_fundraising_graph(candidates, df)
     return html.Div(children=[
         basic_graph,
         html.Div(id='below-graph')
-    ])
+    ], style={'width':'100%'})
 
 def get_map_panel_zip_layout():
     classes = [0, 100, 500, 1000, 2000, 5000, 10000, 20000]
