@@ -11,23 +11,25 @@ import dash_bootstrap_components as dbc
 from dash_extensions.javascript import arrow_function, Namespace
 import dash_daq as daq
 
+import plotting
+
 import plotly.express as px
 
 # Currently used for handling candidates
 def get_side_panel_layout(candidates, df):
     side_panel_style={"height": "100vh", "flexShrink":0,
         "color": "black", "backgroundColor": "white", "borderRight": "8px solid red", "borderLeft": "8px solid red",
-        "display":"flex", "flexDirection":"column", "justifyContent":"space-between", "alignItems":"center"}
+        "display":"flex", "flexDirection":"column", "justifyContent":"flex-start", "alignItems":"center"}
     side_panel_layout = html.Div(
         children=[
             get_side_panel_header(),
             get_side_panel_intro(),
             get_side_panel_form(candidates, df),
-            get_candidate_select(candidates),
-            reset_selection_button(),
-            # side_panel_form,
+            # get_candidate_select(candidates),
+            # reset_selection_button(),
+            # side_panel_form,;
             # info_panel,
-            get_expand_button(),
+            # get_expand_button(),
             get_side_panel_footer()
         ],
         className='SidePanel_NotExpanded',
@@ -45,7 +47,7 @@ def get_side_panel_header():
     return side_panel_header
 
 def get_side_panel_intro():
-    side_panel_intro_style = {"padding":"12px", "fontSize":"1em", "lineHeight":"1.13em"}
+    side_panel_intro_style = {"padding":"40px 20px", "fontSize":"1em", "lineHeight":"1.13em"}
     stldsa_link_style = {"color":"red", "fontWeight":"bold", "font":"Roboto"}
     side_panel_intro = html.Div(children=[
         html.Strong("On March 2,"),
@@ -54,7 +56,9 @@ def get_side_panel_intro():
         html.A("St Louis DSA ", href="https://stldsa.org", style=stldsa_link_style),
         " is proud to provide this tool to the voters of St Louis. You can use the options below to view campaign contributions for our mayoral candidates. We hope that in democratizing access to this information, voters will be best able to decide who they would like to represent them.",
         html.Br(), html.Br(),
-        html.Em("Full disclosure: St Louis DSA has endorsed _________")
+        html.Strong("Hover over or click the bar graph below to get started:"),
+        # html.Br(), html.Br(),
+        # html.Em("Full disclosure: St Louis DSA has endorsed Megan Green for 15th Ward Alder.")
     ], style=side_panel_intro_style)
     return side_panel_intro
 
@@ -70,7 +74,7 @@ def get_side_panel_footer():
         html.Div("Labor donated by STL DSA tech committee"),
         html.A("[ Call to action to join DSA ]", href="https://dsausa.org/join", style={"color":"white","textDecoration":"italics"})
     ], style=side_panel_footer_box_style)
-    side_panel_footer_style = {"width":"100%", "color": "white", "backgroundColor": "red"}
+    side_panel_footer_style = {"width":"100%", "color": "white", "backgroundColor": "red", "align-self":"flex-end"}
     side_panel_footer = html.Div(children=side_panel_footer_box, style=side_panel_footer_style)
     return side_panel_footer
 
@@ -90,11 +94,8 @@ def reset_selection_button():
     return reset_button
 
 def get_side_panel_form(candidates, df):
-    basic_graph = contrib.base_candidate_fundraising_graph(candidates, df)
-    return html.Div(children=[
-        basic_graph,
-        html.Div(id='below-graph')
-    ], style={'width':'100%'})
+    return html.Div(children=[plotting.create_candidate_funds_bar_plot(candidates, df)],
+                    id="side-panel-form", style={'width':'100%', 'flexGrow': 4})
 
 def get_map_panel_zip_layout():
     classes = [0, 100, 500, 1000, 2000, 5000, 10000, 20000]

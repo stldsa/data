@@ -38,35 +38,6 @@ def sum_funds_by_zip(mec_df, mec_id=None):
         zip_df = cand_df.groupby(by=['zip5']).agg({'amount':'sum'})
     return zip_df
 
-def base_candidate_fundraising_graph(candidates, mec_df):
-    cand_df = sum_funds_by_mecid(mec_df)
-    x_values = [ cand_df.loc[candidate.mec_id]['amount'] for candidate in candidates ]
-    y_values = [ candidate.name for candidate in candidates ]
-
-    
-    fig = px.bar(x=x_values, y=y_values, template="simple_white", labels={'x':'Candidate Fundraising'})
-    fig.update_yaxes(visible=False, showticklabels=False, fixedrange=True)
-    fig.update_xaxes(fixedrange=True)
-    # fig.update_layout(yaxis_tickangle=90)
-    fig.update_traces(marker_color='rgb(140,190,224)', marker_line_color='rgb(8,47,107)',
-                      marker_line_width=1.5, opacity=0.6)
-    fig.update_traces(texttemplate='%{y} - $%{x:.3s}')
-    fig.update_traces(hoverinfo="skip", hovertemplate='$%{x:.2s} <extra>%{y}</extra>')
-    fig.update_layout(uniformtext_minsize=12, uniformtext_mode='show')
-    fig.update_layout(title_text='Mayoral Candidate Fundraising (2020-2021)')
-    basic_graph = dcc.Graph(
-        id="fundraising-graph",
-        figure=fig, 
-        className="FundraisingBaseGraph", 
-        style={"width":"100%"},
-        config={
-			'displayModeBar':False,
-            # 'staticPlot': True
-        }
-    )
-
-    return basic_graph
-
 def build_zip_amount_geojson(df, mec_id=None):
     if mec_id is None:
         zip_df = df.groupby(by=['zip5']).agg({'amount':'sum'})
