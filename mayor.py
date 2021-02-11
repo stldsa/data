@@ -10,7 +10,12 @@ import pandas as pd
 
 import mapping
 import contrib
-from mec_query import Candidate
+from mec_query import Candidate, Contribution, Contributor
+
+server = Flask(__name__)
+server.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+server.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db = SQLAlchemy(server)
 
 app = dash.Dash(
     __name__,
@@ -65,7 +70,9 @@ def bar_click(clicked_data):
     dash.dependencies.Output("zips-geojson", "data"), 
     [dash.dependencies.Input("candidate-select", "value")])
 def display_choropleth(mec_id):
-    mec_df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
+    contribution_df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
+    contributor_df = pd.read_sql(db.session.query(Contributor).statement, db.session.bind)
+    mec_df = contribution_df.merge(contributor_df, left_on="contributor_id", right_index=True)
     zip_geojson_data = contrib.build_zip_amount_geojson(mec_df, mec_id)
     return zip_geojson_data
 
