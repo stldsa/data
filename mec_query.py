@@ -2,6 +2,8 @@ import os
 import math
 import pandas as pd
 
+import dash_html_components as html
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
@@ -16,6 +18,7 @@ db = SQLAlchemy(server)
 class Candidate(db.Model):
     mec_id = db.Column(db.String, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String)
+    committee_name = db.Column(db.String)
 
 class Contributor(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -55,13 +58,19 @@ def clear_tables():
 
 def insert_contributions(mec_df):
     mec_col_name = ' MECID' # this column has a space in front for some reason
+    name_dict = { #FIXME: This is a shortcut for now
+        "Tishaura O. Jones for Mayor": "Tishaura Jones",
+        "Cara Spencer For Mayor": "Cara Spencer",
+        "Reed For St Louis": "Lewis Reed",
+        "Friends of Andrew Jones": "Andrew Jones"
+    }
     candidate_dict = {}
     contributor_dict = {}
     objects_to_insert = []
     for index, row in mec_df.iterrows():
 
         if row[mec_col_name] not in candidate_dict:
-            this_candidate = Candidate(name=row['Committee Name'], mec_id=row[mec_col_name])
+            this_candidate = Candidate(name=name_dict[row['Committee Name']], committee_name=row['Committee Name'], mec_id=row[mec_col_name])
             objects_to_insert.append(this_candidate)
             candidate_dict[row[mec_col_name]] = this_candidate
         else:
@@ -79,7 +88,6 @@ def insert_contributions(mec_df):
         if namezip not in contributor_dict:
             this_contributor = Contributor(name=contributor_name, zip5=row['ZIP5'])
             contributor_dict[namezip] = this_contributor
-            objects_to_insert.append(this_contributor)
         else:
             this_contributor = contributor_dict[namezip]
             
@@ -114,3 +122,19 @@ def get_all_contributors():
         return_contributors.append({"name":contributor.name, "zip5":contributor.zip5, "total_contribution":total_contributions})
     return sorted(return_contributors, key=lambda contributor: contributor["total_contribution"])
     
+def get_contribution_stats_for_candidate(candidate_name):
+    contributions = Contribution.query.filter(Contribution.candidate.has(name=candidate_name))
+    total_collected_monetary = 0
+    num_donations = 0
+    for contribution in contributions:
+        if contribution.contribution_type == "M":
+            total_collected_monetary = contribution.amount + total_collected_monetary
+            num_donations = 1 + num_donations
+    average_donation = total_collected_monetary / num_donations
+    stats = {
+        "total_collected":total_collected_monetary, 
+        "num_donations":num_donations, 
+        "average_donation":average_donation
+    }
+    print(stats)
+    return stats
