@@ -1,6 +1,7 @@
 import os
 import json
 import pandas as pd
+import geopandas as gpd
 import plotly.express as px 
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl 
@@ -8,6 +9,7 @@ import dash_leaflet.express as dlx
 import dash_core_components as dcc 
 import dash_html_components as html
 
+connection_url="postgresql://meagles:password@localhost:5432/dsadata"
 
 pd.options.plotting.backend = "plotly"
 
@@ -40,17 +42,12 @@ def sum_funds_by_zip(mec_df, mec_id=None):
 
 def build_zip_amount_geojson(df, mec_id=None):
     if mec_id is None:
-        zip_df = df.groupby(by=['zip5']).agg({'amount':'sum'})
+        zip_amount_df = df.groupby(by=['zip5']).agg({'amount':'sum'})
     else:
         cand_df = df[df['mec_id'] == mec_id]
-        zip_df = cand_df.groupby(by=['zip5']).agg({'amount':'sum'})
-    zip_geojson_path = "data/geojson/stl-region-zip_rw.geojson"
-    with open(zip_geojson_path) as read_file:
-        zip_geojson_data = json.load(read_file)
+        zip_amount_df = cand_df.groupby(by=['zip5']).agg({'amount':'sum'})
 
-    for feat in zip_geojson_data['features']:
-        if feat['properties']['ZCTA5CE10'] in zip_df.index:
-            feat['properties']['Amount'] = zip_df.loc[feat['properties']['ZCTA5CE10']].amount
-        else:
-            feat['properties']['Amount'] = 0
+    zip_gdf = gpd.read_postgis('SELECT * FROM zip_geojson', connection_url, geom_col="geometry")
+    zip_gdf = zip_gdf.merge(zip_amount_df, right_index=True, left_on="ZCTA5CE10")
+    zip_geojson_data = zip_gdf.to_json()
     return zip_geojson_data

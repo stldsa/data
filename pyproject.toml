@@ -24,6 +24,7 @@ python-dotenv = "^0.15.0"
 dash-daq = "^0.5.0"
 geojson-rewind = "^1.0.0"
 dash = "^1.19.0"
+GeoAlchemy2 = "^0.8.4"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
