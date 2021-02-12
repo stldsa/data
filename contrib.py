@@ -1,6 +1,7 @@
 import os
 import json
 import pandas as pd
+import geopandas as gpd
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
@@ -8,6 +9,7 @@ import dash_leaflet.express as dlx
 import dash_core_components as dcc
 import dash_html_components as html
 
+connection_url = "postgresql://meagles:password@localhost:5432/dsadata"
 
 pd.options.plotting.backend = "plotly"
 
