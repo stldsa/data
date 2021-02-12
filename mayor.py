@@ -25,17 +25,17 @@ app = dash.Dash(
 )
 candidates = Candidate.query.all()
 
-mec_ids = ['C201499', 'C201099', 'C201500', 'C211544']
+mec_ids = ["C201499", "C201099", "C201500", "C211544"]
 mec_df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
 
 root_layout = html.Div(
-    id='root',
+    id="root",
     children=[
         mapping.get_side_panel_layout(candidates, mec_df),
         mapping.get_map_panel_zip_layout(),
-        html.Div(id='float-box')
+        html.Div(id="float-box"),
     ],
-    style={"display": "flex", "flexDirection": "row", "margin": 0}
+    style={"display": "flex", "flexDirection": "row", "margin": 0},
 )
 
 app.layout = root_layout
@@ -55,37 +55,45 @@ app.layout = root_layout
 #     if feature is not None:
 #         return False
 
+
 @app.callback(
-    dash.dependencies.Output("side-panel-form", "children"), 
-    [dash.dependencies.Input("fundraising-graph", "clickData")]
+    dash.dependencies.Output("side-panel-form", "children"),
+    [dash.dependencies.Input("fundraising-graph", "clickData")],
 )
 def click_bar_graph(clicked_data):
     if clicked_data is not None:
-        clicked_name = clicked_data['points'][0]['label']
+        clicked_name = clicked_data["points"][0]["label"]
         return plotting.candidate_funding_details(clicked_name, mec_df)
     else:
         return plotting.create_candidate_funds_bar_plot(candidates, mec_df)
 
+
 @app.callback(
-    dash.dependencies.Output("zips-geojson", "data"), 
-    [dash.dependencies.Input("fundraising-graph", "hoverData")]
+    dash.dependencies.Output("zips-geojson", "data"),
+    [dash.dependencies.Input("fundraising-graph", "hoverData")],
 )
 def display_choropleth(hovered_data):
     if hovered_data is not None:
-        hovered_name = hovered_data['points'][0]['label']
-        candidate_row = db.session.query(Candidate).filter_by(name = hovered_name).first()
-        mec_id = candidate_row.mec_id 
+        hovered_name = hovered_data["points"][0]["label"]
+        candidate_row = db.session.query(Candidate).filter_by(name=hovered_name).first()
+        mec_id = candidate_row.mec_id
     else:
         mec_id = None
-    contribution_df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
-    contributor_df = pd.read_sql(db.session.query(Contributor).statement, db.session.bind)
-    mec_df = contribution_df.merge(contributor_df, left_on="contributor_id", right_index=True)
+    contribution_df = pd.read_sql(
+        db.session.query(Contribution).statement, db.session.bind
+    )
+    contributor_df = pd.read_sql(
+        db.session.query(Contributor).statement, db.session.bind
+    )
+    mec_df = contribution_df.merge(
+        contributor_df, left_on="contributor_id", right_index=True
+    )
     zip_geojson_data = contrib.build_zip_amount_geojson(mec_df, mec_id)
     return zip_geojson_data
 
 
 # @app.callback(
-#     dash.dependencies.Output("zips-geojson", "data"), 
+#     dash.dependencies.Output("zips-geojson", "data"),
 #     [dash.dependencies.Input("candidate-select", "value")])
 # def display_choropleth(mec_id):
 #     contribution_df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
