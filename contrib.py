@@ -1,10 +1,7 @@
 import os
 import json
 import pandas as pd
-<<<<<<< HEAD
-=======
 import geopandas as gpd
->>>>>>> cf08646f7fe15dc0c4a43c423d205d6a1194984d
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
