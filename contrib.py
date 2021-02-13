@@ -1,6 +1,10 @@
 import os
 import json
 import pandas as pd
+<<<<<<< HEAD
+=======
+import geopandas as gpd
+>>>>>>> cf08646f7fe15dc0c4a43c423d205d6a1194984d
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
@@ -8,6 +12,7 @@ import dash_leaflet.express as dlx
 import dash_core_components as dcc
 import dash_html_components as html
 
+connection_url = "postgresql://meagles:password@localhost:5432/dsadata"
 
 pd.options.plotting.backend = "plotly"
 
@@ -15,7 +20,9 @@ pd.options.plotting.backend = "plotly"
 def create_contribution_df(mec_ids):
     li = []
     for filename in os.listdir("data/mec"):
-        df = pd.read_csv("data/mec/" + filename, index_col=None, parse_dates=["Date"])
+        df = pd.read_csv(
+            "data/mec/" + filename, index_col=None, header=0, parse_dates=["Date"]
+        )
         df.loc[:, "ZIP5"] = df.loc[:, "Zip"].astype(str).str[:5]
         df = df[df[" MECID"].isin(mec_ids)]
         li.append(df)
