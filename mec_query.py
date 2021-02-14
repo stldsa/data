@@ -52,11 +52,16 @@ def build_mec_df(mec_ids):
     return frame
 
 def clear_tables():
-    db.drop_all()
+    Contribution.query.delete()
+    Candidate.query.delete()
+    Contributor.query.delete()
+    db.session.commit()
+
+def create_tables():
     db.create_all()
     db.session.commit()
 
-def insert_contributions(mec_df):
+def create_contributions(mec_df):
     mec_col_name = ' MECID' # this column has a space in front for some reason
     name_dict = { #FIXME: This is a shortcut for now
         "Tishaura O. Jones for Mayor": "Tishaura Jones",
@@ -66,13 +71,14 @@ def insert_contributions(mec_df):
     }
     candidate_dict = {}
     contributor_dict = {}
-    objects_to_insert = []
+    all_contributions = []
     for index, row in mec_df.iterrows():
 
         if row[mec_col_name] not in candidate_dict:
             this_candidate = Candidate(name=name_dict[row['Committee Name']], committee_name=row['Committee Name'], mec_id=row[mec_col_name])
-            objects_to_insert.append(this_candidate)
             candidate_dict[row[mec_col_name]] = this_candidate
+            db.session.add(this_candidate)
+            db.session.commit()
         else:
             this_candidate = candidate_dict[row[mec_col_name]]
 
@@ -88,6 +94,8 @@ def insert_contributions(mec_df):
         if namezip not in contributor_dict:
             this_contributor = Contributor(name=contributor_name, zip5=row['ZIP5'])
             contributor_dict[namezip] = this_contributor
+            db.session.add(this_contributor)
+            db.session.commit()
         else:
             this_contributor = contributor_dict[namezip]
             
@@ -99,14 +107,17 @@ def insert_contributions(mec_df):
         lat = None 
         lon = None
 
-        this_contribution = Contribution(candidate=this_candidate, 
-            contributor=this_contributor,
+        this_contribution = Contribution(candidate=this_candidate, mec_id=this_candidate.mec_id,
+            contributor=this_contributor, contributor_id=this_contributor.id,
             lat = lat, lon = lon,
             employer = row['Employer'], occupation = row['Occupation'], 
             date = row['Date'], amount = row['Amount'], 
             contribution_type = row['Contribution Type'], report = row['Report'])
-        db.session.add(this_contribution)
+        all_contributions.append(this_contribution)
+    return all_contributions
 
+def insert_contributions(contribution_objects):
+    db.session.bulk_save_objects(contribution_objects)
     db.session.commit()
 
 def get_all_contributions():

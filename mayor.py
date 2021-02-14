@@ -8,9 +8,12 @@ from dotenv import load_dotenv
 import plotly.express as px
 import pandas as pd
 
+from dash.dependencies import Output, Input
+
 import mapping
 import contrib
 import plotting
+
 from mec_query import Candidate, Contribution, Contributor
 
 server = Flask(__name__)
@@ -40,25 +43,9 @@ root_layout = html.Div(
 
 app.layout = root_layout
 
-
-# @app.callback(
-#     [dash.dependencies.Output('panel-side', 'className')],
-#     [dash.dependencies.Input('expand-side-switch', 'value')])
-# def toggle_expand(value):
-#     if not value:
-#         return ["SidePanel_NotExpanded"]
-#     else:
-#         return ["SidePanel_Expanded"]
-
-# @app.callback(dash.dependencies.Output("float-box", "children"), [dash.dependencies.Input("zips-geojson", "hover_feature")])
-# def zip_hover(feature):
-#     if feature is not None:
-#         return False
-
-
 @app.callback(
-    dash.dependencies.Output("side-panel-form", "children"),
-    [dash.dependencies.Input("fundraising-graph", "clickData")],
+    Output("side-panel-form", "children"),
+    [Input("fundraising-graph", "clickData")],
 )
 def click_bar_graph(clicked_data):
     if clicked_data is not None:
@@ -67,34 +54,44 @@ def click_bar_graph(clicked_data):
     else:
         return plotting.create_candidate_funds_bar_plot(candidates, mec_df)
 
+@app.callback(
+    Output("info-panel", 'children'), 
+    [Input("zips-geojson", "click_feature")])
+def zip_click(feature):
+    if feature is not None:
+        return f"You clicked {feature}"
 
 @app.callback(
-    dash.dependencies.Output("zips-geojson", "data"),
-    [dash.dependencies.Input("fundraising-graph", "hoverData")],
+    [Output("zips-geojson", "hideout")],
+    [Input("fundraising-graph", "hoverData")],
 )
 def display_choropleth(hovered_data):
     if hovered_data is not None:
         hovered_name = hovered_data["points"][0]["label"]
         candidate_row = db.session.query(Candidate).filter_by(name=hovered_name).first()
         mec_id = candidate_row.mec_id
+        color_prop = "mec_donation_"+mec_id
     else:
-        mec_id = None
-    contribution_df = pd.read_sql(
-        db.session.query(Contribution).statement, db.session.bind
-    )
-    contributor_df = pd.read_sql(
-        db.session.query(Contributor).statement, db.session.bind
-    )
-    mec_df = contribution_df.merge(
-        contributor_df, left_on="contributor_id", right_index=True
-    )
-    zip_geojson_data = contrib.build_zip_amount_geojson(mec_df, mec_id)
-    return zip_geojson_data
+        color_prop = "total_mayor_donations"
+    hideout = dict(colorscale=mapping.fundraising_colorscale, classes=mapping.fundraising_classes, style=mapping.fundraising_style, colorProp=color_prop)
+    return [hideout]
+    
+    # contribution_df = pd.read_sql(
+    #     db.session.query(Contribution).statement, db.session.bind
+    # )
+    # contributor_df = pd.read_sql(
+    #     db.session.query(Contributor).statement, db.session.bind
+    # )
+    # mec_df = contribution_df.merge(
+    #     contributor_df, left_on="contributor_id", right_index=True
+    # )
+    # zip_geojson_data = contrib.build_zip_amount_geojson(mec_df, mec_id)
+    # return zip_geojson_data
 
 
 # @app.callback(
-#     dash.dependencies.Output("zips-geojson", "data"),
-#     [dash.dependencies.Input("candidate-select", "value")])
+#     Output("zips-geojson", "data"),
+#     [Input("candidate-select", "value")])
 # def display_choropleth(mec_id):
 #     contribution_df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
 #     contributor_df = pd.read_sql(db.session.query(Contributor).statement, db.session.bind)

@@ -25,6 +25,7 @@ dash-daq = "^0.5.0"
 geojson-rewind = "^1.0.0"
 dash = "^1.19.0"
 psycopg2 = "^2.8.6"
+geobuf = "^1.1.1"
 
 
 [tool.poetry.dev-dependencies]
