@@ -1,5 +1,6 @@
 body {
 	margin: 0;
+	background-color: red;
 	font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
@@ -21,10 +22,21 @@ input[type="radio"]:checked+label {
 	font-weight: bold; 
 }
 
-.SidePanel_NotExpanded{
-	width: 30%;
+#floatbox {
+	width:400px;
+	height:150px;
+	background-color: white;
+	padding:5px;
+	/* overflow-y: scroll; */
+	position: absolute;
+	right:20px;
+	top:20px;
+	z-index: 9999;
 }
 
-.SidePanel_Expanded{
-	width: 80%;
+.remove-padding {
+	padding-left: 0 !important; 
+	padding-right: 0 !important; 
+	margin-left: 0 !important; 
+	margin-right: 0 !important; 
 }

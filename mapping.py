@@ -58,8 +58,7 @@ def get_side_panel_layout(candidates, df):
             get_side_panel_form(candidates, df),
             # get_candidate_select(candidates),
             # reset_selection_button(),
-            # side_panel_form,;
-            html.Div(id='info-panel'),
+            # side_panel_form,
             # get_expand_button(),
             get_side_panel_footer(),
         ],
@@ -191,7 +190,7 @@ def get_map_panel_zip_layout():
         options=dict(style=ns("style")),  # how to style each polygon
         # options=dict(style=dict(color="blue")),
         zoomToBounds=False,  # when true, zooms to bounds when data changes (e.g. on load)
-        zoomToBoundsOnClick=True,  # when true, zooms to bounds of feature (e.g. polygon) on click
+        zoomToBoundsOnClick=False,  # when true, zooms to bounds of feature (e.g. polygon) on click
         hoverStyle=arrow_function(
             dict(weight=5, color="#666", dashArray="")
         ),  # style applied on hover
@@ -213,7 +212,7 @@ def get_map_panel_zip_layout():
         id="map",
     )
     map_panel_style = {"width": "100%", "height": "100vh", "display": "block"}
-    map_panel = html.Div(id="map-panel", children=city_map, style=map_panel_style)
+    map_panel = html.Div(id="map-panel", children=[city_map, html.Div(id="floatbox-holder")], style=map_panel_style)
     return map_panel
 
 

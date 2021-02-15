@@ -36,7 +36,7 @@ root_layout = html.Div(
     children=[
         mapping.get_side_panel_layout(candidates, mec_df),
         mapping.get_map_panel_zip_layout(),
-        html.Div(id="float-box"),
+        html.Div(id="floatbox-holder")
     ],
     style={"display": "flex", "flexDirection": "row", "margin": 0},
 )
@@ -45,7 +45,7 @@ app.layout = root_layout
 
 @app.callback(
     Output("side-panel-form", "children"),
-    [Input("fundraising-graph", "clickData")],
+    [Input("fundraising-graph", "clickData"), Input("close-floatbox", "click")],
 )
 def click_bar_graph(clicked_data):
     if clicked_data is not None:
@@ -55,11 +55,17 @@ def click_bar_graph(clicked_data):
         return plotting.create_candidate_funds_bar_plot(candidates, mec_df)
 
 @app.callback(
-    Output("info-panel", 'children'), 
+    Output("floatbox-holder", 'children'), 
     [Input("zips-geojson", "click_feature")])
 def zip_click(feature):
     if feature is not None:
-        return f"You clicked {feature}"
+        return [html.Div([
+            f"ZIP Code {feature['properties']['ZCTA5CE10']}",
+            html.Br(),
+            f"Total funds contributed for Mayor's race: {str(feature['properties']['total_mayor_donations'])}"
+        ], id='floatbox')]
+    else:
+        return None
 
 @app.callback(
     [Output("zips-geojson", "hideout")],
