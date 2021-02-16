@@ -14,7 +14,7 @@ mec_query.create_tables()
 contributions = mec_query.create_contributions(mec_df)
 mec_query.insert_contributions(contributions)
 
-from mayor import db, Candidate, Contribution, Contributor
+from app import db, Candidate, Contribution, Contributor
 contribution_df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
 contributor_df = pd.read_sql(db.session.query(Contributor).statement, db.session.bind)
 mec_df = contribution_df.merge(contributor_df, left_index=True, right_index=True)
