@@ -22,9 +22,17 @@ input[type="radio"]:checked+label {
 	font-weight: bold; 
 }
 
+.displayNone {
+	display: none;
+}
+
+.displayBlock {
+	display: block;
+}
+
 #floatbox {
 	width:400px;
-	height:150px;
+	max-height:20vh;
 	background-color: white;
 	padding:5px;
 	/* overflow-y: scroll; */
