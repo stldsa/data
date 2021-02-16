@@ -123,7 +123,7 @@ def get_candidate_info_card(candidate):
 			dbc.CardBody([
 				dbc.Row([
 					dbc.Col(["Total # of Donations:", html.Br(), str(donation_stats["num_donations"])]),
-					dbc.Col(["Average Donation:", html.Br(), locale.currency(donation_stats["average_donation"], grouping=True)]),
+					dbc.Col(["Mean Donation:", html.Br(), locale.currency(donation_stats["average_donation"], grouping=True)]),
 					dbc.Col(["Histogram (?)", html.Br(), "other info?"])
 				])
 			])
@@ -196,11 +196,11 @@ def get_sidebar_layout(db):
 
 def get_zip_click_card(feature):
 	header_style = {"fontSize":"1.5em", "fontWeight":"bold"}
-	
+
 	if feature is not None:
 		header_text = html.Span(f"ZIP Code {feature['properties']['ZCTA5CE10']}", style=header_style)
 		body_contents = [
-			html.Strong("Total funds contributed for Mayor's race: "),
+			html.Strong("Total funds contributed for Mayor's race (all candidates): "),
 			html.Span(locale.currency( feature['properties']['total_mayor_donations'], grouping=True))
 		]
 	else: 
