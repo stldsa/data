@@ -38,8 +38,7 @@ def reset_selection_button():
     reset_button = html.Button("Reset", id="reset-candidate-button")
     return reset_button
 
-
-def get_map_panel_zip_layout():
+def get_colorbar():
     colorbar = dlx.categorical_colorbar(
         id="colorbar",
         categories=bootstrap_stuff.fundraising_ctg,
@@ -48,6 +47,10 @@ def get_map_panel_zip_layout():
         height=30,
         position="bottomright",
     )
+    return colorbar
+
+def get_map_panel_zip_layout():
+    colorbar = get_colorbar()
 
     ns = Namespace("dlx", "choropleth")
     zip_geojson = dl.GeoJSON(
@@ -86,14 +89,14 @@ def get_map_panel_zip_layout():
 
 def get_precinct_overlay():
     # original file was wrong hand rule, whis one was rewound with geojson-rewind:
-    precinct_geojson_path = "data/geojson/stl-city/precincts_rw.geojson"
-    with open(precinct_geojson_path) as read_file:
-        precinct_geojson = json.load(read_file)
+    precinct_pbf_url = "/static/geobuf/stl-city-precincts.pbf"
+    ns = Namespace("dlx", "choropleth")
     precincts = dl.GeoJSON(
-        data=precinct_geojson,
-        options=dict(style=dict(color="blue", fillOpacity=0.5)),
+        url=precinct_pbf_url, format="geobuf",
+        options=dict(style=ns("style")),
         zoomToBoundsOnClick=True,
         hoverStyle=arrow_function(dict(weight=4, fillOpacity=0.2, dashArray="")),
+        hideout=bootstrap_stuff.build_choropleth_hideout("total_donations"),
         id="precincts-geojson",
     )
     precinct_overlay = dl.Overlay(precincts, name="precincts", checked=False)

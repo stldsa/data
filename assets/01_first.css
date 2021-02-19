@@ -34,8 +34,9 @@ input[type="radio"]:checked+label {
 	width:400px;
 	max-height:20vh;
 	background-color: white;
+	color:black;
 	padding:5px;
-	/* overflow-y: scroll; */
+	overflow-y: scroll;
 	position: absolute;
 	right:20px;
 	top:20px;

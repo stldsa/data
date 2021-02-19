@@ -19,7 +19,11 @@ def create_candidate_funds_bar_plot(candidates, mec_df):
     y_values = []
 
     for candidate in candidates:
-        x_values.append(cand_df.loc[candidate.mec_id]['amount'])
+        if candidate.mec_id in cand_df.index:
+            candidate_total = cand_df.loc[candidate.mec_id]['amount']
+        else:
+            candidate_total = 0
+        x_values.append(candidate_total)
         y_values.append(candidate.name)
 
     bar_color = ['rgb(140,190,224)', 'rgb(22,252,21)', 'rgb(120,10,224)', 'rgb(40,90,24)']
@@ -40,7 +44,7 @@ def create_candidate_funds_bar_plot(candidates, mec_df):
     fig.update_traces(hovertemplate='$%{x:.2s} <extra>%{y}</extra>')
 
     fig.update_layout(uniformtext_minsize=12, uniformtext_mode='show')
-    fig.update_layout(title_text='Mayoral Candidate Fundraising (2020-2021)')
+    fig.update_layout(title_text='Mayoral Candidate Fundraising')
 
     basic_graph = dcc.Graph(
         id="fundraising-graph",
