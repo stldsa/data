@@ -100,6 +100,7 @@ def get_side_panel_layout(candidates, df):
             get_side_panel_header(),
             get_side_panel_intro(),
             get_side_panel_form(candidates, df),
+            html.Div(id="testingDiv"),
             # get_candidate_select(candidates),
             # reset_selection_button(),
             # side_panel_form,
@@ -187,12 +188,21 @@ def get_sidebar_layout(db):
 				width=4
 			),
 			dbc.Col(
-				mapping.get_map_panel_zip_layout(), 
+				mapping.get_map_panel_layout(), 
 				width=8
 			)
 		], 
 		no_gutters=True)
 	], fluid=True, className="remove-padding")
+
+def get_floatbox_card_contents(id_suffix, header_text="", body_contents=[]):
+    header_style = {"fontSize":"1.5em", "fontWeight":"bold"}
+    header_span = html.Span(header_text, style=header_style)
+    close_card_button = dbc.Button(" X ", outline=True, color="danger", id="card-box-close-"+id_suffix, style={"float":"right"})
+    return [
+        dbc.CardHeader([header_span, close_card_button]),
+        dbc.CardBody(body_contents)
+    ]
 
 def get_zip_click_card(feature):
 	header_style = {"fontSize":"1.5em", "fontWeight":"bold"}

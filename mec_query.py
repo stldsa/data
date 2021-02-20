@@ -184,5 +184,4 @@ def get_contribution_stats_for_candidate(candidate_name):
         "num_donations":num_donations, 
         "average_donation":average_donation
     }
-    print(stats)
     return stats
