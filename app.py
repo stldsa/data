@@ -132,5 +132,28 @@ def precinct_click(feature, n_clicks):
 
     return [ card_contents, class_name ]
 
+@app.callback(
+    [Output("floatbox-zip", "children"), Output("floatbox-zip", "className")],
+    [Input("zip-geojson", "click_feature"), Input("card-box-close-zip", "n_clicks")]
+)
+def zip_click(feature, n_clicks):
+    class_name = "displayNone"
+    header_text = "Error"
+    card_contents = bootstrap_stuff.get_floatbox_card_contents("zip")
+    
+    if feature: 
+        header_text = f"ZIP Code {feature['properties']['ZCTA5CE10']}"
+        body_contents = [
+            html.Strong("Total monetary donations: "),
+            html.Span(locale.currency(feature["properties"]["total_monetary_donations"], grouping=True))
+        ]
+        class_name = "floatbox"
+        card_contents = bootstrap_stuff.get_floatbox_card_contents("zip", header_text, body_contents)
+    
+    if n_clicks: 
+        class_name = "displayNone"
+
+    return [ card_contents, class_name ]
+
 if __name__ == "__main__":
     app.run_server(debug=True)

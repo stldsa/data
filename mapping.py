@@ -16,12 +16,9 @@ import bootstrap_stuff
 
 import plotly.express as px
 
-
 def get_expand_button():
     expand_button = daq.ToggleSwitch(size=50, id="expand-side-swith")
     return expand_button
-
-
 
 def get_candidate_select(candidates):
     selection = dcc.RadioItems(
@@ -61,7 +58,7 @@ def get_zip_geojson():
         hoverStyle=arrow_function(
             dict(weight=5, color="#666", dashArray="")
         ), 
-        hideout=bootstrap_stuff.build_choropleth_hideout("total_mayoral_donations"),
+        hideout=bootstrap_stuff.build_choropleth_hideout("total_monetary_donations"),
         id="zip-geojson",
     )
     return zip_geojson

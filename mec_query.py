@@ -121,7 +121,6 @@ def create_contributions(mec_df):
 
 def build_donation_pbf_from_geojson(contribution_gdf, mec_ids, polygons_geojson_path, output_geobuf_path):
     polygons = gpd.read_file(polygons_geojson_path)
-
     for index, polygon in polygons.iterrows():
         total_monetary_donations = 0
         total_nonmonetary_donations = 0
