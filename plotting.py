@@ -46,6 +46,7 @@ def create_candidate_funds_bar_plot(df):
 
     fig.update_layout(uniformtext_minsize=12, uniformtext_mode="show")
     fig.update_layout(title_text="Mayoral Candidate Fundraising")
+    fig.update_yaxes(categoryorder="total ascending")
 
     return fig
 
