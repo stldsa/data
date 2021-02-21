@@ -6,4 +6,4 @@ from dotenv import load_dotenv
 load_dotenv()
 
 db = SQLAlchemy()
-engine = create_engine(os.getenv("DB_URL"))
+engine = create_engine(os.getenv("DATABASE_URL"))
