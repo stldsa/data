@@ -35,5 +35,5 @@ def _db(app):
 
 
 @pytest.fixture(scope="session")
-def lyda():
-    return Candidate(name="Lyda Krewson")
+def tishaura():
+    return Candidate(name="Tishaura Jones")
