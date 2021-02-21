@@ -7,7 +7,7 @@ license = "GPL"
 
 [tool.poetry.dependencies]
 python = "3.9.1"
-dash-leaflet = "^0.1.8"
+dash-leaflet = "^0.1.13rc1"
 pandas = "^1.1.4"
 geopandas = "^0.8.1"
 jupyterlab = "^2.2.9"
@@ -25,6 +25,7 @@ dash-daq = "^0.5.0"
 geojson-rewind = "^1.0.0"
 dash = "^1.19.0"
 psycopg2 = "^2.8.6"
+geobuf = "^1.1.1"
 
 
 [tool.poetry.dev-dependencies]
@@ -35,6 +36,10 @@ requests-mock = {extras = ["fixture"], version = "^1.8.0"}
 python-dotenv = "^0.15.0"
 ipykernel = "^5.4.3"
 ipywidgets = ">=7.5"
+matplotlib = "^3.3.4"
+descartes = "^1.1.0"
+jupyter-dash = "^0.4.0"
+jupyterlab-dash = "^0.1.0-alpha.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

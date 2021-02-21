@@ -1,7 +1,10 @@
 import os 
 import math
+import json
+import numpy as np
 import pandas as pd
-
+import geopandas as gpd
+import geobuf
 import dash_html_components as html
 
 from flask import Flask
@@ -52,11 +55,16 @@ def build_mec_df(mec_ids):
     return frame
 
 def clear_tables():
-    db.drop_all()
+    Contribution.query.delete()
+    Candidate.query.delete()
+    Contributor.query.delete()
+    db.session.commit()
+
+def create_tables():
     db.create_all()
     db.session.commit()
 
-def insert_contributions(mec_df):
+def create_contributions(mec_df):
     mec_col_name = ' MECID' # this column has a space in front for some reason
     name_dict = { #FIXME: This is a shortcut for now
         "Tishaura O. Jones for Mayor": "Tishaura Jones",
@@ -66,13 +74,14 @@ def insert_contributions(mec_df):
     }
     candidate_dict = {}
     contributor_dict = {}
-    objects_to_insert = []
+    all_contributions = []
     for index, row in mec_df.iterrows():
 
         if row[mec_col_name] not in candidate_dict:
             this_candidate = Candidate(name=name_dict[row['Committee Name']], committee_name=row['Committee Name'], mec_id=row[mec_col_name])
-            objects_to_insert.append(this_candidate)
             candidate_dict[row[mec_col_name]] = this_candidate
+            db.session.add(this_candidate)
+            db.session.commit()
         else:
             this_candidate = candidate_dict[row[mec_col_name]]
 
@@ -88,25 +97,64 @@ def insert_contributions(mec_df):
         if namezip not in contributor_dict:
             this_contributor = Contributor(name=contributor_name, zip5=row['ZIP5'])
             contributor_dict[namezip] = this_contributor
+            db.session.add(this_contributor)
+            db.session.commit()
         else:
             this_contributor = contributor_dict[namezip]
             
             
-        # if row['Latitude'] and row['Longitude']:
-        #     lat = row['Latitude']
-        #     lon = row['Longitude']
-        # else:
-        lat = None 
-        lon = None
+        if row['Latitude'] and row['Longitude']:
+            lat = row['Latitude']
+            lon = row['Longitude']
+        else:
+            lat = None 
+            lon = None
 
-        this_contribution = Contribution(candidate=this_candidate, 
-            contributor=this_contributor,
+        this_contribution = Contribution(candidate=this_candidate, mec_id=this_candidate.mec_id,
+            contributor=this_contributor, contributor_id=this_contributor.id,
             lat = lat, lon = lon,
             employer = row['Employer'], occupation = row['Occupation'], 
             date = row['Date'], amount = row['Amount'], 
             contribution_type = row['Contribution Type'], report = row['Report'])
-        db.session.add(this_contribution)
+        all_contributions.append(this_contribution)
+    return all_contributions
 
+def build_donation_pbf_from_geojson(contribution_gdf, mec_ids, polygons_geojson_path, output_geobuf_path):
+    polygons = gpd.read_file(polygons_geojson_path)
+
+    for index, polygon in polygons.iterrows():
+        total_monetary_donations = 0
+        total_nonmonetary_donations = 0
+        candidate_donations = {}
+        pip = contribution_gdf.within(polygon.geometry)
+        for j, row in contribution_gdf[pip].iterrows():
+            # Each iteration here is a contribution inside of this polygon's geometry:
+            if row.contribution_type == "M":
+                total_monetary_donations = total_monetary_donations + row.amount 
+                if row.mec_id in mec_ids:
+                    if row.mec_id not in candidate_donations:
+                        candidate_donations[row.mec_id] = 0
+                    candidate_donations[row.mec_id] = candidate_donations[row.mec_id] + row.amount 
+            else:
+                total_nonmonetary_donations = total_nonmonetary_donations + row.amount
+        polygons.loc[index, "total_monetary_donations"] = total_monetary_donations
+        polygons.loc[index, "total_nonmonetary_donations"] = total_nonmonetary_donations
+
+        for mec_id in mec_ids:
+            if mec_id in candidate_donations and candidate_donations[mec_id] > 0:
+                this_candidate_donations = candidate_donations[mec_id]
+            else:
+                this_candidate_donations = np.nan
+            polygons.loc[index, "mec_donations_"+mec_id] = this_candidate_donations
+
+    polygons_json = polygons.to_json()
+    polygon_geojson_data = json.loads(polygons_json)
+    pbf = geobuf.encode(polygon_geojson_data)
+    with open(output_geobuf_path, "wb") as write_file:
+        write_file.write(pbf)
+
+def insert_contributions(contribution_objects):
+    db.session.bulk_save_objects(contribution_objects)
     db.session.commit()
 
 def get_all_contributions():
@@ -136,5 +184,4 @@ def get_contribution_stats_for_candidate(candidate_name):
         "num_donations":num_donations, 
         "average_donation":average_donation
     }
-    print(stats)
     return stats
