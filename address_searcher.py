@@ -24,7 +24,7 @@ if __name__ == '__main__':
     # first line is column header
     column_names = data[0].replace('\n', '').split(',')
     results = []
-    results.append(data[0] + "Latitude,Longitude")
+    results.append(data[0].replace('\n', '') + "Latitude,Longitude")
     data = data[1:]
     state_counts = {} 
     state_amounts = {}
@@ -52,7 +52,7 @@ if __name__ == '__main__':
             res = search_address(full_address)
             if len(res) == 2:
                 lat, lon = res
-                results.append("{},{},{}".format(line, lat, lon))
-            results.append("{},,".format(line))
+                results.append("{},{},{}".format(line.replace("\n", ''), lat, lon))
+            results.append("{},,".format(line.replace("\n", '')))
     with open('results.csv', 'w') as file:
         file.write('\n'.join(results))
