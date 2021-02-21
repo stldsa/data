@@ -45,8 +45,8 @@ class Contribution(db.Model):
 
 def build_mec_df(mec_ids):
     li = []
-    for filename in os.listdir('data/mec'):
-        df = pd.read_csv('data/mec/' + filename, index_col=None, header=0, parse_dates=['Date'])
+    for filename in os.listdir('data/mec_geocoded'):
+        df = pd.read_csv('data/mec_geocoded/' + filename, index_col=None, header=0, parse_dates=['Date'])
         df.loc[:, 'ZIP5'] = df.loc[:, 'Zip'].astype(str).str[:5]
         df.loc[:, 'MECID'] = df.loc[:, ' MECID']
         df = df[df['MECID'].isin(mec_ids)]
