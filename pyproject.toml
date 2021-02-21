@@ -43,6 +43,7 @@ jupyterlab-dash = "^0.1.0-alpha.3"
 selenium = "^3.141.0"
 dash = {extras = ["testing"], version = "^1.19.0"}
 pytest-selenium = "^2.0.1"
+pytest-flask-sqlalchemy = "^1.0.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

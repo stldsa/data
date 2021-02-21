@@ -60,7 +60,7 @@ app.layout = get_sidebar_layout(db)
     [State("candidate_info_collapse", "is_open")],
 )
 def toggle_collapse(clicked_data, is_open):
-    if clicked_data is not None:
+    if clicked_data:
         candidate_row = (
             db.session.query(Candidate)
             .filter_by(name=clicked_data["points"][0]["label"])
