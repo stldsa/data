@@ -1,3 +1,4 @@
+import csv
 import pprint
 import requests
 import sys
@@ -19,30 +20,28 @@ if __name__ == '__main__':
         print('Usage: address_searcher.py <filename>')
         sys.exit(1)
     (_, file_name) = sys.argv
-    with open(file_name, 'r') as file:
-        data = file.readlines()
+    with open(file_name, newline='') as file:
+        data = []
+        reader = csv.reader(file, delimiter=',', quotechar='"')
+        for line in reader:
+            data.append(line)
     # first line is column header
-    column_names = data[0].replace('\n', '').split(',')
+    column_names = data[0]
+    column_names.append("Latitude")
+    column_names.append("Longitude")
     results = []
-    results.append(data[0].replace('\n', '') + "Latitude,Longitude")
+    results.append(column_names)
     data = data[1:]
     state_counts = {} 
     state_amounts = {}
     for line in data:
-        split_line = line.split(',')
-        address_data = split_line[7:12]
-        amount = float(split_line[-3])
+        address_data = line[7:12]
+        amount = float(line[-3])
         state = address_data[3]
-        if len(state) > 2:
-            state = address_data[4]
-            if len(state) > 2:
-                # only 4 cases of this, plus one super jacked up case
-                state = split_line[2]
-                if len(state) > 2:
-                    # TODO: fix the lines that causes this case to be executed at all
-                    continue
-        elif len(state) > 2 or len(state) <= 0:
+        if len(state) > 2 or len(state) <= 0:
             # TODO: State data not found here, fix these cases
+            print("THIS SHOULDN'T HAPPEN")
+            sys.exit()
             continue
         if state == 'MP':
             # TODO: this is a singular typo, fix in data
@@ -52,7 +51,11 @@ if __name__ == '__main__':
             res = search_address(full_address)
             if len(res) == 2:
                 lat, lon = res
-                results.append("{},{},{}".format(line.replace("\n", ''), lat, lon))
-            results.append("{},,".format(line.replace("\n", '')))
-    with open('results.csv', 'w') as file:
-        file.write('\n'.join(results))
+                line.append(lat)
+                line.append(lon)
+            line = [str(x) for x in line]
+            results.append(line)
+    with open('results.csv', 'w', newline='') as file:
+        writer = csv.writer(file, delimiter=',', quotechar='"')
+        for line in results:
+            writer.writerow(line)
