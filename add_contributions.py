@@ -28,7 +28,7 @@ mec_gdf = mec_gdf.set_crs(epsg=4326)
 
 zip_geojson_path = "data/geojson/stl-region-zip_rw.geojson"
 zip_geobuf_path = "static/geobuf/stl-region-zip.pbf"
-mec_query.build_donation_pbf_from_geojson(mec_gdf, mayor_mec_ids, zip_geojson_path, zip_geobuf_path)
+mec_query.build_zip_donation_pbf_from_geojson(mec_df, mayor_mec_ids, zip_geojson_path, zip_geobuf_path)
 
 precincts_geojson_path = "data/geojson/stl-city/precincts_rw.geojson"
 precincts_geobuf_path = "static/geobuf/stl-city-precincts.pbf"

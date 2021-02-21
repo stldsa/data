@@ -46,12 +46,19 @@ class Contribution(db.Model):
 def build_mec_df(mec_ids):
     li = []
     for filename in os.listdir('data/mec_geocoded'):
-        df = pd.read_csv('data/mec_geocoded/' + filename, index_col=None, header=0, parse_dates=['Date'])
+        df_geocoded = pd.read_csv('data/mec_geocoded/' + filename, header=0, parse_dates=['Date'])
+        # this is hacky but I'm doing this to make sure we don't miss non-geocoded rows: we should adjust geocode to not lose those rows
+        df_nogeocode = pd.read_csv('data/mec/' + filename, header=0, parse_dates=['Date'])
+        if len(df_geocoded.index) < len(df_nogeocode.index): 
+            df = pd.concat([df_geocoded, df_nogeocode])
+            df = df.drop_duplicates(subset=["CD1_A ID"]).reset_index(drop=True)
+        else:
+            df = df_geocoded
         df.loc[:, 'ZIP5'] = df.loc[:, 'Zip'].astype(str).str[:5]
         df.loc[:, 'MECID'] = df.loc[:, ' MECID']
         df = df[df['MECID'].isin(mec_ids)]
         li.append(df)
-    frame = pd.concat(li, axis=0, ignore_index=True)
+    frame = pd.concat(li, verify_integrity=True)
     return frame
 
 def clear_tables():
@@ -118,6 +125,32 @@ def create_contributions(mec_df):
             contribution_type = row['Contribution Type'], report = row['Report'])
         all_contributions.append(this_contribution)
     return all_contributions
+
+# This is like the function below, but we don't need to geocode zips
+def build_zip_donation_pbf_from_geojson(contribution_df, mec_ids, polygons_geojson_data, output_geobuf_path):
+    polygons = gpd.read_file(polygons_geojson_data)
+    zip_df = contribution_df.groupby(by=["zip5", "mec_id"]).agg({"amount": "sum"})
+    zip_total_df = contribution_df.groupby(by=["zip5"]).agg({"amount": "sum"})
+    for index, polygon in polygons.iterrows():
+        this_zip = polygon.ZCTA5CE10
+        if this_zip in zip_df.index:
+            mec_donations = zip_df.loc[this_zip].to_dict()
+            for mec_id in mec_ids:
+                if mec_id in mec_donations["amount"]:
+                    this_candidate_donations = mec_donations["amount"][mec_id]
+                else:
+                    this_candidate_donations = 0
+                polygons.loc[index, "mec_donations_"+mec_id] = this_candidate_donations
+            total_monetary_donations = zip_total_df.loc[this_zip].amount
+        else:
+            total_monetary_donations = 0
+        polygons.loc[index, "total_monetary_donations"] = total_monetary_donations
+
+    polygons_json = polygons.to_json()
+    polygon_geojson_data = json.loads(polygons_json)
+    pbf = geobuf.encode(polygon_geojson_data)
+    with open(output_geobuf_path, "wb") as write_file:
+        write_file.write(pbf)
 
 def build_donation_pbf_from_geojson(contribution_gdf, mec_ids, polygons_geojson_path, output_geobuf_path):
     polygons = gpd.read_file(polygons_geojson_path)

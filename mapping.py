@@ -177,7 +177,7 @@ def get_zip_overlay(mec_df, candidate):
 
 def get_base_toner_tile_layer():
     # 	Base tile layer
-    url = "http://{s}.tile.stamen.com/toner-background/{z}/{x}/{y}.png"
+    url = "http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png"
     attribution = (
         'Map tiles by <a href="http://stamen.com">Stamen Design</a>, '
         'under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
