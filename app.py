@@ -18,7 +18,8 @@ from mec_query import Candidate, Contribution, Contributor
 from bootstrap_stuff import get_sidebar_layout, get_zip_click_card
 
 import locale
-locale.setlocale( locale.LC_ALL, 'en_US.UTF-8' )
+
+locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
 load_dotenv()
 
@@ -64,19 +65,29 @@ app.layout = get_sidebar_layout(db)
 #     hideout = bootstrap_stuff.build_choropleth_hideout("total_mayor_donations")
 #     return (False, [], hideout)
 
-@app.callback(
-    Output("testingDiv", "children"),
-    [Input("geojson-layer-control", "baseLayer")]
-)
-def layer_change(base_layer):
-    return "You are viewing contributions from each "+base_layer
 
 @app.callback(
-    [Output("geojson-layer-control", "baseLayer"), Output("precinct-button", "active"), Output("neighborhood-button", "active"), Output("zip-button", "active")],
-    [Input("precinct-button", "n_clicks"), Input("neighborhood-button", "n_clicks"), Input("zip-button", "n_clicks")]
+    Output("testingDiv", "children"), [Input("geojson-layer-control", "baseLayer")]
+)
+def layer_change(base_layer):
+    return "You are viewing contributions from each " + base_layer
+
+
+@app.callback(
+    [
+        Output("geojson-layer-control", "baseLayer"),
+        Output("precinct-button", "active"),
+        Output("neighborhood-button", "active"),
+        Output("zip-button", "active"),
+    ],
+    [
+        Input("precinct-button", "n_clicks"),
+        Input("neighborhood-button", "n_clicks"),
+        Input("zip-button", "n_clicks"),
+    ],
 )
 def layer_button_click(precinct_clicks, neighborhood_clicks, zip_clicks):
-    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
     if "precinct-button" in changed_id:
         return ["precinct", True, False, False]
     elif "neighborhood-button" in changed_id:
@@ -86,51 +97,75 @@ def layer_button_click(precinct_clicks, neighborhood_clicks, zip_clicks):
     else:
         return ["neighborhood", False, True, False]
 
+
 @app.callback(
-    [Output("floatbox-neighborhood", "children"), Output("floatbox-neighborhood", "className")],
-    [Input("neighborhood-geojson", "click_feature"), Input("card-box-close-neighborhood", "n_clicks")]
+    [
+        Output("floatbox-neighborhood", "children"),
+        Output("floatbox-neighborhood", "className"),
+    ],
+    [
+        Input("neighborhood-geojson", "click_feature"),
+        Input("card-box-close-neighborhood", "n_clicks"),
+    ],
 )
 def neighborhood_click(feature, n_clicks):
     class_name = "displayNone"
     header_text = "Error"
     card_contents = bootstrap_stuff.get_floatbox_card_contents("neighborhood")
 
-    if feature: 
+    if feature:
         header_text = feature["properties"]["NHD_NAME"]
         body_contents = [
             html.Strong("Total monetary donations: "),
-            html.Span(locale.currency(feature["properties"]["total_monetary_donations"], grouping=True))
+            html.Span(
+                locale.currency(
+                    feature["properties"]["total_monetary_donations"], grouping=True
+                )
+            ),
         ]
         class_name = "floatbox"
-        card_contents = bootstrap_stuff.get_floatbox_card_contents("neighborhood", header_text, body_contents)
-    
-    if n_clicks: 
+        card_contents = bootstrap_stuff.get_floatbox_card_contents(
+            "neighborhood", header_text, body_contents
+        )
+
+    if n_clicks:
         class_name = "displayNone"
 
-    return [ card_contents, class_name ]
+    return [card_contents, class_name]
+
 
 @app.callback(
     [Output("floatbox-precinct", "children"), Output("floatbox-precinct", "className")],
-    [Input("precincts-geojson", "click_feature"), Input("card-box-close-precinct", "n_clicks")]
+    [
+        Input("precincts-geojson", "click_feature"),
+        Input("card-box-close-precinct", "n_clicks"),
+    ],
 )
 def precinct_click(feature, n_clicks):
     class_name = "displayNone"
     header_text = "Error"
     card_contents = bootstrap_stuff.get_floatbox_card_contents("precinct")
-    
-    if feature: 
+
+    if feature:
         header_text = f"Ward {feature['properties']['WARD10']}, Precinct {feature['properties']['PREC10']}"
         body_contents = [
             html.Strong("Total monetary donations: "),
-            html.Span(locale.currency(feature["properties"]["total_monetary_donations"], grouping=True))
+            html.Span(
+                locale.currency(
+                    feature["properties"]["total_monetary_donations"], grouping=True
+                )
+            ),
         ]
         class_name = "floatbox"
-        card_contents = bootstrap_stuff.get_floatbox_card_contents("precinct", header_text, body_contents)
-    
-    if n_clicks: 
+        card_contents = bootstrap_stuff.get_floatbox_card_contents(
+            "precinct", header_text, body_contents
+        )
+
+    if n_clicks:
         class_name = "displayNone"
 
-    return [ card_contents, class_name ]
+    return [card_contents, class_name]
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
