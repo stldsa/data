@@ -54,7 +54,10 @@ app.layout = get_sidebar_layout(db)
     [
         Output("candidate_info_collapse", "is_open"),
         Output("candidate_info_collapse", "children"),
-        Output("zip-geojson", "hideout"),
+        Output("candidate-name-span", "children"),
+        Output("precincts-geojson", "hideout"),
+        Output("neighborhood-geojson", "hideout"),
+        Output("zip-geojson", "hideout")
     ],
     [Input("fundraising-graph", "clickData")],
     [State("candidate_info_collapse", "is_open")],
@@ -67,20 +70,20 @@ def toggle_collapse(clicked_data, is_open):
             .first()
         )
         mec_id = candidate_row.mec_id
-        color_prop = "mec_donation_" + mec_id
+        color_prop = "mec_donations_" + mec_id
         hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
-        return (True, [bootstrap_stuff.get_candidate_info_card(candidate_row)], hideout)
+        return (True, [bootstrap_stuff.get_candidate_info_card(candidate_row)], candidate_row.name, hideout, hideout, hideout)
     hideout = bootstrap_stuff.build_choropleth_hideout("total_monetary_donations")
-    return (False, [], hideout)
+    return (False, [], "all candidates", hideout, hideout, hideout)
 
 
 
 @app.callback(
-    Output("testingDiv", "children"), [Input("geojson-layer-control", "baseLayer")]
+    Output("base-layer-name", "children"), [Input("geojson-layer-control", "baseLayer")]
 )
 def layer_change(base_layer):
     #TODO: We need to probably add an indication of how much $ we aren't showing, either b/c address etc is missing, or it is out of view (e.g. not in a STL city neighborhood/precinct)
-    return "You are currently viewing contributions from each "+base_layer
+    return base_layer
 
 @app.callback(
     [

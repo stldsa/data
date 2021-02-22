@@ -122,7 +122,12 @@ def get_side_panel_layout(df):
             get_side_panel_intro(),
             get_side_panel_form(df),
             get_selected_layer_buttons(),
-            html.Div("You are currently viewing contributions from each precinct", id="testingDiv"),
+            html.Div([
+                "You are currently viewing contributions from each ",
+                html.Span("precinct", id="base-layer-name"),
+                " for ",
+                html.Span("all candidates", id="candidate-name-span")
+            ]),
             # get_candidate_select(candidates),
             # reset_selection_button(),
             # side_panel_form,
