@@ -27,6 +27,7 @@ class Contributor(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.String)
     zip5 = db.Column(db.String)
+    is_committee = db.Column(db.Boolean)
 
 class Contribution(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -93,8 +94,10 @@ def create_contributions(mec_df):
             this_candidate = candidate_dict[row[mec_col_name]]
 
         contributor_name = "no name"
+        is_committee = False
         if isinstance(row['Committee'], str):
             contributor_name = row['Committee'].strip()
+            is_committee = True
         elif isinstance(row['Company'], str):
             contributor_name = row['Company'].strip()
         elif isinstance(row['Last Name'], str):
@@ -102,7 +105,7 @@ def create_contributions(mec_df):
 
         namezip = contributor_name+" "+row['ZIP5']
         if namezip not in contributor_dict:
-            this_contributor = Contributor(name=contributor_name, zip5=row['ZIP5'])
+            this_contributor = Contributor(name=contributor_name, zip5=row['ZIP5'], is_committee=is_committee)
             contributor_dict[namezip] = this_contributor
             db.session.add(this_contributor)
             db.session.commit()
