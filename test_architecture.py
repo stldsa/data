@@ -1,5 +1,4 @@
 import pandas as pd
-from models import Candidate
 from database import db
 
 

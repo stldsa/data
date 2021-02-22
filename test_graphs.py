@@ -23,7 +23,10 @@ def test_candidate_funds_bar_plot():
 
 
 def test_contribution_stats_for_candidate(tishaura):
-    assert tishaura.stats["$ Raised"]
+    contributions_df = Contribution.df
+    assert tishaura.stats["$ Raised"] == sum(
+        contributions_df[contributions_df["Candidate"]]
+    )
 
 
 def test_contributions_df():
