@@ -1,6 +1,5 @@
 body {
 	margin: 0;
-	background-color: red;
 	font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
@@ -22,34 +21,10 @@ input[type="radio"]:checked+label {
 	font-weight: bold; 
 }
 
-.displayNone {
-	display: none;
+.SidePanel_NotExpanded{
+	width: 30%;
 }
 
-.displayBlock {
-	display: block;
-}
-
-.floatbox {
-	width:400px;
-	max-height:20vh;
-	background-color: white;
-	color:black;
-	padding:5px;
-	overflow-y: scroll;
-	position: absolute;
-	right:20px;
-	top:20px;
-	z-index: 9999;
-}
-
-.remove-padding {
-	padding-left: 0 !important; 
-	padding-right: 0 !important; 
-	margin-left: 0 !important; 
-	margin-right: 0 !important; 
-}
-
-.leaflet-control-layers {
-	display: none
+.SidePanel_Expanded{
+	width: 80%;
 }
