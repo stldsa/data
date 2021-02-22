@@ -3,7 +3,7 @@ import pytest
 import flask
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-from models import Candidate
+from mec_query import Candidate
 
 load_dotenv()
 

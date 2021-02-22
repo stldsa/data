@@ -22,5 +22,9 @@ def test_candidate_funds_bar_plot():
     assert fig.data
 
 
-def test_sidebar_layout():
-    pass
+def test_contribution_stats_for_candidate(tishaura):
+    assert tishaura.stats["$ Raised"]
+
+
+def test_contributions_df():
+    assert len(Contribution.df.columns)
