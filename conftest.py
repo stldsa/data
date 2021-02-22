@@ -10,7 +10,7 @@ load_dotenv()
 
 @pytest.fixture(scope="session")
 def db_url():
-    return os.getenv("DB_URL")
+    return os.getenv("DATABASE_URL")
 
 
 @pytest.fixture(scope="session")
