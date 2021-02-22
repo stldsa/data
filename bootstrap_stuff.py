@@ -97,7 +97,7 @@ def get_side_panel_intro():
 def get_selected_layer_buttons():
     button_group = dbc.ButtonGroup([
         dbc.Button("Voter precincts", id="precinct-button", active=True, className="mr-1"),
-        dbc.Button("Neighborhoods", id="neighborhood-button", className="mr-1"),
+        dbc.Button("Neighborhoods / Municipalities", id="neighborhood-button", className="mr-1"),
         dbc.Button("ZIP Codes", id="zip-button", className="mr-1"),
     ], size="md", className="mr-1", id="select-layer")
     return button_group

@@ -128,7 +128,10 @@ def neighborhood_click(feature, n_clicks):
     card_contents = bootstrap_stuff.get_floatbox_card_contents("neighborhood")
 
     if feature:
-        header_text = feature["properties"]["NHD_NAME"]
+        if "NHD_NAME" in feature["properties"] and feature["properties"]["NHD_NAME"]:
+            header_text = feature["properties"]["NHD_NAME"]
+        else:
+            header_text = feature["properties"]["MUNICIPALI"].title()
         body_contents = [
             html.Strong("Total monetary donations: "),
             html.Span(
@@ -161,7 +164,11 @@ def precinct_click(feature, n_clicks):
     card_contents = bootstrap_stuff.get_floatbox_card_contents("precinct")
 
     if feature:
-        header_text = f"Ward {feature['properties']['WARD10']}, Precinct {feature['properties']['PREC10']}"
+        print(feature["properties"])
+        if "WARD10" in feature['properties'] and feature['properties']['WARD10']: # STL City precinct
+            header_text = f"STL City: Ward {feature['properties']['WARD10']}, Precinct {feature['properties']['PREC10']}"
+        elif feature['properties']['PRECINCTID']: # STL County precinct 
+            header_text = f"STL County: Precinct {feature['properties']['PRECINCTID']}"
         body_contents = [
             html.Strong("Total monetary donations: "),
             html.Span(
