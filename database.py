@@ -1,6 +1,9 @@
-import geopandas as gp
+import os
 from sqlalchemy import create_engine
-zip_geojson = gp.read_file('data/geojson/stl-region-zip_rw.geojson')
-connection_url="postgresql://meagles:password@localhost:5432/dsadata"
-engine = create_engine(connection_url)
-zip_geojson.to_postgis(name="zip_geojson", con=engine)
+from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
+
+load_dotenv()
+
+db = SQLAlchemy()
+engine = create_engine(os.getenv("DATABASE_URL"))

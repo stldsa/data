@@ -18,7 +18,8 @@ from mec_query import Candidate, Contribution, Contributor
 from bootstrap_stuff import get_sidebar_layout, get_zip_click_card
 
 import locale
-locale.setlocale( locale.LC_ALL, 'en_US.UTF-8' )
+
+locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
 load_dotenv()
 
@@ -49,36 +50,55 @@ app.layout = get_sidebar_layout(db)
 #     return [hideout]
 
 # Candidate Selected: Look at stats from that candidate
-# @app.callback(
-#     [Output("candidate_info_collapse", "is_open"), Output("candidate_info_collapse", "children"), Output("zips-geojson", "hideout")],
-#     [Input("fundraising-graph", "clickData")],
-#     [State("candidate_info_collapse", "is_open")]
-# )
-# def toggle_collapse(clicked_data, is_open):
-#     if clicked_data is not None:
-#         candidate_row = db.session.query(Candidate).filter_by(name=clicked_data["points"][0]["label"]).first()
-#         mec_id = candidate_row.mec_id
-#         color_prop = "mec_donation_"+mec_id
-#         hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
-#         return (True, [bootstrap_stuff.get_candidate_info_card(candidate_row)], hideout)
-#     hideout = bootstrap_stuff.build_choropleth_hideout("total_mayor_donations")
-#     return (False, [], hideout)
+@app.callback(
+    [
+        Output("candidate_info_collapse", "is_open"),
+        Output("candidate_info_collapse", "children"),
+        Output("zip-geojson", "hideout"),
+    ],
+    [Input("fundraising-graph", "clickData")],
+    [State("candidate_info_collapse", "is_open")],
+)
+def toggle_collapse(clicked_data, is_open):
+    if clicked_data:
+        candidate_row = (
+            db.session.query(Candidate)
+            .filter_by(name=clicked_data["points"][0]["label"])
+            .first()
+        )
+        mec_id = candidate_row.mec_id
+        color_prop = "mec_donation_" + mec_id
+        hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
+        return (True, [bootstrap_stuff.get_candidate_info_card(candidate_row)], hideout)
+    hideout = bootstrap_stuff.build_choropleth_hideout("total_mayor_donations")
+    return (False, [], hideout)
+
 
 
 @app.callback(
-    Output("testingDiv", "children"),
-    [Input("geojson-layer-control", "baseLayer")]
+    Output("testingDiv", "children"), [Input("geojson-layer-control", "baseLayer")]
 )
 def layer_change(base_layer):
     #TODO: We need to probably add an indication of how much $ we aren't showing, either b/c address etc is missing, or it is out of view (e.g. not in a STL city neighborhood/precinct)
     return "You are currently viewing contributions from each "+base_layer
 
 @app.callback(
-    [Output("precinct-baselayer", "checked"), Output("neighborhood-baselayer", "checked"), Output("zip-baselayer", "checked"), Output("precinct-button", "active"), Output("neighborhood-button", "active"), Output("zip-button", "active")],
-    [Input("precinct-button", "n_clicks"), Input("neighborhood-button", "n_clicks"), Input("zip-button", "n_clicks")]
+    [
+        Output("precinct-baselayer", "checked"), 
+        Output("neighborhood-baselayer", "checked"), 
+        Output("zip-baselayer", "checked"), 
+        Output("precinct-button", "active"), 
+        Output("neighborhood-button", "active"), 
+        Output("zip-button", "active")
+    ],
+    [
+        Input("precinct-button", "n_clicks"), 
+        Input("neighborhood-button", "n_clicks"), 
+        Input("zip-button", "n_clicks")
+    ]
 )
 def layer_button_click(precinct_clicks, neighborhood_clicks, zip_clicks):
-    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
     if "precinct-button" in changed_id:
         return [True, False, False, True, False, False]
     elif "neighborhood-button" in changed_id:
@@ -88,51 +108,75 @@ def layer_button_click(precinct_clicks, neighborhood_clicks, zip_clicks):
     else:
         return [True, False, False, True, False, False]
 
+
 @app.callback(
-    [Output("floatbox-neighborhood", "children"), Output("floatbox-neighborhood", "className")],
-    [Input("neighborhood-geojson", "click_feature"), Input("card-box-close-neighborhood", "n_clicks")]
+    [
+        Output("floatbox-neighborhood", "children"),
+        Output("floatbox-neighborhood", "className"),
+    ],
+    [
+        Input("neighborhood-geojson", "click_feature"),
+        Input("card-box-close-neighborhood", "n_clicks"),
+    ],
 )
 def neighborhood_click(feature, n_clicks):
     class_name = "displayNone"
     header_text = "Error"
     card_contents = bootstrap_stuff.get_floatbox_card_contents("neighborhood")
 
-    if feature: 
+    if feature:
         header_text = feature["properties"]["NHD_NAME"]
         body_contents = [
             html.Strong("Total monetary donations: "),
-            html.Span(locale.currency(feature["properties"]["total_monetary_donations"], grouping=True))
+            html.Span(
+                locale.currency(
+                    feature["properties"]["total_monetary_donations"], grouping=True
+                )
+            ),
         ]
         class_name = "floatbox"
-        card_contents = bootstrap_stuff.get_floatbox_card_contents("neighborhood", header_text, body_contents)
-    
-    if n_clicks: 
+        card_contents = bootstrap_stuff.get_floatbox_card_contents(
+            "neighborhood", header_text, body_contents
+        )
+
+    if n_clicks:
         class_name = "displayNone"
 
-    return [ card_contents, class_name ]
+    return [card_contents, class_name]
+
 
 @app.callback(
     [Output("floatbox-precinct", "children"), Output("floatbox-precinct", "className")],
-    [Input("precincts-geojson", "click_feature"), Input("card-box-close-precinct", "n_clicks")]
+    [
+        Input("precincts-geojson", "click_feature"),
+        Input("card-box-close-precinct", "n_clicks"),
+    ],
 )
 def precinct_click(feature, n_clicks):
     class_name = "displayNone"
     header_text = "Error"
     card_contents = bootstrap_stuff.get_floatbox_card_contents("precinct")
-    
-    if feature: 
+
+    if feature:
         header_text = f"Ward {feature['properties']['WARD10']}, Precinct {feature['properties']['PREC10']}"
         body_contents = [
             html.Strong("Total monetary donations: "),
-            html.Span(locale.currency(feature["properties"]["total_monetary_donations"], grouping=True))
+            html.Span(
+                locale.currency(
+                    feature["properties"]["total_monetary_donations"], grouping=True
+                )
+            ),
         ]
         class_name = "floatbox"
-        card_contents = bootstrap_stuff.get_floatbox_card_contents("precinct", header_text, body_contents)
-    
-    if n_clicks: 
+        card_contents = bootstrap_stuff.get_floatbox_card_contents(
+            "precinct", header_text, body_contents
+        )
+
+    if n_clicks:
         class_name = "displayNone"
 
-    return [ card_contents, class_name ]
+    return [card_contents, class_name]
+
 
 @app.callback(
     [Output("floatbox-zip", "children"), Output("floatbox-zip", "className")],
