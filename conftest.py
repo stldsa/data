@@ -3,7 +3,7 @@ import pytest
 import flask
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-from models import Candidate
+from mec_query import Candidate
 
 load_dotenv()
 
@@ -35,5 +35,5 @@ def _db(app):
 
 
 @pytest.fixture(scope="session")
-def lyda():
-    return Candidate(name="Lyda Krewson")
+def tishaura():
+    return Candidate(name="Tishaura Jones")
