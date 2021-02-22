@@ -201,11 +201,10 @@ def build_zip_donation_pbf_from_geojson(
     with open(output_geobuf_path, "wb") as write_file:
         write_file.write(pbf)
 
+def build_donation_pbf_from_geojson(contribution_gdf, mec_ids, polygons_geojson_paths, output_geobuf_path):
+    # polygons = gpd.read_file(polygons_geojson_path)
+    polygons = gpd.GeoDataFrame(pd.concat([gpd.read_file(i) for i in polygons_geojson_paths], ignore_index=True))
 
-def build_donation_pbf_from_geojson(
-    contribution_gdf, mec_ids, polygons_geojson_path, output_geobuf_path
-):
-    polygons = gpd.read_file(polygons_geojson_path)
     for index, polygon in polygons.iterrows():
         total_monetary_donations = 0
         total_nonmonetary_donations = 0
