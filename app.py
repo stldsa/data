@@ -64,27 +64,29 @@ app.layout = get_sidebar_layout(db)
 #     hideout = bootstrap_stuff.build_choropleth_hideout("total_mayor_donations")
 #     return (False, [], hideout)
 
+
 @app.callback(
     Output("testingDiv", "children"),
     [Input("geojson-layer-control", "baseLayer")]
 )
 def layer_change(base_layer):
-    return "You are viewing contributions from each "+base_layer
+    #TODO: We need to probably add an indication of how much $ we aren't showing, either b/c address etc is missing, or it is out of view (e.g. not in a STL city neighborhood/precinct)
+    return "You are currently viewing contributions from each "+base_layer
 
 @app.callback(
-    [Output("geojson-layer-control", "baseLayer"), Output("precinct-button", "active"), Output("neighborhood-button", "active"), Output("zip-button", "active")],
+    [Output("precinct-baselayer", "checked"), Output("neighborhood-baselayer", "checked"), Output("zip-baselayer", "checked"), Output("precinct-button", "active"), Output("neighborhood-button", "active"), Output("zip-button", "active")],
     [Input("precinct-button", "n_clicks"), Input("neighborhood-button", "n_clicks"), Input("zip-button", "n_clicks")]
 )
 def layer_button_click(precinct_clicks, neighborhood_clicks, zip_clicks):
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if "precinct-button" in changed_id:
-        return ["precinct", True, False, False]
+        return [True, False, False, True, False, False]
     elif "neighborhood-button" in changed_id:
-        return ["neighborhood", False, True, False]
+        return [False, True, False, False, True, False]
     elif "zip-button" in changed_id:
-        return ["zip", False, False, True]
+        return [False, False, True, False, False, True]
     else:
-        return ["neighborhood", False, True, False]
+        return [True, False, False, True, False, False]
 
 @app.callback(
     [Output("floatbox-neighborhood", "children"), Output("floatbox-neighborhood", "className")],

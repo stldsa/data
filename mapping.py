@@ -99,9 +99,9 @@ def get_map_panel_layout():
         dl.Map(children=[
             get_base_toner_tile_layer(),
             dl.LayersControl(children=[
-                dl.BaseLayer(get_precinct_geojson(), name="precinct", checked=True),
-                dl.BaseLayer(get_neighborhood_geojson(), name="neighborhood"),
-                dl.BaseLayer(get_zip_geojson(), name="zip"),
+                dl.BaseLayer(get_precinct_geojson(), name="precinct", id="precinct-baselayer", checked=True),
+                dl.BaseLayer(get_neighborhood_geojson(), name="neighborhood", id="neighborhood-baselayer"),
+                dl.BaseLayer(get_zip_geojson(), name="zip", id="zip-baselayer"),
             ], id="geojson-layer-control"),
             colorbar
         ], zoom=12, center=stl_center, id='city-map'),
