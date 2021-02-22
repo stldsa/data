@@ -26,21 +26,21 @@ geocoded_mec_df = pd.read_sql(db.session.query(Contribution).filter(Contribution
 mec_gdf = gpd.GeoDataFrame(geocoded_mec_df, geometry=gpd.points_from_xy(geocoded_mec_df.lon, geocoded_mec_df.lat))
 mec_gdf = mec_gdf.set_crs(epsg=4326)
 
-# zip_geojson_path = "data/geojson/stl-region-zip_rw.geojson"
-# zip_geobuf_path = "static/geobuf/stl-region-zip.pbf"
-# mec_query.build_zip_donation_pbf_from_geojson(mec_df, mayor_mec_ids, zip_geojson_path, zip_geobuf_path)
+zip_geojson_path = "data/geojson/stl-region-zip_rw.geojson"
+zip_geobuf_path = "static/geobuf/stl-region-zip.pbf"
+mec_query.build_zip_donation_pbf_from_geojson(mec_df, mayor_mec_ids, zip_geojson_path, zip_geobuf_path)
 
 city_precincts_geojson_path = "data/geojson/stl-city/precincts_rw.geojson"
 county_precincts_geojson_path = "data/geojson/stl-county/precincts.geojson"
 precincts_geobuf_path = "static/geobuf/stl-city-and-county-precincts.pbf"
 mec_query.build_donation_pbf_from_geojson(mec_gdf, mayor_mec_ids, [city_precincts_geojson_path, county_precincts_geojson_path], precincts_geobuf_path)
 
-# city_neighborhoods_geojson_path = "data/geojson/stl-city/neighborhoods_rw.geojson"
-# county_municipalities_geojson_path = "data/geojson/stl-county/municipalities.geojson"
-# nhoods_geobuf_path = "static/geobuf/neighborhoods-and-municipalities.pbf"
-# mec_query.build_donation_pbf_from_geojson(mec_gdf, mayor_mec_ids, [city_neighborhoods_geojson_path, county_municipalities_geojson_path], nhoods_geobuf_path)
-
 city_neighborhoods_geojson_path = "data/geojson/stl-city/neighborhoods_rw.geojson"
-county_townships_geojson_path = "data/geojson/stl-county/townships.geojson"
-nhoods_geobuf_path = "static/geobuf/neighborhoods-and-townships.pbf"
-mec_query.build_donation_pbf_from_geojson(mec_gdf, mayor_mec_ids, [city_neighborhoods_geojson_path, county_townships_geojson_path], nhoods_geobuf_path)
+county_municipalities_geojson_path = "data/geojson/stl-county/municipalities.geojson"
+nhoods_geobuf_path = "static/geobuf/neighborhoods-and-municipalities.pbf"
+mec_query.build_donation_pbf_from_geojson(mec_gdf, mayor_mec_ids, [city_neighborhoods_geojson_path, county_municipalities_geojson_path], nhoods_geobuf_path)
+
+# city_neighborhoods_geojson_path = "data/geojson/stl-city/neighborhoods_rw.geojson"
+# county_townships_geojson_path = "data/geojson/stl-county/townships.geojson"
+# nhoods_geobuf_path = "static/geobuf/neighborhoods-and-townships.pbf"
+# mec_query.build_donation_pbf_from_geojson(mec_gdf, mayor_mec_ids, [city_neighborhoods_geojson_path, county_townships_geojson_path], nhoods_geobuf_path)
