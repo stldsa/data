@@ -49,3 +49,7 @@ input[type="radio"]:checked+label {
 	margin-left: 0 !important; 
 	margin-right: 0 !important; 
 }
+
+.leaflet-control-layers {
+	display: none
+}

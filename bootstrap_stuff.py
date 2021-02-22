@@ -95,18 +95,13 @@ def get_side_panel_intro():
 
 
 def get_selected_layer_buttons():
-    buttons = html.Div(
-        [
-            dbc.Button("Voter precincts", id="precinct-button", className="mr-1"),
-            dbc.Button(
-                "Neighborhoods", id="neighborhood-button", active=True, className="mr-1"
-            ),
-            dbc.Button("ZIP Codes", id="zip-button", className="mr-1"),
-        ]
-    )
-    return buttons
-
-
+    button_group = dbc.ButtonGroup([
+        dbc.Button("Voter precincts", id="precinct-button", active=True, className="mr-1"),
+        dbc.Button("Neighborhoods", id="neighborhood-button", className="mr-1"),
+        dbc.Button("ZIP Codes", id="zip-button", className="mr-1"),
+    ], size="md", className="mr-1", id="select-layer")
+    return button_group
+	
 # Currently used for handling candidates
 def get_side_panel_layout(df):
     side_panel_style = {
@@ -127,7 +122,7 @@ def get_side_panel_layout(df):
             get_side_panel_intro(),
             get_side_panel_form(df),
             get_selected_layer_buttons(),
-            html.Div(id="testingDiv"),
+            html.Div("You are currently viewing contributions from each precinct", id="testingDiv"),
             # get_candidate_select(candidates),
             # reset_selection_button(),
             # side_panel_form,

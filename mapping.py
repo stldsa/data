@@ -16,12 +16,9 @@ import bootstrap_stuff
 
 import plotly.express as px
 
-
 def get_expand_button():
     expand_button = daq.ToggleSwitch(size=50, id="expand-side-swith")
     return expand_button
-
-
 
 def get_candidate_select(candidates):
     selection = dcc.RadioItems(
@@ -51,9 +48,9 @@ def get_colorbar():
 
 def get_zip_geojson():
     ns = Namespace("dlx", "choropleth")
-    precincts_geobuf_path = "static/geobuf/stl-region-zip.pbf"
+    zip_geobuf_path = "static/geobuf/stl-region-zip.pbf"
     zip_geojson = dl.GeoJSON(
-        url=precincts_geobuf_path, format="geobuf",
+        url=zip_geobuf_path, format="geobuf",
         options=dict(style=ns("style")),  # how to style each polygon
         # options=dict(style=dict(color="blue")),
         zoomToBounds=False,  # when true, zooms to bounds when data changes (e.g. on load)
@@ -61,7 +58,7 @@ def get_zip_geojson():
         hoverStyle=arrow_function(
             dict(weight=5, color="#666", dashArray="")
         ), 
-        hideout=bootstrap_stuff.build_choropleth_hideout("total_mayoral_donations"),
+        hideout=bootstrap_stuff.build_choropleth_hideout("total_monetary_donations"),
         id="zip-geojson",
     )
     return zip_geojson
@@ -102,9 +99,9 @@ def get_map_panel_layout():
         dl.Map(children=[
             get_base_toner_tile_layer(),
             dl.LayersControl(children=[
-                dl.BaseLayer(get_precinct_geojson(), name="precinct", checked=True),
-                dl.BaseLayer(get_neighborhood_geojson(), name="neighborhood"),
-                dl.BaseLayer(get_zip_geojson(), name="zip"),
+                dl.BaseLayer(get_precinct_geojson(), name="precinct", id="precinct-baselayer", checked=True),
+                dl.BaseLayer(get_neighborhood_geojson(), name="neighborhood", id="neighborhood-baselayer"),
+                dl.BaseLayer(get_zip_geojson(), name="zip", id="zip-baselayer"),
             ], id="geojson-layer-control"),
             colorbar
         ], zoom=12, center=stl_center, id='city-map'),
@@ -152,35 +149,9 @@ def get_precinct_overlay():
     return precinct_overlay
 
 
-def get_zip_overlay(mec_df, candidate):
-    if candidate is not None:
-        cand_df = contrib.sum_funds_by_zip(cand_zip_df)
-    else:
-        df = cand_zip_df[cand_zip_df[" MECID"] == candidate]
-    # original file was wrong hand rule, whis one was rewound with geojson-rewind:
-    zip_geojson_path = "data/geojson/stl-region-zip_rw.geojson"
-    gdf = gpd.read_file(zip_geojson_path)
-    gdf = gdf.merge(cand_zip_df, left_on="ZCTA5CE10", right_on="ZIP5")
-    if candidate is not None:
-        df = contrib.sum_funds_by_zip(cand_zip_df)
-    else:
-        df = cand_zip_df[cand_zip_df[" MECID"] == candidate]
-    with open(zip_geojson_path) as read_file:
-        zip_geojson = json.load(read_file)
-    zips = dl.GeoJSON(
-        data=zip_geojson,
-        options=dict(style=dict(color="purple", fillOpacity=0.5)),
-        zoomToBoundsOnClick=True,
-        hoverStyle=arrow_function(dict(weight=4, fillOpacity=0.2, dashArray="")),
-        id="zips-geojson",
-    )
-    zip_overlay = dl.Overlay(zips, name="zips", checked=True)
-    return zip_overlay
-
-
 def get_base_toner_tile_layer():
     # 	Base tile layer
-    url = "http://{s}.tile.stamen.com/toner-background/{z}/{x}/{y}.png"
+    url = "http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png"
     attribution = (
         'Map tiles by <a href="http://stamen.com">Stamen Design</a>, '
         'under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
