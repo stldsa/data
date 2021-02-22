@@ -70,40 +70,43 @@ def toggle_collapse(clicked_data, is_open):
         color_prop = "mec_donation_" + mec_id
         hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
         return (True, [bootstrap_stuff.get_candidate_info_card(candidate_row)], hideout)
-    hideout = bootstrap_stuff.build_choropleth_hideout("total_mayor_donations")
+    hideout = bootstrap_stuff.build_choropleth_hideout("total_monetary_donations")
     return (False, [], hideout)
+
 
 
 @app.callback(
     Output("testingDiv", "children"), [Input("geojson-layer-control", "baseLayer")]
 )
 def layer_change(base_layer):
-    return "You are viewing contributions from each " + base_layer
-
+    #TODO: We need to probably add an indication of how much $ we aren't showing, either b/c address etc is missing, or it is out of view (e.g. not in a STL city neighborhood/precinct)
+    return "You are currently viewing contributions from each "+base_layer
 
 @app.callback(
     [
-        Output("geojson-layer-control", "baseLayer"),
-        Output("precinct-button", "active"),
-        Output("neighborhood-button", "active"),
-        Output("zip-button", "active"),
+        Output("precinct-baselayer", "checked"), 
+        Output("neighborhood-baselayer", "checked"), 
+        Output("zip-baselayer", "checked"), 
+        Output("precinct-button", "active"), 
+        Output("neighborhood-button", "active"), 
+        Output("zip-button", "active")
     ],
     [
-        Input("precinct-button", "n_clicks"),
-        Input("neighborhood-button", "n_clicks"),
-        Input("zip-button", "n_clicks"),
-    ],
+        Input("precinct-button", "n_clicks"), 
+        Input("neighborhood-button", "n_clicks"), 
+        Input("zip-button", "n_clicks")
+    ]
 )
 def layer_button_click(precinct_clicks, neighborhood_clicks, zip_clicks):
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
     if "precinct-button" in changed_id:
-        return ["precinct", True, False, False]
+        return [True, False, False, True, False, False]
     elif "neighborhood-button" in changed_id:
-        return ["neighborhood", False, True, False]
+        return [False, True, False, False, True, False]
     elif "zip-button" in changed_id:
-        return ["zip", False, False, True]
+        return [False, False, True, False, False, True]
     else:
-        return ["neighborhood", False, True, False]
+        return [True, False, False, True, False, False]
 
 
 @app.callback(
@@ -174,6 +177,29 @@ def precinct_click(feature, n_clicks):
 
     return [card_contents, class_name]
 
+
+@app.callback(
+    [Output("floatbox-zip", "children"), Output("floatbox-zip", "className")],
+    [Input("zip-geojson", "click_feature"), Input("card-box-close-zip", "n_clicks")]
+)
+def zip_click(feature, n_clicks):
+    class_name = "displayNone"
+    header_text = "Error"
+    card_contents = bootstrap_stuff.get_floatbox_card_contents("zip")
+    
+    if feature: 
+        header_text = f"ZIP Code {feature['properties']['ZCTA5CE10']}"
+        body_contents = [
+            html.Strong("Total monetary donations: "),
+            html.Span(locale.currency(feature["properties"]["total_monetary_donations"], grouping=True))
+        ]
+        class_name = "floatbox"
+        card_contents = bootstrap_stuff.get_floatbox_card_contents("zip", header_text, body_contents)
+    
+    if n_clicks: 
+        class_name = "displayNone"
+
+    return [ card_contents, class_name ]
 
 if __name__ == "__main__":
     app.run_server(debug=True)
