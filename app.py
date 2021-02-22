@@ -70,7 +70,7 @@ def toggle_collapse(clicked_data, is_open):
         color_prop = "mec_donation_" + mec_id
         hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
         return (True, [bootstrap_stuff.get_candidate_info_card(candidate_row)], hideout)
-    hideout = bootstrap_stuff.build_choropleth_hideout("total_mayor_donations")
+    hideout = bootstrap_stuff.build_choropleth_hideout("total_monetary_donations")
     return (False, [], hideout)
 
 
