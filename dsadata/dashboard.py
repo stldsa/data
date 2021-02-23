@@ -24,7 +24,6 @@ locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
 
 def init_dashboard(server):
-    print(server)
     dash_app = dash.Dash(
         server=server,
         routes_pathname_prefix="/",
@@ -33,7 +32,6 @@ def init_dashboard(server):
     dash_app.layout = get_sidebar_layout()
     # dash_app.layout = html.Div(id="dash-container")
     init_callbacks(dash_app)
-    print('ieui')
     return dash_app.server
 
 
@@ -70,7 +68,7 @@ def init_callbacks(app):
         [State("candidate_info_collapse", "is_open")],
     )
     def toggle_collapse(selected_mec_id, is_open):
-    if selected_mec_id != "all":
+        if selected_mec_id != "all":
             candidate_row = (
                 db.session.query(Candidate)
                 .filter_by(mec_id=selected_mec_id)
