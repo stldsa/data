@@ -1,7 +1,4 @@
-import mapping
-import contrib
-import mec_query
-
+from dsadata import mapping, mec_query
 import pandas as pd
 import plotly.express as px
 import dash_bootstrap_components as dbc
@@ -13,7 +10,8 @@ import dash_html_components as html
 pd.options.plotting.backend = "plotly"
 
 
-def create_candidate_funds_bar_plot(df):
+def create_candidate_funds_bar_plot(candidates_df):
+    df = candidates_df
     fig = px.bar(
         df,
         x="$ Raised",
@@ -51,10 +49,10 @@ def create_candidate_funds_bar_plot(df):
     return fig
 
 
-def sidebar_graph_component(fig):
+def sidebar_graph_component():
     graph_component = dcc.Graph(
         id="fundraising-graph",
-        figure=fig,
+        # figure=fig,
         className="FundraisingBaseGraph",
         style={"width": "100%"},
         clear_on_unhover=True,
