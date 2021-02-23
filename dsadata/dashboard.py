@@ -10,7 +10,7 @@ load_dotenv()
 from dash.dependencies import Output, Input, State
 
 # from dsadata.mec_query import db
-from dsadata import init_app
+from dsadata import init_app, bootstrap_stuff
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
