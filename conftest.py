@@ -1,9 +1,10 @@
 import os
 import pytest
-import flask
+from flask import Flask
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-from mec_query import Candidate
+from dsadata import init_app
+from dsadata.mec_query import Candidate, Contribution
 
 load_dotenv()
 
@@ -13,16 +14,29 @@ def db_url():
     return os.getenv("DATABASE_URL")
 
 
+# @pytest.fixture(scope='session')
+# def database(db_url):
+
+
+#     @request.addfinalizer
+#     def drop_database():
+#         drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, 9.6)
+
+
 @pytest.fixture(scope="session")
-def app(db_url):
-    #     """
-    #     Create a Flask app context for the tests.
-    #     """
-    app = flask.Flask(__name__)
-
-    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+def app():
+    app = Flask(__name__)
+    database = SQLAlchemy()
+    database.init_app(app)
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    with app.app_context():
+        import dsadata.mec_query
+        from dsadata.dashboard import init_dashboard
 
+        app = init_dashboard(app)
+
+        return app
     return app
 
 
@@ -37,3 +51,18 @@ def _db(app):
 @pytest.fixture(scope="session")
 def tishaura():
     return Candidate(name="Tishaura Jones")
+
+
+@pytest.fixture(scope="session")
+def contributions_df():
+    return Contribution.df
+
+
+@pytest.fixture(scope="session")
+def candidates_df():
+    return Candidate.df
+
+
+@pytest.fixture(scope="session")
+def contributions_candidates_df(contributions_df, candidates_df):
+    return contributions_df.merge(candidates_df, on=["mec_id"])

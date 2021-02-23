@@ -10,24 +10,45 @@ import dash_html_components as html
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import func
+from dsadata import db
 from dotenv import load_dotenv
 
 load_dotenv()
-
-server = Flask(__name__)
-server.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-server.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(server)
+# app = Flask(__name__)
+# class PandasModel(db.Model):
+#     @hybrid_property
+#     def df(self):
+#         return pd.read_sql("contribution", db.engine)
 
 
 class Candidate(db.Model):
     mec_id = db.Column(db.String, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String)
     committee_name = db.Column(db.String)
+    # contributions = db.relationship(
+    #     "Contribution",
+    #     back_populates="candidate",
+    #     cascade="all, delete",
+    #     passive_deletes=True,
+    # )
+
+    # @hybrid_property
+    # @hybrid_method
+    # def df(self):
+    #     df = pd.read_sql(self.query("candidate").all(), db.engine)
+    #     return df
+
+    # return pd.DataFrame()
 
     @hybrid_property
     def stats(self):
-        return {"$ Raised": 5}
+        print(self.contributions)
+        # for contribution in self.contributions:
+        #     print(contribution, contribution.amount)
+        return {
+            "$ Raised": sum(contribution.amount for contribution in self.contributions)
+        }
 
 
 class Contributor(db.Model):
@@ -40,12 +61,12 @@ class Contributor(db.Model):
 class Contribution(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
-    mec_id = db.Column(db.String, db.ForeignKey("candidate.mec_id"), nullable=False)
-    candidate = db.relationship(
-        "Candidate", backref=db.backref("contributions", lazy=True)
-    )
+    # mec_id = db.Column(db.String, db.ForeignKey("candidate.mec_id"))
+    mec_id = db.Column(db.String)
+    # candidate = db.relationship("Candidate", back_populates="contributions")
     contributor_id = db.Column(
-        db.Integer, db.ForeignKey("contributor.id"), nullable=False
+        db.Integer,
+        db.ForeignKey("contributor.id", ondelete="CASCADE"),
     )
     contributor = db.relationship(
         "Contributor", backref=db.backref("contributions", lazy=True)
@@ -58,9 +79,15 @@ class Contribution(db.Model):
     contribution_type = db.Column(db.String)
     report = db.Column(db.String)
 
+    # @hybrid_property
+    # def df(self):
+    #     with app.app_context():
+    #         df = pd.read_sql("contribution", db.engine.connect())
+    #     return
+
     @hybrid_property
-    def df(self):
-        return pd.read_sql("contribution", db.engine)
+    def sum(self):
+        self.df["amount"].sum()
 
 
 def build_mec_df(mec_ids):
@@ -201,9 +228,14 @@ def build_zip_donation_pbf_from_geojson(
     with open(output_geobuf_path, "wb") as write_file:
         write_file.write(pbf)
 
-def build_donation_pbf_from_geojson(contribution_gdf, mec_ids, polygons_geojson_paths, output_geobuf_path):
+
+def build_donation_pbf_from_geojson(
+    contribution_gdf, mec_ids, polygons_geojson_paths, output_geobuf_path
+):
     # polygons = gpd.read_file(polygons_geojson_path)
-    polygons = gpd.GeoDataFrame(pd.concat([gpd.read_file(i) for i in polygons_geojson_paths], ignore_index=True))
+    polygons = gpd.GeoDataFrame(
+        pd.concat([gpd.read_file(i) for i in polygons_geojson_paths], ignore_index=True)
+    )
 
     for index, polygon in polygons.iterrows():
         total_monetary_donations = 0

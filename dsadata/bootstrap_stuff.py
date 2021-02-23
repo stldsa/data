@@ -2,9 +2,9 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
 
-import mapping, plotting, mec_query
-from mec_query import Candidate, Contributor, Contribution
-
+# from dsadata import mapping, plotting, mec_query
+from dsadata import db, mapping
+from dsadata.plotting import sidebar_graph_component
 import locale
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
@@ -95,15 +95,27 @@ def get_side_panel_intro():
 
 
 def get_selected_layer_buttons():
-    button_group = dbc.ButtonGroup([
-        dbc.Button("Voter precincts", id="precinct-button", active=True, className="mr-1"),
-        dbc.Button("Neighborhoods / Municipalities", id="neighborhood-button", className="mr-1"),
-        dbc.Button("ZIP Codes", id="zip-button", className="mr-1"),
-    ], size="md", className="mr-1", id="select-layer")
+    button_group = dbc.ButtonGroup(
+        [
+            dbc.Button(
+                "Voter precincts", id="precinct-button", active=True, className="mr-1"
+            ),
+            dbc.Button(
+                "Neighborhoods / Municipalities",
+                id="neighborhood-button",
+                className="mr-1",
+            ),
+            dbc.Button("ZIP Codes", id="zip-button", className="mr-1"),
+        ],
+        size="md",
+        className="mr-1",
+        id="select-layer",
+    )
     return button_group
-	
+
+
 # Currently used for handling candidates
-def get_side_panel_layout(df):
+def get_side_panel_layout():
     side_panel_style = {
         "height": "100vh",
         "flexShrink": 0,
@@ -120,14 +132,16 @@ def get_side_panel_layout(df):
         children=[
             get_side_panel_header(),
             get_side_panel_intro(),
-            get_side_panel_form(df),
+            get_side_panel_form(),
             get_selected_layer_buttons(),
-            html.Div([
-                "You are currently viewing contributions from each ",
-                html.Span("precinct", id="base-layer-name"),
-                " for ",
-                html.Span("all candidates", id="candidate-name-span")
-            ]),
+            html.Div(
+                [
+                    "You are currently viewing contributions from each ",
+                    html.Span("precinct", id="base-layer-name"),
+                    " for ",
+                    html.Span("all candidates", id="candidate-name-span"),
+                ]
+            ),
             # get_candidate_select(candidates),
             # reset_selection_button(),
             # side_panel_form,
@@ -183,12 +197,10 @@ def get_candidate_info_card(candidate):
         return None
 
 
-def get_side_panel_form(df):
+def get_side_panel_form():
     return html.Div(
         children=[
-            plotting.sidebar_graph_component(
-                plotting.create_candidate_funds_bar_plot(df),
-            ),
+            sidebar_graph_component(),
             dbc.Collapse(children=[], id="candidate_info_collapse"),
         ],
         id="side-panel-form",
@@ -229,18 +241,22 @@ def get_side_panel_footer():
     return side_panel_footer
 
 
-def get_sidebar_layout(db):
-    candidates_df = pd.read_sql(db.session.query(Candidate).statement, db.session.bind)
-    candidates_df["$ Raised"] = [182000, 176000, 145000, 950]
-    candidates_df = candidates_df.rename(columns={"name": "Candidate"})
-    mec_ids = ["C201499", "C201099", "C201500", "C211544"]
+# candidates_df = pd.read_sql_table("candidate", db.engine)
+
+
+def get_sidebar_layout():
+    # candidates_df = pd.read_sql_table("candidate", db.engine)
+    # candidates_df["$ Raised"] = [182000, 176000, 145000, 950]
+    # candidates_df = candidates_df.rename(columns={"name": "Candidate"})
+    # mec_ids = ["C201499", "C201099", "C201500", "C211544"]
     # df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
     return dbc.Container(
         [
             dbc.Row(
                 [
-                    dbc.Col(get_side_panel_layout(candidates_df), width=4),
+                    dbc.Col(get_side_panel_layout(), width=4),
                     dbc.Col(mapping.get_map_panel_layout(), width=8),
+                    # dbc.Col(html.P("hi")),
                 ],
                 no_gutters=True,
             )

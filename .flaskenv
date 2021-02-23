@@ -1,1 +1,1 @@
-export FLASK_APP=mayor.py
+export FLASK_APP=wsgi:app

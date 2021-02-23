@@ -1,10 +1,5 @@
 import pandas as pd
-from database import db
-
-
-def test_read_sql_table(db_engine, db_session):
-    df = pd.read_sql_table("candidates", db_engine)
-    pass
+from dsadata.mec_query import Candidate
 
 
 def test_candidate_class():

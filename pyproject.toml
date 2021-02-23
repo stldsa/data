@@ -26,6 +26,7 @@ geojson-rewind = "^1.0.0"
 dash = "^1.19.0"
 psycopg2 = "^2.8.6"
 geobuf = "^1.1.1"
+Flask-DB = "^0.3.0"
 
 
 [tool.poetry.dev-dependencies]
@@ -44,6 +45,9 @@ selenium = "^3.141.0"
 dash = {extras = ["testing"], version = "^1.19.0"}
 pytest-selenium = "^2.0.1"
 pytest-flask-sqlalchemy = "^1.0.2"
+pycycle = "^0.0.8"
+pytest-flask = "^1.1.0"
+pytest-coverage = "^0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
