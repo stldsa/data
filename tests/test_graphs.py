@@ -5,7 +5,9 @@ import pandas as pd
 
 # # def test_create_candidate_funds_bar_plot(db_session):
 # #     candidates = Candidate.query.all()
-# #     mec_df = pd.read_sql(db_session.query(Contribution).statement, db_session.bind)
+# #     mec_df = pd.read_sql(
+#           db_session.query(Contribution).statement,db_session.bind
+#       )
 
 
 # def test_candidate_funds_bar_plot():
@@ -14,7 +16,12 @@ import pandas as pd
 #         ["Tishaura Jones", 156000, 593, 305.38],
 #     ]
 #     df = pd.DataFrame(
-#         data, columns=["Candidate", "$ Raised", "# of Donations", "Avg Donation"]
+#         data, columns=[
+#           "Candidate",
+#           "$ Raised",
+#           "# of Donations",
+#           "Avg Donation"
+#       ]
 #     )
 
 #     fig = create_candidate_funds_bar_plot(df)
@@ -22,7 +29,9 @@ import pandas as pd
 #     assert fig.data
 
 
-# def test_contribution_stats_for_candidate(tishaura, contributions_candidates_df):
+# def test_contribution_stats_for_candidate(
+#   tishaura, contributions_candidates_df
+# ):
 #     df = contributions_candidates_df
 #     assert "name" in df.columns.to_list()
 #     tishaura_contributions = df[df["name"] == "Tishaura Jones"]

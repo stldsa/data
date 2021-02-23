@@ -1,18 +1,13 @@
 import os
-import math
 import json
 import numpy as np
 import pandas as pd
 import geopandas as gpd
 import geobuf
-import dash_html_components as html
 
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 from sqlalchemy.sql import func
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy import func
 from dsadata import db
 from dotenv import load_dotenv
 
@@ -99,7 +94,8 @@ def build_mec_df(mec_ids):
         df_geocoded = pd.read_csv(
             "data/mec_geocoded/" + filename, header=0, parse_dates=["Date"]
         )
-        # this is hacky but I'm doing this to make sure we don't miss non-geocoded rows: we should adjust geocode to not lose those rows
+        # this is hacky but I'm doing this to make sure we don't miss non-geocoded rows:
+        #  we should adjust geocode to not lose those rows
         df_nogeocode = pd.read_csv(
             "data/mec/" + filename, header=0, parse_dates=["Date"]
         )
@@ -301,16 +297,19 @@ def get_all_contributors():
         return_contributors, key=lambda contributor: contributor["total_contribution"]
     )
 
+
 def get_candidate_total_donations(candidate_name):
-    return db.session.query(
-        func.sum(Contribution.amount)
-    ).filter(
-        and_(
-            Contribution.candidate.has(name=candidate_name), 
-            Contribution.contribution_type == "M"
+    return (
+        db.session.query(func.sum(Contribution.amount))
+        .filter(
+            and_(
+                Contribution.candidate.has(name=candidate_name),
+                Contribution.contribution_type == "M",
+            )
         )
-    ).scalar()
-    
+        .scalar()
+    )
+
 
 def get_contribution_stats_for_candidate(candidate_name):
     contributions = Contribution.query.filter(
