@@ -2,9 +2,9 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
 
-import mapping, plotting, mec_query
-from mec_query import Candidate, Contributor, Contribution
-
+# from dsadata import mapping, plotting, mec_query
+from dsadata import db, mapping
+from dsadata.plotting import sidebar_graph_component
 import locale
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
@@ -39,9 +39,9 @@ fundraising_style = {
     "fillOpacity": 0.7,
 }
 fundraising_ctg = [
-    "{}+".format(cls, fundraising_classes[i + 1])
+    "${}+".format(cls, fundraising_classes[i + 1])
     for i, cls in enumerate(fundraising_classes[:-1])
-] + ["{}+".format(fundraising_classes[-1])]
+] + ["${}+".format(fundraising_classes[-1])]
 
 
 def build_choropleth_hideout(color_prop):
@@ -95,17 +95,75 @@ def get_side_panel_intro():
 
 
 def get_selected_layer_buttons():
-    button_group = dbc.ButtonGroup([
-        dbc.Button("Voter precincts", id="precinct-button", active=True, className="mr-1"),
-        dbc.Button("Neighborhoods / Municipalities", id="neighborhood-button", className="mr-1"),
-        dbc.Button("ZIP Codes", id="zip-button", className="mr-1"),
-    ], size="md", className="mr-1", id="select-layer")
+    button_group_style={"width":"90%", "margin":"auto"}
+    button_group = dbc.ButtonGroup(
+        [
+            dbc.Button(
+                "Voter precincts", 
+                id="precinct-button", 
+                active=True, 
+                className="mr-1",
+                color="light",
+                outline=True
+            ),
+            dbc.Button(
+                "Neighborhoods / Municipalities",
+                id="neighborhood-button",
+                className="mr-1",
+                color="light",
+                outline=True,
+            ),
+            dbc.Button(
+                "ZIP Codes", 
+                id="zip-button", 
+                className="mr-1",
+                color="light",
+                outline=True
+            ),
+        ],
+        size="md",
+        className="mr-1",
+        id="select-layer",
+    )
     return button_group
-	
+
+def get_candidate_select():
+    dropdown_style = {"padding": "10px", "maxWidth": "90%", "margin": "auto"}
+    select_options = [{"label":"All mayoral candidates", "value":"all"}]
+    # candidate_df = pd.read_sql(db.session.query(Candidate).statement, db.session.bind)
+    # for index, row in candidate_df.iterrows():
+    #     print(row)
+    #     select_options.append({"label": row.name, "value": row.mec_id})
+    dropdown = html.Div([
+        dbc.Select(
+            id="candidate-select",
+            options=select_options,
+            value="all"
+        )
+    ], style=dropdown_style)
+    return dropdown
+
+
+def get_select_layer_section():
+    select_layer_section_style = {
+        "backgroundColor": "red",
+        "color": "white",
+        "padding": "10px 0",
+        "width": "100%",
+        "textAlign": "center"
+    }
+    select_layer = html.Div(
+        [
+            get_candidate_select(),
+            get_selected_layer_buttons()
+        ], 
+        style=select_layer_section_style
+    )
+    return select_layer
+
 # Currently used for handling candidates
-def get_side_panel_layout(df):
+def get_side_panel_layout():
     side_panel_style = {
-        "height": "100vh",
         "flexShrink": 0,
         "color": "black",
         "backgroundColor": "white",
@@ -119,19 +177,22 @@ def get_side_panel_layout(df):
     side_panel_layout = html.Div(
         children=[
             get_side_panel_header(),
-            get_side_panel_intro(),
-            get_side_panel_form(df),
-            get_selected_layer_buttons(),
             html.Div([
-                "You are currently viewing contributions from each ",
-                html.Span("precinct", id="base-layer-name"),
-                " for ",
-                html.Span("all candidates", id="candidate-name-span")
-            ]),
+                get_side_panel_intro(),
+                get_side_panel_form(),
+            ], style={"height":"100%", "overflowY":"auto"}),
             # get_candidate_select(candidates),
             # reset_selection_button(),
             # side_panel_form,
             # get_expand_button(),
+            # html.Div([
+            #     html.Strong("CURRENT VIEW:"),
+            #     "Total contributions in each ",
+            #     html.Span("precinct", id="base-layer-name"),
+            #     " for ",
+            #     html.Span("all candidates", id="candidate-name-span")
+            # ], style={"width": "90%"}),
+            get_select_layer_section(),
             get_side_panel_footer(),
         ],
         className="SidePanel_NotExpanded",
@@ -148,6 +209,7 @@ def get_collapse_candidate_info():
 def get_candidate_info_card(candidate):
     if candidate is not None:
         donation_stats = mec_query.get_contribution_stats_for_candidate(candidate.name)
+
         return dbc.Card(
             children=[
                 dbc.CardHeader(f"Donation summary for {candidate.name}"),
@@ -183,16 +245,14 @@ def get_candidate_info_card(candidate):
         return None
 
 
-def get_side_panel_form(df):
+def get_side_panel_form():
     return html.Div(
         children=[
-            plotting.sidebar_graph_component(
-                plotting.create_candidate_funds_bar_plot(df),
-            ),
+            sidebar_graph_component(),
             dbc.Collapse(children=[], id="candidate_info_collapse"),
         ],
         id="side-panel-form",
-        style={"width": "100%", "flexGrow": 4},
+        style={"width": "90%", "flexGrow": 4, },
     )
 
 
@@ -221,26 +281,20 @@ def get_side_panel_footer():
         "width": "100%",
         "color": "white",
         "backgroundColor": "red",
-        "align-self": "flex-end",
+        "marginTop": "auto"
     }
     side_panel_footer = html.Div(
         children=side_panel_footer_box, style=side_panel_footer_style
     )
     return side_panel_footer
 
-
-def get_sidebar_layout(db):
-    candidates_df = pd.read_sql(db.session.query(Candidate).statement, db.session.bind)
-    candidates_df["$ Raised"] = [182000, 176000, 145000, 950]
-    candidates_df = candidates_df.rename(columns={"name": "Candidate"})
-    mec_ids = ["C201499", "C201099", "C201500", "C211544"]
-    # df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
+def get_sidebar_layout():
     return dbc.Container(
         [
             dbc.Row(
                 [
-                    dbc.Col(get_side_panel_layout(candidates_df), width=4),
-                    dbc.Col(mapping.get_map_panel_layout(), width=8),
+                    dbc.Col(get_side_panel_layout(), md=5, lg=4),
+                    dbc.Col(mapping.get_map_panel_layout(), md=7, lg=8),
                 ],
                 no_gutters=True,
             )

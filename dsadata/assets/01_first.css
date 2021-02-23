@@ -32,6 +32,7 @@ input[type="radio"]:checked+label {
 
 .floatbox {
 	width:400px;
+	max-width: 80%;
 	max-height:20vh;
 	background-color: white;
 	color:black;
@@ -43,6 +44,13 @@ input[type="radio"]:checked+label {
 	z-index: 9999;
 }
 
+.leaflet-control-colorbar {
+	padding: 3px;
+	background-color: white;
+	font-size: 0.9em;
+	border: 2px solid red;
+}
+
 .remove-padding {
 	padding-left: 0 !important; 
 	padding-right: 0 !important; 
@@ -52,4 +60,22 @@ input[type="radio"]:checked+label {
 
 .leaflet-control-layers {
 	display: none
+}
+
+#panel-side {
+	height: 100vh;
+}
+
+#map-panel {
+	height: 100vh;
+}
+
+@media (max-width: 750px) {
+	#panel-side {
+		height: 50vh;
+	}
+
+	#map-panel {
+		height: 50vh;
+	}
 }
