@@ -1,6 +1,6 @@
 # from dsadata.mec_query import Candidate, Contribution
 # from dsadata.plotting import create_candidate_funds_bar_plot
-# import pandas as pd
+import pandas as pd
 
 
 # # def test_create_candidate_funds_bar_plot(db_session):
@@ -33,8 +33,9 @@
 # #     assert tishaura.contributions
 
 
-# # def test_candidates_df_returns_dataframe(candidates_df):
-# #     assert isinstance(candidates_df, pd.DataFrame)
+def test_candidates_df_returns_dataframe(candidates_df, app):
+    with app.app_context():
+        assert isinstance(candidates_df, pd.DataFrame)
 
 
 # # def test_tishaura_info_accurate(tishaura):

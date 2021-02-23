@@ -59,8 +59,9 @@ def contributions_df():
 
 
 @pytest.fixture(scope="session")
-def candidates_df():
-    return Candidate.df
+def candidates_df(app):
+    with app.app_context():
+        return Candidate.df()
 
 
 @pytest.fixture(scope="session")
