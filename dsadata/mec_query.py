@@ -33,11 +33,10 @@ class Candidate(db.Model):
     #     passive_deletes=True,
     # )
 
-    # @hybrid_property
-    # @hybrid_method
-    # def df(self):
-    #     df = pd.read_sql(self.query("candidate").all(), db.engine)
-    #     return df
+    @classmethod
+    def df(self):
+        df = pd.read_sql("candidate", db.engine)
+        return df
 
     # return pd.DataFrame()
 
