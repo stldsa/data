@@ -9,14 +9,19 @@ db_uri = os.getenv("DATABASE_URL")
 engine = create_engine(db_uri, echo=True)
 # Right now only doing mayoral race, but update as necessary
 candidates = pd.read_csv("data/candidates_2021-03-02.csv")
-candidates = candidates[["MECID", "Candidate Name", "Committee Name",
-    # "Office Sought", "Status"
-]].rename(
+candidates = candidates[
+    [
+        "MECID",
+        "Candidate Name",
+        "Committee Name",
+        # "Office Sought", "Status"
+    ]
+].rename(
     columns={
         "MECID": "mec_id",
         "Candidate Name": "name",
         "Committee Name": "committee_name",
-        # "Office Sought": "office_sought",
+        "Office Sought": "office_sought",
         # "Status": "status"
     }
 )

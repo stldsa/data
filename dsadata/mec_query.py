@@ -23,7 +23,7 @@ class Candidate(db.Model):
     mec_id = db.Column(db.String, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String)
     committee_name = db.Column(db.String)
-    # office_sought = db.Column(db.String)
+    office_sought = db.Column(db.String)
     # status = db.Column(db.String)
     # contributions = db.relationship(
     #     "Contribution",

@@ -45,6 +45,7 @@ import pandas as pd
 def test_candidates_df_returns_dataframe(candidates_df, app):
     with app.app_context():
         assert isinstance(candidates_df, pd.DataFrame)
+        assert "office_sought" in candidates_df.columns
 
 
 # # def test_tishaura_info_accurate(tishaura):
