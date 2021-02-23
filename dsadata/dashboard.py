@@ -24,6 +24,7 @@ locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
 
 def init_dashboard(server):
+    print(server)
     dash_app = dash.Dash(
         server=server,
         routes_pathname_prefix="/",
@@ -32,6 +33,7 @@ def init_dashboard(server):
     dash_app.layout = get_sidebar_layout()
     # dash_app.layout = html.Div(id="dash-container")
     init_callbacks(dash_app)
+    print('ieui')
     return dash_app.server
 
 
@@ -49,7 +51,7 @@ def init_callbacks(app):
                 .first()
             )
             mec_id = candidate_row.mec_id
-            color_prop = "mec_donazzzzzzzzzzzzzzzzzztion_" + mec_id
+            color_prop = "mec_donation_" + mec_id
         else:
             color_prop = "total_mayor_donations"
         hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
@@ -64,14 +66,14 @@ def init_callbacks(app):
             Output("neighborhood-geojson", "hideout"),
             Output("zip-geojson", "hideout"),
         ],
-        [Input("fundraising-graph", "clickData")],
+        [Input("candidate-select", "value")],
         [State("candidate_info_collapse", "is_open")],
     )
-    def toggle_collapse(clicked_data, is_open):
-        if clicked_data:
+    def toggle_collapse(selected_mec_id, is_open):
+    if selected_mec_id != "all":
             candidate_row = (
                 db.session.query(Candidate)
-                .filter_by(name=clicked_data["points"][0]["label"])
+                .filter_by(mec_id=selected_mec_id)
                 .first()
             )
             mec_id = candidate_row.mec_id

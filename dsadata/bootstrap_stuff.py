@@ -95,23 +95,51 @@ def get_side_panel_intro():
 
 
 def get_selected_layer_buttons():
+    button_group_style={"width":"90%", "margin":"auto"}
     button_group = dbc.ButtonGroup(
         [
             dbc.Button(
-                "Voter precincts", id="precinct-button", active=True, className="mr-1"
+                "Voter precincts", 
+                id="precinct-button", 
+                active=True, 
+                className="mr-1",
+                color="light",
+                outline=True
             ),
             dbc.Button(
                 "Neighborhoods / Municipalities",
                 id="neighborhood-button",
                 className="mr-1",
+                color="light",
+                outline=True,
             ),
-            dbc.Button("ZIP Codes", id="zip-button", className="mr-1"),
+            dbc.Button(
+                "ZIP Codes", 
+                id="zip-button", 
+                className="mr-1",
+                color="light",
+                outline=True
+            ),
         ],
         size="md",
         className="mr-1",
         id="select-layer",
     )
     return button_group
+
+def get_candidate_select():
+    dropdown_style = {"padding": "10px", "maxWidth": "90%", "margin": "auto"}
+    select_options = [{"label":"All mayoral candidates", "value":"all"}]
+    # for index, row in df.iterrows():
+    #     select_options.append({"label": row.Candidate, "value": row.mec_id})
+    dropdown = html.Div([
+        dbc.Select(
+            id="candidate-select",
+            options=select_options,
+            value="all"
+        )
+    ], style=dropdown_style)
+    return dropdown
 
 
 def get_select_layer_section():
@@ -124,6 +152,7 @@ def get_select_layer_section():
     }
     select_layer = html.Div(
         [
+            get_candidate_select(),
             get_selected_layer_buttons()
         ], 
         style=select_layer_section_style
@@ -258,11 +287,7 @@ def get_side_panel_footer():
     return side_panel_footer
 
 def get_sidebar_layout():
-    # candidates_df = pd.read_sql_table("candidate", db.engine)
-    # candidates_df["$ Raised"] = [182000, 176000, 145000, 950]
-    # candidates_df = candidates_df.rename(columns={"name": "Candidate"})
-    # mec_ids = ["C201499", "C201099", "C201500", "C211544"]
-    # df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
+    print('aoeu')
     return dbc.Container(
         [
             dbc.Row(
