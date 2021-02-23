@@ -53,3 +53,21 @@ input[type="radio"]:checked+label {
 .leaflet-control-layers {
 	display: none
 }
+
+#panel-side {
+	height: 100vh;
+}
+
+#map-panel {
+	height: 100vh;
+}
+
+@media (max-width: 650px) {
+	#panel-side {
+		height: 50vh;
+	}
+
+	#map-panel {
+		height: 50vh;
+	}
+}

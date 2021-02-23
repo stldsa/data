@@ -94,7 +94,7 @@ def get_neighborhood_geojson():
 def get_map_panel_layout():
     colorbar = get_colorbar()
     stl_center = [38.648, -90.253]
-    city_map_style = {"height": "100vh", "margin": "none", "display": "block"}
+    city_map_style = {"height": "100%", "margin": "none", "display": "block"}
     city_map = html.Div(
         dl.Map(children=[
             get_base_toner_tile_layer(),
@@ -120,7 +120,7 @@ def get_map_panel_layout():
         color="dark", outline=True, id="floatbox-zip", className="displayNone")
 
 
-    map_panel_style = {"width": "100%", "height": "100vh", "display": "block"}
+    map_panel_style = {"width": "100%", "display": "block"}
     map_panel = html.Div(id="map-panel", 
         children=[
             city_map, 

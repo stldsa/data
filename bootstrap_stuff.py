@@ -105,7 +105,6 @@ def get_selected_layer_buttons():
 # Currently used for handling candidates
 def get_side_panel_layout(df):
     side_panel_style = {
-        "height": "100vh",
         "flexShrink": 0,
         "color": "black",
         "backgroundColor": "white",
@@ -119,15 +118,17 @@ def get_side_panel_layout(df):
     side_panel_layout = html.Div(
         children=[
             get_side_panel_header(),
-            get_side_panel_intro(),
-            get_side_panel_form(df),
-            get_selected_layer_buttons(),
             html.Div([
-                "You are currently viewing contributions from each ",
-                html.Span("precinct", id="base-layer-name"),
-                " for ",
-                html.Span("all candidates", id="candidate-name-span")
-            ]),
+                get_side_panel_intro(),
+                get_side_panel_form(df),
+                get_selected_layer_buttons(),
+                html.Div([
+                    "You are currently viewing contributions from each ",
+                    html.Span("precinct", id="base-layer-name"),
+                    " for ",
+                    html.Span("all candidates", id="candidate-name-span")
+                ]),
+            ], style={"flex-shrink":3, "overflowY":"scroll"}),
             # get_candidate_select(candidates),
             # reset_selection_button(),
             # side_panel_form,
@@ -192,7 +193,7 @@ def get_side_panel_form(df):
             dbc.Collapse(children=[], id="candidate_info_collapse"),
         ],
         id="side-panel-form",
-        style={"width": "100%", "flexGrow": 4},
+        style={"width": "90%", "flexGrow": 4, },
     )
 
 
@@ -221,7 +222,7 @@ def get_side_panel_footer():
         "width": "100%",
         "color": "white",
         "backgroundColor": "red",
-        "align-self": "flex-end",
+        "marginTop": "auto"
     }
     side_panel_footer = html.Div(
         children=side_panel_footer_box, style=side_panel_footer_style
@@ -239,8 +240,8 @@ def get_sidebar_layout(db):
         [
             dbc.Row(
                 [
-                    dbc.Col(get_side_panel_layout(candidates_df), width=4),
-                    dbc.Col(mapping.get_map_panel_layout(), width=8),
+                    dbc.Col(get_side_panel_layout(candidates_df), md=4),
+                    dbc.Col(mapping.get_map_panel_layout(), md=8),
                 ],
                 no_gutters=True,
             )
