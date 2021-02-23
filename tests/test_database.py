@@ -7,5 +7,5 @@ from flask_sqlalchemy import SQLAlchemy
 # db_session.query(Candidate).all()
 
 
-def test_combine_years(df_list):
-    pass
+# def test_combine_years(df_list):
+#     pass
