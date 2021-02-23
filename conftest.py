@@ -3,7 +3,6 @@ import pytest
 from flask import Flask
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-from dsadata import init_app
 from dsadata.mec_query import Candidate, Contribution
 
 load_dotenv()
@@ -31,7 +30,6 @@ def app():
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     with app.app_context():
-        import dsadata.mec_query
         from dsadata.dashboard import init_dashboard
 
         app = init_dashboard(app)
