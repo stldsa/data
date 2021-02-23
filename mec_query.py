@@ -9,6 +9,8 @@ import dash_html_components as html
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_
+from sqlalchemy.sql import func
 from sqlalchemy.ext.hybrid import hybrid_property
 from dotenv import load_dotenv
 
@@ -266,6 +268,16 @@ def get_all_contributors():
         return_contributors, key=lambda contributor: contributor["total_contribution"]
     )
 
+def get_candidate_total_donations(candidate_name):
+    return db.session.query(
+        func.sum(Contribution.amount)
+    ).filter(
+        and_(
+            Contribution.candidate.has(name=candidate_name), 
+            Contribution.contribution_type == "M"
+        )
+    ).scalar()
+    
 
 def get_contribution_stats_for_candidate(candidate_name):
     contributions = Contribution.query.filter(

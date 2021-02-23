@@ -30,7 +30,7 @@ def create_candidate_funds_bar_plot(df):
     bar_line_color = "rgb(8,47,107)"
     bar_opacity = 0.7
 
-    bar_label_template = "%{y} = $%{x:.3s}"
+    bar_label_template = "%{y}"
     fig.update_xaxes(fixedrange=True)
     fig.update_yaxes(visible=False, showticklabels=False, fixedrange=True)
     # Set traces

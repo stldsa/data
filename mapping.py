@@ -42,7 +42,7 @@ def get_colorbar():
         colorscale=bootstrap_stuff.fundraising_colorscale,
         width=400,
         height=30,
-        position="bottomright",
+        position="topright"
     )
     return colorbar 
 

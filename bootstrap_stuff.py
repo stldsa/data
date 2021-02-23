@@ -39,9 +39,9 @@ fundraising_style = {
     "fillOpacity": 0.7,
 }
 fundraising_ctg = [
-    "{}+".format(cls, fundraising_classes[i + 1])
+    "${}+".format(cls, fundraising_classes[i + 1])
     for i, cls in enumerate(fundraising_classes[:-1])
-] + ["{}+".format(fundraising_classes[-1])]
+] + ["${}+".format(fundraising_classes[-1])]
 
 
 def build_choropleth_hideout(color_prop):
@@ -96,11 +96,23 @@ def get_side_panel_intro():
 
 def get_selected_layer_buttons():
     button_group = dbc.ButtonGroup([
-        dbc.Button("Voter precincts", id="precinct-button", active=True, className="mr-1"),
-        dbc.Button("Neighborhoods / Municipalities", id="neighborhood-button", className="mr-1"),
-        dbc.Button("ZIP Codes", id="zip-button", className="mr-1"),
+        dbc.Button("Voter precincts", id="precinct-button", active=True, color="light", outline=True, className="mr-1"),
+        dbc.Button("Neighborhoods / Municipalities", id="neighborhood-button", color="light", outline=True, className="mr-1"),
+        dbc.Button("ZIP Codes", id="zip-button", color="light", outline=True, className="mr-1"),
     ], size="md", className="mr-1", id="select-layer")
     return button_group
+
+def get_select_layer_section():
+    select_layer_section_style = {
+        "backgroundColor": "red",
+        "color": "white",
+        "padding": "10px 0",
+        "width": "100%",
+        "textAlign": "center"
+    }
+    return html.Div([
+        get_selected_layer_buttons()
+    ], style=select_layer_section_style)
 	
 # Currently used for handling candidates
 def get_side_panel_layout(df):
@@ -121,18 +133,19 @@ def get_side_panel_layout(df):
             html.Div([
                 get_side_panel_intro(),
                 get_side_panel_form(df),
-                get_selected_layer_buttons(),
-                html.Div([
-                    "You are currently viewing contributions from each ",
-                    html.Span("precinct", id="base-layer-name"),
-                    " for ",
-                    html.Span("all candidates", id="candidate-name-span")
-                ]),
-            ], style={"flex-shrink":3, "overflowY":"scroll"}),
+            ], style={"height":"100%", "overflowY":"auto"}),
             # get_candidate_select(candidates),
             # reset_selection_button(),
             # side_panel_form,
             # get_expand_button(),
+            # html.Div([
+            #     html.Strong("CURRENT VIEW:"),
+            #     "Total contributions in each ",
+            #     html.Span("precinct", id="base-layer-name"),
+            #     " for ",
+            #     html.Span("all candidates", id="candidate-name-span")
+            # ], style={"width": "90%"}),
+            get_select_layer_section(),
             get_side_panel_footer(),
         ],
         className="SidePanel_NotExpanded",
@@ -149,6 +162,7 @@ def get_collapse_candidate_info():
 def get_candidate_info_card(candidate):
     if candidate is not None:
         donation_stats = mec_query.get_contribution_stats_for_candidate(candidate.name)
+
         return dbc.Card(
             children=[
                 dbc.CardHeader(f"Donation summary for {candidate.name}"),
@@ -232,7 +246,7 @@ def get_side_panel_footer():
 
 def get_sidebar_layout(db):
     candidates_df = pd.read_sql(db.session.query(Candidate).statement, db.session.bind)
-    candidates_df["$ Raised"] = [182000, 176000, 145000, 950]
+    candidates_df["$ Raised"] = candidates_df['name'].apply(mec_query.get_candidate_total_donations)
     candidates_df = candidates_df.rename(columns={"name": "Candidate"})
     mec_ids = ["C201499", "C201099", "C201500", "C211544"]
     # df = pd.read_sql(db.session.query(Contribution).statement, db.session.bind)
@@ -240,8 +254,8 @@ def get_sidebar_layout(db):
         [
             dbc.Row(
                 [
-                    dbc.Col(get_side_panel_layout(candidates_df), md=4),
-                    dbc.Col(mapping.get_map_panel_layout(), md=8),
+                    dbc.Col(get_side_panel_layout(candidates_df), md=5, lg=4),
+                    dbc.Col(mapping.get_map_panel_layout(), md=7, lg=8),
                 ],
                 no_gutters=True,
             )
