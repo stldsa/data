@@ -130,8 +130,10 @@ def get_selected_layer_buttons():
 def get_candidate_select():
     dropdown_style = {"padding": "10px", "maxWidth": "90%", "margin": "auto"}
     select_options = [{"label":"All mayoral candidates", "value":"all"}]
-    # for index, row in df.iterrows():
-    #     select_options.append({"label": row.Candidate, "value": row.mec_id})
+    # candidate_df = pd.read_sql(db.session.query(Candidate).statement, db.session.bind)
+    # for index, row in candidate_df.iterrows():
+    #     print(row)
+    #     select_options.append({"label": row.name, "value": row.mec_id})
     dropdown = html.Div([
         dbc.Select(
             id="candidate-select",
@@ -287,7 +289,6 @@ def get_side_panel_footer():
     return side_panel_footer
 
 def get_sidebar_layout():
-    print('aoeu')
     return dbc.Container(
         [
             dbc.Row(

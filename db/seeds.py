@@ -9,17 +9,21 @@ db_uri = os.getenv("DATABASE_URL")
 engine = create_engine(db_uri, echo=True)
 # Right now only doing mayoral race, but update as necessary
 candidates = pd.read_csv("data/candidates_2021-03-02.csv")
-candidates = candidates[["MECID", "Candidate Name", "Committee Name"]].rename(
+candidates = candidates[["MECID", "Candidate Name", "Committee Name",
+    # "Office Sought", "Status"
+]].rename(
     columns={
         "MECID": "mec_id",
         "Candidate Name": "name",
         "Committee Name": "committee_name",
+        # "Office Sought": "office_sought",
+        # "Status": "status"
     }
 )
 
 candidates.to_sql("candidate", engine, if_exists="append", index=False)
 csv_files = glob("data/mec_geocoded/*")
-print(csv_files)
+# print(csv_files)
 globals().update(
     locals()
 )  # so we can use pandas inside the listcomp below - https://github.com/inducer/pudb/issues/103
