@@ -58,15 +58,15 @@ app.layout = get_sidebar_layout(db)
         Output("neighborhood-geojson", "hideout"),
         Output("zip-geojson", "hideout")
     ],
-    [Input("fundraising-graph", "clickData")],
+    [Input("candidate-select", "value")],
     [State("candidate_info_collapse", "is_open")],
 )
-def toggle_collapse(clicked_data, is_open):
-    print(clicked_data)
-    if clicked_data:
+def toggle_collapse(selected_mec_id, is_open):
+    # print(clicked_data)
+    if selected_mec_id != "all":
         candidate_row = (
             db.session.query(Candidate)
-            .filter_by(name=clicked_data["points"][0]["label"])
+            .filter_by(mec_id=selected_mec_id)
             .first()
         )
         mec_id = candidate_row.mec_id

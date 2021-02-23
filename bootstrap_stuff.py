@@ -95,14 +95,32 @@ def get_side_panel_intro():
 
 
 def get_selected_layer_buttons():
-    button_group = dbc.ButtonGroup([
-        dbc.Button("Voter precincts", id="precinct-button", active=True, color="light", outline=True, className="mr-1"),
-        dbc.Button("Neighborhoods / Municipalities", id="neighborhood-button", color="light", outline=True, className="mr-1"),
-        dbc.Button("ZIP Codes", id="zip-button", color="light", outline=True, className="mr-1"),
-    ], size="md", className="mr-1", id="select-layer")
+    button_group_style={"width":"90%", "margin":"auto"}
+    button_group = html.Div([
+        dbc.ButtonGroup([
+            dbc.Button("Voter precincts", id="precinct-button", active=True, color="light", outline=True, className="mr-1"),
+            dbc.Button("Neighborhoods / Municipalities", id="neighborhood-button", color="light", outline=True, className="mr-1"),
+            dbc.Button("ZIP Codes", id="zip-button", color="light", outline=True, className="mr-1"),
+        ], size="md", className="mr-1", id="select-layer")
+    ], style=button_group_style)
     return button_group
 
-def get_select_layer_section():
+def select_candidate_select(df):
+    dropdown_style = {"padding": "10px", "maxWidth": "90%", "margin": "auto"}
+    select_options = [{"label":"All mayoral candidates", "value":"all"}]
+    for index, row in df.iterrows():
+        select_options.append({"label": row.Candidate, "value": row.mec_id})
+    dropdown = html.Div([
+        dbc.Select(
+            id="candidate-select",
+            options=select_options,
+            value="all"
+        )
+    ], style=dropdown_style)
+    return dropdown
+
+
+def get_select_layer_section(df):
     select_layer_section_style = {
         "backgroundColor": "red",
         "color": "white",
@@ -111,7 +129,8 @@ def get_select_layer_section():
         "textAlign": "center"
     }
     return html.Div([
-        get_selected_layer_buttons()
+        select_candidate_select(df),
+        get_selected_layer_buttons(),
     ], style=select_layer_section_style)
 	
 # Currently used for handling candidates
@@ -145,7 +164,7 @@ def get_side_panel_layout(df):
             #     " for ",
             #     html.Span("all candidates", id="candidate-name-span")
             # ], style={"width": "90%"}),
-            get_select_layer_section(),
+            get_select_layer_section(df),
             get_side_panel_footer(),
         ],
         className="SidePanel_NotExpanded",
