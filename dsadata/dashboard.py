@@ -244,6 +244,7 @@ def init_callbacks(app):
         card_contents = bootstrap_stuff.get_floatbox_card_contents("zip")
 
         if feature:
+            print(feature)
             header_text = f"ZIP Code {feature['properties']['ZCTA5CE10']}"
             body_contents = [
                 html.Strong("Total monetary donations: "),

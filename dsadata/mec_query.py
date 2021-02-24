@@ -205,7 +205,7 @@ def create_contributions(mec_df):
 
 # This is like the function below, but we don't need to geocode zips
 def build_zip_donation_pbf_from_geojson(
-    contribution_df, contest_name, mec_ids, contest_pac_ids, polygons_geojson_data, output_geobuf_path
+    contribution_df, contest_name, candidate_mec_ids, contest_pac_ids, polygons_geojson_data, output_geobuf_path
 ):
     polygons = gpd.read_file(polygons_geojson_data)
     zip_df = contribution_df.groupby(by=["ZIP5", "MECID"]).agg({"Amount": "sum"})
@@ -216,7 +216,7 @@ def build_zip_donation_pbf_from_geojson(
         if this_zip in zip_df.index:
             mec_donations = zip_df.loc[this_zip].to_dict()
             candidate_geography_totals = {}
-            for mec_id in mec_ids:
+            for mec_id in candidate_mec_ids:
                 if mec_id in mec_donations["Amount"]:
                     this_candidate_donations = mec_donations["Amount"][mec_id]
                 else:
@@ -232,12 +232,16 @@ def build_zip_donation_pbf_from_geojson(
                     candidate_geography_totals[this_pac['candidate_mec_id']] = mec_donations["Amount"][pac_id] + candidate_geography_totals[this_pac['candidate_mec_id']]
             
             # Add pac to totals
-            for cand_mec_id in candidate_geography_totals:
-                polygons.loc[
-                    index, "mec_donations_" + mec_id + "_with_pacs"
-                ] = candidate_geography_totals[cand_mec_id]
-
-            total_monetary_donations = zip_total_df.loc[this_zip].Amount
+            for cand_mec_id in candidate_mec_ids:
+                if cand_mec_id in candidate_geography_totals:
+                    polygons.loc[
+                        index, "mec_donations_" + cand_mec_id + "_with_pacs"
+                    ] = candidate_geography_totals[cand_mec_id]
+                else:
+                    polygons.loc[
+                        index, "mec_dotations_" + mec_id + "_with_pacs"
+                    ] = 0
+                total_monetary_donations = zip_total_df.loc[this_zip].Amount
         else:
             total_monetary_donations = 0
         polygons.loc[index, "total_monetary_donations_"+contest_name] = no_pac_total
