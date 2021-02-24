@@ -21,7 +21,7 @@ def get_error_404(pathname):
     )
 
 
-fundraising_classes = [0, 100, 500, 1000, 2000, 5000, 10000, 20000]
+fundraising_classes = [100, 500, 1000, 2000, 5000, 10000, 20000, 50000]
 fundraising_colorscale = [
     "#FFEDA0",
     "#FED976",
