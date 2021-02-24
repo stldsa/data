@@ -44,7 +44,7 @@ def init_callbacks(app):
             Output("candidate-select", "value"),
             Output("precincts-geojson", "url"),
             Output("neighborhood-geojson", "url"),
-            Output("zip-geojson", "url")
+            Output("zip-geojson", "url"),
         ],
         [Input("contest-select", "value")]
     )
@@ -63,7 +63,7 @@ def init_callbacks(app):
             "all", 
             "static/geobuf/"+mec_query.get_standard_contest_name(contest_name)+"-stl-city-and-county-precincts.pbf",
             "static/geobuf/"+mec_query.get_standard_contest_name(contest_name)+"-neighborhoods-and-municipalities.pbf",
-            "static/geobuf/"+mec_query.get_standard_contest_name(contest_name)+"-stl-region-zip.pbf",
+            "static/geobuf/"+mec_query.get_standard_contest_name(contest_name)+"-stl-region-zip.pbf"
         ]
 
 
@@ -154,7 +154,6 @@ def init_callbacks(app):
 
     )
     def neighborhood_click(feature, n_clicks, contest):
-        contest_name = mec_query.get_standard_contest_name(contest)
         class_name = "displayNone"
         header_text = "Error"
         card_contents = bootstrap_stuff.get_floatbox_card_contents("neighborhood")
@@ -169,7 +168,7 @@ def init_callbacks(app):
                 header_text = feature["properties"]["MUNICIPALI"].title()
             class_name = "floatbox"
             card_contents = bootstrap_stuff.get_floatbox_card_contents(
-                "neighborhood", header_text, contest_name, feature["properties"]
+                "neighborhood", header_text, contest, feature["properties"]
             )
 
         if n_clicks:
@@ -189,7 +188,6 @@ def init_callbacks(app):
         [State("contest-select", "value")]
     )
     def precinct_click(feature, n_clicks, contest):
-        contest_name = mec_query.get_standard_contest_name(contest)
         class_name = "displayNone"
         header_text = "Error"
         card_contents = bootstrap_stuff.get_floatbox_card_contents("precinct")
@@ -205,7 +203,7 @@ def init_callbacks(app):
                 )
             class_name = "floatbox"
             card_contents = bootstrap_stuff.get_floatbox_card_contents(
-                "precinct", header_text, contest_name, feature["properties"]
+                "precinct", header_text, contest, feature["properties"]
             )
 
         if n_clicks:
@@ -222,7 +220,6 @@ def init_callbacks(app):
         [State("contest-select", "value")]
     )
     def zip_click(feature, n_clicks, contest):
-        contest_name = mec_query.get_standard_contest_name(contest)
         class_name = "displayNone"
         header_text = "Error"
         card_contents = bootstrap_stuff.get_floatbox_card_contents("zip")
@@ -232,7 +229,7 @@ def init_callbacks(app):
             header_text = f"ZIP Code {feature['properties']['ZCTA5CE10']}"
             class_name = "floatbox"
             card_contents = bootstrap_stuff.get_floatbox_card_contents(
-                "zip", header_text, contest_name, feature["properties"]
+                "zip", header_text, contest, feature["properties"]
             )
 
         if n_clicks:

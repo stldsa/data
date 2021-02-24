@@ -3,12 +3,12 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
 
-# from dsadata import mapping, plotting, mec_query
-from dsadata import mapping
+from dsadata import mapping, plotting, mec_query
 from dsadata.plotting import sidebar_graph_component
 import locale
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
+
 
 
 def get_error_404(pathname):
@@ -350,7 +350,7 @@ def get_sidebar_layout():
     )
 
 
-def get_floatbox_card_contents(id_suffix, header_text="", contest_name="Mayor", feature_properties={}):
+def get_floatbox_card_contents(id_suffix, header_text="", contest="Mayor - City of St. Louis", feature_properties={}):
     header_style = {"fontSize": "1.5em", "fontWeight": "bold"}
     header_span = html.Span(header_text, style=header_style)
     close_card_button = dbc.Button(
@@ -361,14 +361,18 @@ def get_floatbox_card_contents(id_suffix, header_text="", contest_name="Mayor", 
         style={"float": "right"},
     )
     if bool(feature_properties):
+        contest_name = mec_query.get_standard_contest_name(contest)
         card_contents = dbc.CardBody(
             [
-                html.Strong("Total monetary donations: "),
-                html.Span(
-                    locale.currency(
-                        feature_properties["total_monetary_donations_"+contest_name+"_with_pacs"], grouping=True
-                    )
-                ),
+                html.Div([
+                    html.Strong("Total monetary donations in race for "+contest_name+": "),
+                    html.Div(
+                        locale.currency(
+                            feature_properties["total_monetary_donations_"+contest_name+"_with_pacs"], grouping=True
+                        )
+                    ),
+                ]),
+                plotting.create_candidate_funds_pie(contest, feature_properties)
             ]
         )
     else:
@@ -379,40 +383,3 @@ def get_floatbox_card_contents(id_suffix, header_text="", contest_name="Mayor", 
     ]
 
 
-def get_zip_click_card(feature):
-    header_style = {"fontSize": "1.5em", "fontWeight": "bold"}
-
-    if feature is not None:
-        header_text = html.Span(
-            f"ZIP Code {feature['properties']['ZCTA5CE10']}", style=header_style
-        )
-        body_contents = [
-            html.Strong("Total funds contributed for Mayor's race (all candidates): "),
-            html.Span(
-                locale.currency(
-                    feature["properties"]["total_mayor_donations"], grouping=True
-                )
-            ),
-        ]
-    else:
-        header_text = html.Span(f"No ZIP Selected")
-        body_contents = [html.Em("No info to display")]
-
-    card_content = [
-        dbc.CardHeader(
-            [
-                header_text,
-                dbc.Button(
-                    " X ",
-                    outline=True,
-                    color="danger",
-                    id="zip-box-close",
-                    style={"float": "right"},
-                ),
-            ]
-        ),
-        dbc.CardBody(body_contents),
-    ]
-
-    zip_card = dbc.Card(card_content, color="dark", outline=True, id="floatbox")
-    return zip_card

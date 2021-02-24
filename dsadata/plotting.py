@@ -9,6 +9,56 @@ import dash_html_components as html
 
 pd.options.plotting.backend = "plotly"
 
+def parse_geography_properties_for_fundraising(geography_properties, mec_id):
+    return geography_properties["mec_donations_" + mec_id + "_with_pacs"]
+
+def get_candidate_colors(contest_candidates_df):
+    colors = ['#66c2a5','#fc8d62','#8da0cb','#e78ac3','#a6d854','#ffd92f','#e5c494','#b3b3b3']
+    color_map = {}
+    contest_candidates_df = contest_candidates_df.sort_values("Candidate Name").reset_index()
+    for index, row in contest_candidates_df.iterrows():
+        candidate_name = row["Candidate Name"]
+        color_map[candidate_name] = colors[index]
+    return color_map
+
+def create_candidate_funds_pie(contest, geography_properties):
+    
+    contest_name = mec_query.get_standard_contest_name(contest)
+
+    candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
+    contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
+    contest_candidates_df.loc[:, "Fundraising"] = contest_candidates_df.apply(lambda x: parse_geography_properties_for_fundraising(geography_properties, x['MECID']), axis=1 )
+    color_discrete_map = get_candidate_colors(contest_candidates_df)
+    fig = px.pie(
+        contest_candidates_df, 
+        values='Fundraising', 
+        color='Candidate Name',
+        names='Candidate Name',
+        hover_name='Candidate Name',
+        color_discrete_map=get_candidate_colors(contest_candidates_df),
+        hole=.3,
+        width=250, height=250
+    )
+    fig.update_traces(
+        textinfo='none',
+        hovertemplate = "<b>%{label}</b><br>Funds raised here: $%{value}",
+        automargin=True
+    )
+    fig.update_layout(
+        showlegend=False,
+        margin=dict(l=10, r=10, t=10, b=10)
+    )
+
+
+    pie_graph = dcc.Graph(
+        id="geography-pie-graph",
+        figure=fig,
+        config={
+            "displayModeBar": False,
+            # 'staticPlot': True
+        },
+    )
+    return html.Div([pie_graph], style={"width":"250px", "margin":"auto"})
 
 def create_candidate_funds_bar_plot(candidates_df):
     df = candidates_df
