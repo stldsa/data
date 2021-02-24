@@ -8,7 +8,7 @@ import geobuf
 from sqlalchemy import and_
 from sqlalchemy.sql import func
 from sqlalchemy.ext.hybrid import hybrid_property
-from dsadata import db
+from database import db
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -41,7 +41,7 @@ class Candidate(db.Model):
 
     @hybrid_property
     def stats(self):
-        print(self.contributions)
+        # print(self.contributions)
         # for contribution in self.contributions:
         #     print(contribution, contribution.amount)
         return {
@@ -62,20 +62,20 @@ class Contribution(db.Model):
     # mec_id = db.Column(db.String, db.ForeignKey("candidate.mec_id"))
     mec_id = db.Column(db.String)
     # candidate = db.relationship("Candidate", back_populates="contributions")
-    contributor_id = db.Column(
-        db.Integer,
-        db.ForeignKey("contributor.id", ondelete="CASCADE"),
-    )
-    contributor = db.relationship(
-        "Contributor", backref=db.backref("contributions", lazy=True)
-    )
+    # contributor_id =:E db.Column(
+    #     db.Integer,
+    #     db.ForeignKey("contributor.id", ondelete="CASCADE"),
+    # )
+    # contributor = db.relationship(
+    #     "Contributor", backref=db.backref("contributions", lazy=True)
+    # )
     lat = db.Column(db.Float)
     lon = db.Column(db.Float)
     employer = db.Column(db.String)
     occupation = db.Column(db.String)
     amount = db.Column(db.Float)
     contribution_type = db.Column(db.String)
-    report = db.Column(db.String)
+    # report = db.Column(db.String)
 
     # @hybrid_property
     # def df(self):
@@ -199,27 +199,27 @@ def create_contributions(mec_df):
 
 # This is like the function below, but we don't need to geocode zips
 def build_zip_donation_pbf_from_geojson(
-    contribution_df, mec_ids, polygons_geojson_data, output_geobuf_path
+    contribution_df, contest_name, mec_ids, polygons_geojson_data, output_geobuf_path
 ):
     polygons = gpd.read_file(polygons_geojson_data)
-    zip_df = contribution_df.groupby(by=["zip5", "mec_id"]).agg({"amount": "sum"})
-    zip_total_df = contribution_df.groupby(by=["zip5"]).agg({"amount": "sum"})
+    zip_df = contribution_df.groupby(by=["ZIP5", "MECID"]).agg({"Amount": "sum"})
+    zip_total_df = contribution_df.groupby(by=["ZIP5"]).agg({"Amount": "sum"})
     for index, polygon in polygons.iterrows():
         this_zip = polygon.ZCTA5CE10
         if this_zip in zip_df.index:
             mec_donations = zip_df.loc[this_zip].to_dict()
             for mec_id in mec_ids:
-                if mec_id in mec_donations["amount"]:
-                    this_candidate_donations = mec_donations["amount"][mec_id]
+                if mec_id in mec_donations["Amount"]:
+                    this_candidate_donations = mec_donations["Amount"][mec_id]
                 else:
                     this_candidate_donations = 0
                 polygons.loc[
                     index, "mec_donations_" + mec_id
                 ] = this_candidate_donations
-            total_monetary_donations = zip_total_df.loc[this_zip].amount
+            total_monetary_donations = zip_total_df.loc[this_zip].Amount
         else:
             total_monetary_donations = 0
-        polygons.loc[index, "total_monetary_donations"] = total_monetary_donations
+        polygons.loc[index, "total_monetary_donations_"+contest_name] = total_monetary_donations
 
     polygons_json = polygons.to_json()
     polygon_geojson_data = json.loads(polygons_json)
@@ -229,7 +229,7 @@ def build_zip_donation_pbf_from_geojson(
 
 
 def build_donation_pbf_from_geojson(
-    contribution_gdf, mec_ids, polygons_geojson_paths, output_geobuf_path
+    contribution_gdf, contest_name, mec_ids, polygons_geojson_paths, output_geobuf_path
 ):
     # polygons = gpd.read_file(polygons_geojson_path)
     polygons = gpd.GeoDataFrame(
@@ -253,8 +253,8 @@ def build_donation_pbf_from_geojson(
                     )
             else:
                 total_nonmonetary_donations = total_nonmonetary_donations + row.amount
-        polygons.loc[index, "total_monetary_donations"] = total_monetary_donations
-        polygons.loc[index, "total_nonmonetary_donations"] = total_nonmonetary_donations
+        polygons.loc[index, "total_monetary_donations_"+contest_name] = total_monetary_donations
+        polygons.loc[index, "total_nonmonetary_donations_"+contest_name] = total_nonmonetary_donations
 
         for mec_id in mec_ids:
             if mec_id in candidate_donations and candidate_donations[mec_id] > 0:
@@ -328,3 +328,11 @@ def get_contribution_stats_for_candidate(candidate_name):
         "average_donation": average_donation,
     }
     return stats
+
+def get_standard_contest_name(contest):
+    contest_parts = contest.split(" - ")
+    if contest_parts[0] == "Alderperson":
+        contest_name = contest_parts[1].replace(" ", "")  
+    else:
+        contest_name = contest_parts[0]
+    return contest_name
