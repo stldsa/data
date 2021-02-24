@@ -40,9 +40,9 @@ fundraising_style = {
     "fillOpacity": 0.7,
 }
 fundraising_ctg = [
-    "${}+".format(cls, fundraising_classes[i + 1])
+    "${:,}+".format(cls, fundraising_classes[i + 1])
     for i, cls in enumerate(fundraising_classes[:-1])
-] + ["${}+".format(fundraising_classes[-1])]
+] + ["${:,}+".format(fundraising_classes[-1])]
 
 
 def build_choropleth_hideout(color_prop):
