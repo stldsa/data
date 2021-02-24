@@ -22,22 +22,13 @@ def get_error_404(pathname):
 
 
 fundraising_classes = [100, 500, 1000, 2000, 5000, 10000, 20000, 50000]
-fundraising_colorscale = [
-    "#FFEDA0",
-    "#FED976",
-    "#FEB24C",
-    "#FD8D3C",
-    "#FC4E2A",
-    "#E31A1C",
-    "#BD0026",
-    "#800026",
-]
+fundraising_colorscale = ['#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#99000d']
 fundraising_style = {
     "weight": 2,
     "opacity": 1,
     "color": "white",
     "dashArray": 3,
-    "fillOpacity": 0.7,
+    "fillOpacity": 0.8,
 }
 fundraising_ctg = [
     "${:,}+".format(cls, fundraising_classes[i + 1])
@@ -82,7 +73,7 @@ def get_side_panel_intro():
     side_panel_intro = html.Div(
         children=[
             html.Strong("On March 2,"),
-            " St Louis City will have primary elections for several offices, including mayor and more than half of the Board of Aldermen.",
+            " St Louis City will have primary elections for several offices, including mayor and more than half of the Board of Alders.",
             html.Br(),
             html.Br(),
             html.A("St Louis DSA ", href="https://stldsa.org", style=stldsa_link_style),
@@ -359,7 +350,7 @@ def get_sidebar_layout():
     )
 
 
-def get_floatbox_card_contents(id_suffix, header_text="", body_contents=[]):
+def get_floatbox_card_contents(id_suffix, header_text="", contest_name="Mayor", feature_properties={}):
     header_style = {"fontSize": "1.5em", "fontWeight": "bold"}
     header_span = html.Span(header_text, style=header_style)
     close_card_button = dbc.Button(
@@ -369,9 +360,22 @@ def get_floatbox_card_contents(id_suffix, header_text="", body_contents=[]):
         id="card-box-close-" + id_suffix,
         style={"float": "right"},
     )
+    if bool(feature_properties):
+        card_contents = dbc.CardBody(
+            [
+                html.Strong("Total monetary donations: "),
+                html.Span(
+                    locale.currency(
+                        feature_properties["total_monetary_donations_"+contest_name+"_with_pacs"], grouping=True
+                    )
+                ),
+            ]
+        )
+    else:
+        card_contents = []
     return [
         dbc.CardHeader([header_span, close_card_button]),
-        dbc.CardBody(body_contents),
+        card_contents
     ]
 
 

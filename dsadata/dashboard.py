@@ -167,17 +167,9 @@ def init_callbacks(app):
                 header_text = feature["properties"]["NHD_NAME"]
             else:
                 header_text = feature["properties"]["MUNICIPALI"].title()
-            body_contents = [
-                html.Strong("Total monetary donations: "),
-                html.Span(
-                    locale.currency(
-                        feature["properties"]["total_monetary_donations_"+contest_name], grouping=True
-                    )
-                ),
-            ]
             class_name = "floatbox"
             card_contents = bootstrap_stuff.get_floatbox_card_contents(
-                "neighborhood", header_text, body_contents
+                "neighborhood", header_text, contest_name, feature["properties"]
             )
 
         if n_clicks:
@@ -211,17 +203,9 @@ def init_callbacks(app):
                 header_text = (
                     f"STL County: Precinct {feature['properties']['PRECINCTID']}"
                 )
-            body_contents = [
-                html.Strong("Total monetary donations: "),
-                html.Span(
-                    locale.currency(
-                        feature["properties"]["total_monetary_donations_"+contest_name], grouping=True
-                    )
-                ),
-            ]
             class_name = "floatbox"
             card_contents = bootstrap_stuff.get_floatbox_card_contents(
-                "precinct", header_text, body_contents
+                "precinct", header_text, contest_name, feature["properties"]
             )
 
         if n_clicks:
@@ -246,17 +230,9 @@ def init_callbacks(app):
         if feature:
             print(feature)
             header_text = f"ZIP Code {feature['properties']['ZCTA5CE10']}"
-            body_contents = [
-                html.Strong("Total monetary donations: "),
-                html.Span(
-                    locale.currency(
-                        feature["properties"]["total_monetary_donations_"+contest_name], grouping=True
-                    )
-                ),
-            ]
             class_name = "floatbox"
             card_contents = bootstrap_stuff.get_floatbox_card_contents(
-                "zip", header_text, body_contents
+                "zip", header_text, contest_name, feature["properties"]
             )
 
         if n_clicks:

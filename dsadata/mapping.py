@@ -43,7 +43,7 @@ def get_colorbar():
         colorscale=bootstrap_stuff.fundraising_colorscale,
         width=400,
         height=30,
-        position="topright"
+        position="bottomright"
     )
     return colorbar
 
@@ -126,21 +126,21 @@ def get_map_panel_layout():
     )
 
     precinct_card = dbc.Card(
-        children=bootstrap_stuff.get_floatbox_card_contents("precinct"),
+        children=bootstrap_stuff.get_floatbox_card_contents("precinct", "", "Mayor", {}),
         color="dark",
         outline=True,
         id="floatbox-precinct",
         className="displayNone",
     )
     neighborhood_card = dbc.Card(
-        children=bootstrap_stuff.get_floatbox_card_contents("neighborhood"),
+        children=bootstrap_stuff.get_floatbox_card_contents("neighborhood", "", "Mayor", {}),
         color="dark",
         outline=True,
         id="floatbox-neighborhood",
         className="displayNone",
     )
     zip_card = dbc.Card(
-        children=bootstrap_stuff.get_floatbox_card_contents("zip"),
+        children=bootstrap_stuff.get_floatbox_card_contents("zip", "", "Mayor", {}),
         color="dark",
         outline=True,
         id="floatbox-zip",
