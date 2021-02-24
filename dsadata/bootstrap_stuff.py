@@ -1,3 +1,4 @@
+import re
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -86,8 +87,8 @@ def get_side_panel_intro():
             html.Br(),
             html.A("St Louis DSA ", href="https://stldsa.org", style=stldsa_link_style),
             " is proud to provide this tool to the voters of St Louis. You can use the options below to view campaign contributions for our mayoral candidates. We hope that in democratizing access to this information, voters will be best able to decide who they would like to represent them.",
-            # html.Br(), html.Br(),
-            # html.Em("Full disclosure: St Louis DSA has endorsed Megan Green for 15th Ward Alder.")
+            html.Br(), html.Br(),
+            html.Em("Full disclosure: St Louis DSA has endorsed Megan Green for 15th Ward Alderperson.")
         ],
         style=side_panel_intro_style,
     )
@@ -128,11 +129,25 @@ def get_selected_layer_buttons():
     )
     return button_group
 
+def sort_contests(elem):
+    if re.search('Mayor', elem):
+        return (1, 0)
+    elif re.search('Comptroller', elem):
+        return (2, 0)
+    else:
+        ward_search = re.compile(r"Alderperson - Ward (\d{1,2})")
+        ward_match = ward_search.match(elem)
+        if ward_match:
+            return (3, int(ward_match.group(1)))
+        else:
+            return (4, 0)
+
+
 def get_contest_select():
     dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
     candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
-    contests = candidate_df["Office Sought"].unique()        
-    select_options = [{"label": contest, "value": contest} for contest in contests]
+    contests = candidate_df["Office Sought"].unique()
+    select_options = [{"label": contest, "value": contest} for contest in sorted(contests, key=sort_contests)]
     contest_select = html.Div(
         [
             dbc.Select(
@@ -150,8 +165,6 @@ def get_candidate_select():
     select_options = [{"label":"All mayoral candidates", "value":"all"}]
     candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
     mayor_df = candidate_df[candidate_df["Office Sought"] == "Mayor - City of St. Louis"]
-    # print(mayor_df)
-    # candidate_df = pd.read_sql(db.session.query(Candidate).statement, db.session.bind)
     for index, row in mayor_df.iterrows():
         # print(row)
         select_options.append({"label": row["Candidate Name"], "value": row["MECID"]})

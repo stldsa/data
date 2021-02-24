@@ -55,6 +55,7 @@ def init_callbacks(app):
         print(contest_name)
         candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
         contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
+        contest_candidates_df = contest_candidates_df.sort_values("Candidate Name")
         select_options = [{"label":"All candidates", "value": "all"}]
         for index, row in contest_candidates_df.iterrows():
             select_options.append({"label": row["Candidate Name"].title(), "value": row["MECID"]})
