@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 
 # from dsadata import mapping, plotting, mec_query
-from dsadata import db, mapping
+from dsadata import mapping
 from dsadata.plotting import sidebar_graph_component
 import locale
 
@@ -95,7 +95,7 @@ def get_side_panel_intro():
 
 
 def get_selected_layer_buttons():
-    button_group_style={"width":"90%", "margin":"auto"}
+    button_group_style={"padding": "4px", "width":"90%", "margin":"auto"}
     button_group = dbc.ButtonGroup(
         [
             dbc.Button(
@@ -122,18 +122,39 @@ def get_selected_layer_buttons():
             ),
         ],
         size="md",
-        className="mr-1",
+        # className="mr-1",
         id="select-layer",
+        style=button_group_style
     )
     return button_group
 
+def get_contest_select():
+    dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
+    candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
+    contests = candidate_df["Office Sought"].unique()        
+    select_options = [{"label": contest, "value": contest} for contest in contests]
+    contest_select = html.Div(
+        [
+            dbc.Select(
+                id="contest-select",
+                options=select_options,
+                value="Mayor - City of St. Louis"
+            )
+        ],
+        style=dropdown_style
+    )
+    return contest_select
+
 def get_candidate_select():
-    dropdown_style = {"padding": "10px", "maxWidth": "90%", "margin": "auto"}
+    dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
     select_options = [{"label":"All mayoral candidates", "value":"all"}]
+    candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
+    mayor_df = candidate_df[candidate_df["Office Sought"] == "Mayor - City of St. Louis"]
+    # print(mayor_df)
     # candidate_df = pd.read_sql(db.session.query(Candidate).statement, db.session.bind)
-    # for index, row in candidate_df.iterrows():
-    #     print(row)
-    #     select_options.append({"label": row.name, "value": row.mec_id})
+    for index, row in mayor_df.iterrows():
+        # print(row)
+        select_options.append({"label": row["Candidate Name"], "value": row["MECID"]})
     dropdown = html.Div([
         dbc.Select(
             id="candidate-select",
@@ -154,9 +175,17 @@ def get_select_layer_section():
     }
     select_layer = html.Div(
         [
-            get_candidate_select(),
-            get_selected_layer_buttons()
-        ], 
+            dbc.Row(
+                [
+                    dbc.Col([get_contest_select()], width=6),
+                    dbc.Col([get_candidate_select()], width=6)
+                ],
+                no_gutters=True,
+            ),
+            dbc.Row(
+                [get_selected_layer_buttons()]
+            )
+        ],
         style=select_layer_section_style
     )
     return select_layer
