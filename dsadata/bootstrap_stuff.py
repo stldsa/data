@@ -177,6 +177,18 @@ def get_candidate_select():
     ], style=dropdown_style)
     return dropdown
 
+def get_include_pacs():
+    toggle_switch = html.Div([
+        dbc.Checklist(
+            options=[{"label": "Include PACs", "value": "include_pacs"}],
+            value=["include_pacs"],
+            id="include-pacs-toggle",
+            switch=True,
+            style={"display":"none"}
+        )
+    ])
+    return toggle_switch
+
 
 def get_select_layer_section():
     select_layer_section_style = {
@@ -191,7 +203,8 @@ def get_select_layer_section():
             dbc.Row(
                 [
                     dbc.Col([get_contest_select()], width=6),
-                    dbc.Col([get_candidate_select()], width=6)
+                    dbc.Col([get_candidate_select()], width=6),
+                    dbc.Col([get_include_pacs()], width=0)
                 ],
                 no_gutters=True,
             ),

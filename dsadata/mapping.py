@@ -52,7 +52,6 @@ def get_zip_geojson():
     ns = Namespace("dlx", "choropleth")
     zip_geobuf_path = "static/geobuf/stl-region-zip.pbf"
     zip_geojson = dl.GeoJSON(
-        url=zip_geobuf_path,
         format="geobuf",
         options=dict(style=ns("style")),  # how to style each polygon
         # options=dict(style=dict(color="blue")),
@@ -69,7 +68,6 @@ def get_precinct_geojson():
     ns = Namespace("dlx", "choropleth")
     precincts_geobuf_path = "static/geobuf/stl-city-and-county-precincts.pbf"
     precincts_geojson = dl.GeoJSON(
-        url=precincts_geobuf_path,
         format="geobuf",
         options=dict(style=ns("style")),
         hoverStyle=arrow_function(dict(weight=5, color="#666", dashArray="")),
@@ -83,7 +81,6 @@ def get_neighborhood_geojson():
     ns = Namespace("dlx", "choropleth")
     neighborhoods_geobuf_path = "static/geobuf/neighborhoods-and-municipalities.pbf"
     neighborhoods_geojson = dl.GeoJSON(
-        url=neighborhoods_geobuf_path,
         format="geobuf",
         options=dict(style=ns("style")),
         hoverStyle=arrow_function(dict(weight=5, color="#666", dashArray="")),

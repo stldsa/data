@@ -52,7 +52,6 @@ def init_callbacks(app):
         if contest is None:
             contest = "Mayor - City of St. Louis"
         contest_name = mec_query.get_standard_contest_name(contest)
-        print(contest_name)
         candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
         contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
         contest_candidates_df = contest_candidates_df.sort_values("Candidate Name")
@@ -77,15 +76,17 @@ def init_callbacks(app):
             Output("neighborhood-geojson", "hideout"),
             Output("zip-geojson", "hideout"),
         ],
-        [Input("candidate-select", "value")],
+        [Input("candidate-select", "value"), Input("include-pacs-toggle", "value")],
         [State("contest-select", "value")]
     )
-    def candidate_selected(selected_mec_id, contest):
+    def candidate_selected(selected_mec_id, include_pacs, contest):
         if contest is None:
             contest = "Mayor - City of St. Louis"
         contest_name = mec_query.get_standard_contest_name(contest)
         if selected_mec_id != "all":
-            color_prop = "mec_donations_" + selected_mec_id
+            color_prop = "mec_donations_" + selected_mec_id 
+            if "include_pacs" in include_pacs:
+                color_prop = color_prop + "_with_pacs"
             hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
             return (
                 True,
@@ -94,7 +95,10 @@ def init_callbacks(app):
                 hideout,
                 hideout,
             )
-        hideout = bootstrap_stuff.build_choropleth_hideout("total_monetary_donations_"+contest_name)
+        color_prop = "total_monetary_donations_"+contest_name
+        if "include_pacs" in include_pacs:
+            color_prop = color_prop + "_with_pacs"
+        hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
         return (
             False, 
             [], 
@@ -156,7 +160,6 @@ def init_callbacks(app):
         card_contents = bootstrap_stuff.get_floatbox_card_contents("neighborhood")
 
         if feature:
-            print(feature)
             if (
                 "NHD_NAME" in feature["properties"]
                 and feature["properties"]["NHD_NAME"]
@@ -200,7 +203,6 @@ def init_callbacks(app):
         card_contents = bootstrap_stuff.get_floatbox_card_contents("precinct")
 
         if feature:
-            # print(feature["properties"])
             if (
                 "WARD10" in feature["properties"] and feature["properties"]["WARD10"]
             ):  # STL City precinct
