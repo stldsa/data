@@ -65,7 +65,7 @@ def get_side_panel_header():
 
 def get_side_panel_intro():
     side_panel_intro_style = {
-        "padding": "40px 20px",
+        "padding": "20px",
         "fontSize": "1em",
         "lineHeight": "1.13em",
     }
@@ -225,7 +225,7 @@ def get_side_panel_layout():
             get_side_panel_header(),
             html.Div([
                 get_side_panel_intro(),
-                get_side_panel_form(),
+                get_side_panel_info_section(),
             ], style={"height":"100%", "overflowY":"auto"}),
             # get_candidate_select(candidates),
             # reset_selection_button(),
@@ -291,14 +291,18 @@ def get_candidate_info_card(candidate):
         return None
 
 
-def get_side_panel_form():
+def get_side_panel_info_section():
+    info_section_style={
+        "width": "90%", 
+        "flexGrow": 4, 
+        "padding": "20px"
+    }
     return html.Div(
-        children=[
-            sidebar_graph_component(),
+        [
+            html.Div(id="side-panel-info-section"),
             dbc.Collapse(children=[], id="candidate_info_collapse"),
-        ],
-        id="side-panel-form",
-        style={"width": "90%", "flexGrow": 4, },
+        ], 
+        style=info_section_style
     )
 
 

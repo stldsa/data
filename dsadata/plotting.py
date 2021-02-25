@@ -1,4 +1,6 @@
-from dsadata import mapping, mec_query
+from dsadata import mapping, mec_query, db
+from dsadata.mec_query import Candidate, Contribution, Contributor
+from sqlalchemy import and_
 import pandas as pd
 import plotly.express as px
 import dash_bootstrap_components as dbc
@@ -7,7 +9,10 @@ import dash_leaflet.express as dlx
 import dash_core_components as dcc
 import dash_html_components as html
 
+
 pd.options.plotting.backend = "plotly"
+
+candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
 
 def parse_geography_properties_for_fundraising(geography_properties, mec_id):
     return geography_properties["mec_donations_" + mec_id + "_with_pacs"]
@@ -25,7 +30,6 @@ def create_candidate_funds_pie(contest, geography_properties):
     
     contest_name = mec_query.get_standard_contest_name(contest)
 
-    candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
     contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
     contest_candidates_df.loc[:, "Fundraising"] = contest_candidates_df.apply(lambda x: parse_geography_properties_for_fundraising(geography_properties, x['MECID']), axis=1 )
     color_discrete_map = get_candidate_colors(contest_candidates_df)
@@ -48,7 +52,6 @@ def create_candidate_funds_pie(contest, geography_properties):
         showlegend=False,
         margin=dict(l=10, r=10, t=10, b=10)
     )
-
 
     pie_graph = dcc.Graph(
         id="geography-pie-graph",
@@ -113,6 +116,38 @@ def sidebar_graph_component():
     )
     return graph_component
 
+def build_candidate_info_graph(mec_id):
+    this_candidate = candidate_df.loc[candidate_df["MECID"] == mec_id]
+    candidate_name = this_candidate["Candidate Name"].item()
+    contribution_df = pd.read_sql(
+        db.session.query(Contribution).filter(
+            "MECID" == mec_id
+        ).statement, 
+        db.session.bind
+    )
+    return html.Div(
+        [
+            "Info on "+candidate_name
+        ]
+    )
+
+def build_contest_info_graph(contest):
+    contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
+    contest_mec_ids = contest_candidates_df["MECID"].unique()
+    contribution_df = pd.read_sql(
+        db.session.query(Contribution).filter(
+            and_(
+                # Contribution.lat != "Nan",
+                Contribution.mec_id.in_(contest_mec_ids)
+            )
+        ).statement, 
+        db.session.bind
+    )
+    return html.Div(
+        [
+            "Info on "+contest
+        ]
+    )
 
 # def create_candidate_funds_bar_plot(candidates, mec_df):
 #     cand_df = contrib.sum_funds_by_mecid(mec_df)

@@ -10,18 +10,9 @@ from dsadata.bootstrap_stuff import get_sidebar_layout
 load_dotenv()
 from dash.dependencies import Output, Input, State
 
-# from dsadata.mec_query import db
-from dsadata import init_app, bootstrap_stuff, mec_query
+from dsadata import init_app, bootstrap_stuff, mec_query, plotting
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
-
-# server = init_app()
-# server.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-# server.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-# db.init_app(server)
-
-
-# from mec_query import Candidate
 
 
 def init_dashboard(server):
@@ -75,6 +66,7 @@ def init_callbacks(app):
             Output("precincts-geojson", "hideout"),
             Output("neighborhood-geojson", "hideout"),
             Output("zip-geojson", "hideout"),
+            Output("side-panel-info-section", "children")
         ],
         [Input("candidate-select", "value"), Input("include-pacs-toggle", "value")],
         [State("contest-select", "value")]
@@ -94,6 +86,7 @@ def init_callbacks(app):
                 hideout,
                 hideout,
                 hideout,
+                [plotting.build_candidate_info_graph(selected_mec_id)]
             )
         color_prop = "total_monetary_donations_"+contest_name
         if "include_pacs" in include_pacs:
@@ -104,16 +97,9 @@ def init_callbacks(app):
             [], 
             hideout, 
             hideout, 
-            hideout
+            hideout,
+            [plotting.build_contest_info_graph(contest)]
         )
-
-    # @app.callback(
-    #     Output("base-layer-name", "children"),
-    #     [Input("geojson-layer-control", "baseLayer")],
-    # )
-    # def layer_change(base_layer):
-    #     # TODO: We need to probably add an indication of how much $ we aren't showing, either b/c address etc is missing, or it is out of view (e.g. not in a STL city neighborhood/precinct)
-    #     return base_layer
 
     @app.callback(
         [
