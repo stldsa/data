@@ -1,1 +1,1 @@
-web: gunicorn mayor:server
+web: gunicorn dsadata:server
