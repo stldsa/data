@@ -10,18 +10,9 @@ from dsadata.bootstrap_stuff import get_sidebar_layout
 load_dotenv()
 from dash.dependencies import Output, Input, State
 
-# from dsadata.mec_query import db
-from dsadata import init_app, bootstrap_stuff, mec_query
+from dsadata import init_app, bootstrap_stuff, mec_query, plotting
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
-
-# server = init_app()
-# server.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-# server.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-# db.init_app(server)
-
-
-# from mec_query import Candidate
 
 
 def init_dashboard(server):
@@ -44,7 +35,7 @@ def init_callbacks(app):
             Output("candidate-select", "value"),
             Output("precincts-geojson", "url"),
             Output("neighborhood-geojson", "url"),
-            Output("zip-geojson", "url")
+            Output("zip-geojson", "url"),
         ],
         [Input("contest-select", "value")]
     )
@@ -52,9 +43,9 @@ def init_callbacks(app):
         if contest is None:
             contest = "Mayor - City of St. Louis"
         contest_name = mec_query.get_standard_contest_name(contest)
-        print(contest_name)
         candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
         contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
+        contest_candidates_df = contest_candidates_df.sort_values("Candidate Name")
         select_options = [{"label":"All candidates", "value": "all"}]
         for index, row in contest_candidates_df.iterrows():
             select_options.append({"label": row["Candidate Name"].title(), "value": row["MECID"]})
@@ -63,7 +54,7 @@ def init_callbacks(app):
             "all", 
             "static/geobuf/"+mec_query.get_standard_contest_name(contest_name)+"-stl-city-and-county-precincts.pbf",
             "static/geobuf/"+mec_query.get_standard_contest_name(contest_name)+"-neighborhoods-and-municipalities.pbf",
-            "static/geobuf/"+mec_query.get_standard_contest_name(contest_name)+"-stl-region-zip.pbf",
+            "static/geobuf/"+mec_query.get_standard_contest_name(contest_name)+"-stl-region-zip.pbf"
         ]
 
 
@@ -75,16 +66,19 @@ def init_callbacks(app):
             Output("precincts-geojson", "hideout"),
             Output("neighborhood-geojson", "hideout"),
             Output("zip-geojson", "hideout"),
+            Output("side-panel-info-section", "children")
         ],
-        [Input("candidate-select", "value")],
+        [Input("candidate-select", "value"), Input("include-pacs-toggle", "value")],
         [State("contest-select", "value")]
     )
-    def candidate_selected(selected_mec_id, contest):
+    def candidate_selected(selected_mec_id, include_pacs, contest):
         if contest is None:
             contest = "Mayor - City of St. Louis"
         contest_name = mec_query.get_standard_contest_name(contest)
         if selected_mec_id != "all":
-            color_prop = "mec_donations_" + selected_mec_id
+            color_prop = "mec_donations_" + selected_mec_id 
+            if "include_pacs" in include_pacs:
+                color_prop = color_prop + "_with_pacs"
             hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
             return (
                 True,
@@ -92,23 +86,20 @@ def init_callbacks(app):
                 hideout,
                 hideout,
                 hideout,
+                [plotting.build_candidate_info_graph(selected_mec_id)]
             )
-        hideout = bootstrap_stuff.build_choropleth_hideout("total_monetary_donations_"+contest_name)
+        color_prop = "total_monetary_donations_"+contest_name
+        if "include_pacs" in include_pacs:
+            color_prop = color_prop + "_with_pacs"
+        hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
         return (
             False, 
             [], 
             hideout, 
             hideout, 
-            hideout
+            hideout,
+            [plotting.build_contest_info_graph(contest)]
         )
-
-    # @app.callback(
-    #     Output("base-layer-name", "children"),
-    #     [Input("geojson-layer-control", "baseLayer")],
-    # )
-    # def layer_change(base_layer):
-    #     # TODO: We need to probably add an indication of how much $ we aren't showing, either b/c address etc is missing, or it is out of view (e.g. not in a STL city neighborhood/precinct)
-    #     return base_layer
 
     @app.callback(
         [
@@ -149,13 +140,11 @@ def init_callbacks(app):
 
     )
     def neighborhood_click(feature, n_clicks, contest):
-        contest_name = mec_query.get_standard_contest_name(contest)
         class_name = "displayNone"
         header_text = "Error"
         card_contents = bootstrap_stuff.get_floatbox_card_contents("neighborhood")
 
         if feature:
-            print(feature)
             if (
                 "NHD_NAME" in feature["properties"]
                 and feature["properties"]["NHD_NAME"]
@@ -163,17 +152,9 @@ def init_callbacks(app):
                 header_text = feature["properties"]["NHD_NAME"]
             else:
                 header_text = feature["properties"]["MUNICIPALI"].title()
-            body_contents = [
-                html.Strong("Total monetary donations: "),
-                html.Span(
-                    locale.currency(
-                        feature["properties"]["total_monetary_donations_"+contest_name], grouping=True
-                    )
-                ),
-            ]
             class_name = "floatbox"
             card_contents = bootstrap_stuff.get_floatbox_card_contents(
-                "neighborhood", header_text, body_contents
+                "neighborhood", header_text, contest, feature["properties"]
             )
 
         if n_clicks:
@@ -193,13 +174,11 @@ def init_callbacks(app):
         [State("contest-select", "value")]
     )
     def precinct_click(feature, n_clicks, contest):
-        contest_name = mec_query.get_standard_contest_name(contest)
         class_name = "displayNone"
         header_text = "Error"
         card_contents = bootstrap_stuff.get_floatbox_card_contents("precinct")
 
         if feature:
-            # print(feature["properties"])
             if (
                 "WARD10" in feature["properties"] and feature["properties"]["WARD10"]
             ):  # STL City precinct
@@ -208,17 +187,9 @@ def init_callbacks(app):
                 header_text = (
                     f"STL County: Precinct {feature['properties']['PRECINCTID']}"
                 )
-            body_contents = [
-                html.Strong("Total monetary donations: "),
-                html.Span(
-                    locale.currency(
-                        feature["properties"]["total_monetary_donations_"+contest_name], grouping=True
-                    )
-                ),
-            ]
             class_name = "floatbox"
             card_contents = bootstrap_stuff.get_floatbox_card_contents(
-                "precinct", header_text, body_contents
+                "precinct", header_text, contest, feature["properties"]
             )
 
         if n_clicks:
@@ -235,24 +206,16 @@ def init_callbacks(app):
         [State("contest-select", "value")]
     )
     def zip_click(feature, n_clicks, contest):
-        contest_name = mec_query.get_standard_contest_name(contest)
         class_name = "displayNone"
         header_text = "Error"
         card_contents = bootstrap_stuff.get_floatbox_card_contents("zip")
 
         if feature:
+            print(feature)
             header_text = f"ZIP Code {feature['properties']['ZCTA5CE10']}"
-            body_contents = [
-                html.Strong("Total monetary donations: "),
-                html.Span(
-                    locale.currency(
-                        feature["properties"]["total_monetary_donations_"+contest_name], grouping=True
-                    )
-                ),
-            ]
             class_name = "floatbox"
             card_contents = bootstrap_stuff.get_floatbox_card_contents(
-                "zip", header_text, body_contents
+                "zip", header_text, contest, feature["properties"]
             )
 
         if n_clicks:
