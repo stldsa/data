@@ -1,4 +1,5 @@
 import json
+from flask.helpers import url_for
 
 import geopandas as gpd
 
@@ -43,14 +44,14 @@ def get_colorbar():
         colorscale=bootstrap_stuff.fundraising_colorscale,
         width=400,
         height=30,
-        position="bottomright"
+        position="bottomright",
     )
     return colorbar
 
 
 def get_zip_geojson():
     ns = Namespace("dlx", "choropleth")
-    zip_geobuf_path = "static/geobuf/stl-region-zip.pbf"
+    zip_geobuf_path = url_for("static", filename="geobuf/stl-region-zip.pbf")
     zip_geojson = dl.GeoJSON(
         format="geobuf",
         options=dict(style=ns("style")),  # how to style each polygon
@@ -66,7 +67,6 @@ def get_zip_geojson():
 
 def get_precinct_geojson():
     ns = Namespace("dlx", "choropleth")
-    precincts_geobuf_path = "static/geobuf/stl-city-and-county-precincts.pbf"
     precincts_geojson = dl.GeoJSON(
         format="geobuf",
         options=dict(style=ns("style")),
@@ -79,7 +79,6 @@ def get_precinct_geojson():
 
 def get_neighborhood_geojson():
     ns = Namespace("dlx", "choropleth")
-    neighborhoods_geobuf_path = "static/geobuf/neighborhoods-and-municipalities.pbf"
     neighborhoods_geojson = dl.GeoJSON(
         format="geobuf",
         options=dict(style=ns("style")),
@@ -126,14 +125,18 @@ def get_map_panel_layout():
     )
 
     precinct_card = dbc.Card(
-        children=bootstrap_stuff.get_floatbox_card_contents("precinct", "", "Mayor", {}),
+        children=bootstrap_stuff.get_floatbox_card_contents(
+            "precinct", "", "Mayor", {}
+        ),
         color="dark",
         outline=True,
         id="floatbox-precinct",
         className="displayNone",
     )
     neighborhood_card = dbc.Card(
-        children=bootstrap_stuff.get_floatbox_card_contents("neighborhood", "", "Mayor", {}),
+        children=bootstrap_stuff.get_floatbox_card_contents(
+            "neighborhood", "", "Mayor", {}
+        ),
         color="dark",
         outline=True,
         id="floatbox-neighborhood",

@@ -4,11 +4,12 @@ import pandas as pd
 import os
 from sqlalchemy import create_engine
 from glob import glob
+from flask import url_for
 
 db_uri = os.getenv("DATABASE_URL")
 engine = create_engine(db_uri, echo=True)
 # Right now only doing mayoral race, but update as necessary
-candidates = pd.read_csv("data/candidates_2021-03-02.csv")
+candidates = pd.read_csv(url_for("static", filename="candidates_2021-03-02.csv"))
 candidates = candidates[
     [
         "MECID",
@@ -27,7 +28,7 @@ candidates = candidates[
 )
 
 candidates.to_sql("candidate", engine, if_exists="append", index=False)
-csv_files = glob("data/mec_geocoded/*")
+csv_files = glob(url_for("static", filename="mec_geocoded/*")
 # print(csv_files)
 globals().update(
     locals()

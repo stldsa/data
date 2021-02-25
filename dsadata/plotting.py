@@ -8,11 +8,12 @@ import dash_leaflet as dl
 import dash_leaflet.express as dlx
 import dash_core_components as dcc
 import dash_html_components as html
+from flask import url_for
 
 
 pd.options.plotting.backend = "plotly"
 
-candidate_df = pd.read_csv("dsadata/static/candidates_2021-03-02.csv")
+candidate_df = pd.read_csv(url_for("static", filename="candidates_2021-03-02.csv"))
 
 
 def parse_geography_properties_for_fundraising(geography_properties, mec_id):

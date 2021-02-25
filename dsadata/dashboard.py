@@ -6,6 +6,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from flask.cli import with_appcontext
 from dsadata.bootstrap_stuff import get_sidebar_layout
+from flask import url_for
 
 load_dotenv()
 from dash.dependencies import Output, Input, State
@@ -43,7 +44,7 @@ def init_callbacks(app):
         if contest is None:
             contest = "Mayor - City of St. Louis"
         contest_name = mec_query.get_standard_contest_name(contest)
-        candidate_df = pd.read_csv("dsdadata/static/candidates_2021-03-02.csv")
+        candidate_df = pd.read_sql("candidates")
         contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
         contest_candidates_df = contest_candidates_df.sort_values("Candidate Name")
         select_options = [{"label": "All candidates", "value": "all"}]
@@ -54,13 +55,13 @@ def init_callbacks(app):
         return [
             select_options,
             "all",
-            "static/geobuf/"
+            url_for("static", filename="/geobuf/")
             + mec_query.get_standard_contest_name(contest_name)
             + "-stl-city-and-county-precincts.pbf",
-            "static/geobuf/"
+            url_for("static", filename="/geobuf/")
             + mec_query.get_standard_contest_name(contest_name)
             + "-neighborhoods-and-municipalities.pbf",
-            "static/geobuf/"
+            url_for("static", filename="/geobuf/")
             + mec_query.get_standard_contest_name(contest_name)
             + "-stl-region-zip.pbf",
         ]

@@ -2,6 +2,7 @@ import re
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
+from flask import url_for
 
 from dsadata import mapping, plotting, mec_query
 from dsadata.plotting import sidebar_graph_component
@@ -148,7 +149,7 @@ def sort_contests(elem):
 
 def get_contest_select():
     dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
-    candidate_df = pd.read_csv("static/candidates_2021-03-02.csv")
+    candidate_df = pd.read_csv(url_for("static", filename="candidates_2021-03-02.csv"))
     contests = candidate_df["Office Sought"].unique()
     select_options = [
         {"label": contest, "value": contest}
@@ -170,7 +171,7 @@ def get_contest_select():
 def get_candidate_select():
     dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
     select_options = [{"label": "All mayoral candidates", "value": "all"}]
-    candidate_df = pd.read_csv("static/candidates_2021-03-02.csv")
+    candidate_df = pd.read_csv(url_for("static", filename="candidates_2021-03-02.csv"))
     mayor_df = candidate_df[
         candidate_df["Office Sought"] == "Mayor - City of St. Louis"
     ]
