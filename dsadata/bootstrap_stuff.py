@@ -170,14 +170,14 @@ def get_contest_select():
 def get_candidate_select():
     dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
     select_options = [{"label": "All mayoral candidates", "value": "all"}]
-    # candidate_df = pd.read_sql("candidate", db.engine).rename(
-    #     columns={"office_sought": "Office Sought"}
-    # )
-    # mayor_df = candidate_df[
-    #     candidate_df["Office Sought"] == "Mayor - City of St. Louis"
-    # ]
-    # for index, row in mayor_df.iterrows():
-    #     select_options.append({"label": row["Candidate Name"], "value": row["MECID"]})
+    candidate_df = pd.read_sql("candidate", db.engine).rename(
+        columns={"office_sought": "Office Sought"}
+    )
+    mayor_df = candidate_df[
+        candidate_df["Office Sought"] == "Mayor - City of St. Louis"
+    ]
+    for index, row in mayor_df.iterrows():
+        select_options.append({"label": row["Candidate Name"], "value": row["MECID"]})
     dropdown = html.Div(
         [dbc.Select(id="candidate-select", options=select_options, value="all")],
         style=dropdown_style,
