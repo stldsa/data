@@ -170,7 +170,7 @@ def get_contest_select():
 def get_candidate_select():
     dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
     select_options = [{"label": "All mayoral candidates", "value": "all"}]
-    candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
+    candidate_df = pd.read_csv("dsadata/static/candidates_2021-03-02.csv")
     mayor_df = candidate_df[
         candidate_df["Office Sought"] == "Mayor - City of St. Louis"
     ]
