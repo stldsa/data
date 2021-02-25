@@ -33,11 +33,11 @@ input[type="radio"]:checked+label {
 .floatbox {
 	width:400px;
 	max-width: 80%;
-	max-height:20vh;
+	/* max-height:20vh; */
 	background-color: white;
 	color:black;
 	padding:5px;
-	overflow-y: scroll;
+	/* overflow-y: scroll; */
 	position: absolute;
 	right:20px;
 	top:20px;

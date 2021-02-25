@@ -1,13 +1,14 @@
+import re
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
 
-# from dsadata import mapping, plotting, mec_query
-from dsadata import mapping
+from dsadata import mapping, plotting, mec_query
 from dsadata.plotting import sidebar_graph_component
 import locale
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
+
 
 
 def get_error_404(pathname):
@@ -20,28 +21,19 @@ def get_error_404(pathname):
     )
 
 
-fundraising_classes = [0, 100, 500, 1000, 2000, 5000, 10000, 20000]
-fundraising_colorscale = [
-    "#FFEDA0",
-    "#FED976",
-    "#FEB24C",
-    "#FD8D3C",
-    "#FC4E2A",
-    "#E31A1C",
-    "#BD0026",
-    "#800026",
-]
+fundraising_classes = [100, 500, 1000, 2000, 5000, 10000, 20000, 50000]
+fundraising_colorscale = ['#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#99000d']
 fundraising_style = {
     "weight": 2,
     "opacity": 1,
     "color": "white",
     "dashArray": 3,
-    "fillOpacity": 0.7,
+    "fillOpacity": 0.8,
 }
 fundraising_ctg = [
-    "${}+".format(cls, fundraising_classes[i + 1])
+    "${:,}+".format(cls, fundraising_classes[i + 1])
     for i, cls in enumerate(fundraising_classes[:-1])
-] + ["${}+".format(fundraising_classes[-1])]
+] + ["${:,}+".format(fundraising_classes[-1])]
 
 
 def build_choropleth_hideout(color_prop):
@@ -73,7 +65,7 @@ def get_side_panel_header():
 
 def get_side_panel_intro():
     side_panel_intro_style = {
-        "padding": "40px 20px",
+        "padding": "20px",
         "fontSize": "1em",
         "lineHeight": "1.13em",
     }
@@ -81,13 +73,13 @@ def get_side_panel_intro():
     side_panel_intro = html.Div(
         children=[
             html.Strong("On March 2,"),
-            " St Louis City will have primary elections for several offices, including mayor and more than half of the Board of Aldermen.",
+            " St Louis City will have primary elections for several offices, including mayor and more than half of the Board of Alders.",
             html.Br(),
             html.Br(),
             html.A("St Louis DSA ", href="https://stldsa.org", style=stldsa_link_style),
             " is proud to provide this tool to the voters of St Louis. You can use the options below to view campaign contributions for our mayoral candidates. We hope that in democratizing access to this information, voters will be best able to decide who they would like to represent them.",
-            # html.Br(), html.Br(),
-            # html.Em("Full disclosure: St Louis DSA has endorsed Megan Green for 15th Ward Alder.")
+            html.Br(), html.Br(),
+            html.Em("Full disclosure: St Louis DSA has endorsed Megan Green for 15th Ward Alderperson.")
         ],
         style=side_panel_intro_style,
     )
@@ -128,11 +120,25 @@ def get_selected_layer_buttons():
     )
     return button_group
 
+def sort_contests(elem):
+    if re.search('Mayor', elem):
+        return (1, 0)
+    elif re.search('Comptroller', elem):
+        return (2, 0)
+    else:
+        ward_search = re.compile(r"Alderperson - Ward (\d{1,2})")
+        ward_match = ward_search.match(elem)
+        if ward_match:
+            return (3, int(ward_match.group(1)))
+        else:
+            return (4, 0)
+
+
 def get_contest_select():
     dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
     candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
-    contests = candidate_df["Office Sought"].unique()        
-    select_options = [{"label": contest, "value": contest} for contest in contests]
+    contests = candidate_df["Office Sought"].unique()
+    select_options = [{"label": contest, "value": contest} for contest in sorted(contests, key=sort_contests)]
     contest_select = html.Div(
         [
             dbc.Select(
@@ -150,8 +156,6 @@ def get_candidate_select():
     select_options = [{"label":"All mayoral candidates", "value":"all"}]
     candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
     mayor_df = candidate_df[candidate_df["Office Sought"] == "Mayor - City of St. Louis"]
-    # print(mayor_df)
-    # candidate_df = pd.read_sql(db.session.query(Candidate).statement, db.session.bind)
     for index, row in mayor_df.iterrows():
         # print(row)
         select_options.append({"label": row["Candidate Name"], "value": row["MECID"]})
@@ -163,6 +167,18 @@ def get_candidate_select():
         )
     ], style=dropdown_style)
     return dropdown
+
+def get_include_pacs():
+    toggle_switch = html.Div([
+        dbc.Checklist(
+            options=[{"label": "Include PACs", "value": "include_pacs"}],
+            value=["include_pacs"],
+            id="include-pacs-toggle",
+            switch=True,
+            style={"display":"none"}
+        )
+    ])
+    return toggle_switch
 
 
 def get_select_layer_section():
@@ -178,7 +194,8 @@ def get_select_layer_section():
             dbc.Row(
                 [
                     dbc.Col([get_contest_select()], width=6),
-                    dbc.Col([get_candidate_select()], width=6)
+                    dbc.Col([get_candidate_select()], width=6),
+                    dbc.Col([get_include_pacs()], width=0)
                 ],
                 no_gutters=True,
             ),
@@ -208,7 +225,7 @@ def get_side_panel_layout():
             get_side_panel_header(),
             html.Div([
                 get_side_panel_intro(),
-                get_side_panel_form(),
+                get_side_panel_info_section(),
             ], style={"height":"100%", "overflowY":"auto"}),
             # get_candidate_select(candidates),
             # reset_selection_button(),
@@ -274,14 +291,18 @@ def get_candidate_info_card(candidate):
         return None
 
 
-def get_side_panel_form():
+def get_side_panel_info_section():
+    info_section_style={
+        "width": "90%", 
+        "flexGrow": 4, 
+        "padding": "20px"
+    }
     return html.Div(
-        children=[
-            sidebar_graph_component(),
+        [
+            html.Div(id="side-panel-info-section"),
             dbc.Collapse(children=[], id="candidate_info_collapse"),
-        ],
-        id="side-panel-form",
-        style={"width": "90%", "flexGrow": 4, },
+        ], 
+        style=info_section_style
     )
 
 
@@ -333,7 +354,7 @@ def get_sidebar_layout():
     )
 
 
-def get_floatbox_card_contents(id_suffix, header_text="", body_contents=[]):
+def get_floatbox_card_contents(id_suffix, header_text="", contest="Mayor - City of St. Louis", feature_properties={}):
     header_style = {"fontSize": "1.5em", "fontWeight": "bold"}
     header_span = html.Span(header_text, style=header_style)
     close_card_button = dbc.Button(
@@ -343,46 +364,26 @@ def get_floatbox_card_contents(id_suffix, header_text="", body_contents=[]):
         id="card-box-close-" + id_suffix,
         style={"float": "right"},
     )
+    if bool(feature_properties):
+        contest_name = mec_query.get_standard_contest_name(contest)
+        card_contents = dbc.CardBody(
+            [
+                html.Div([
+                    html.Strong("Total monetary donations in race for "+contest_name+": "),
+                    html.Div(
+                        locale.currency(
+                            feature_properties["total_monetary_donations_"+contest_name+"_with_pacs"], grouping=True
+                        )
+                    ),
+                ]),
+                plotting.create_candidate_funds_pie(contest, feature_properties)
+            ]
+        )
+    else:
+        card_contents = []
     return [
         dbc.CardHeader([header_span, close_card_button]),
-        dbc.CardBody(body_contents),
+        card_contents
     ]
 
 
-def get_zip_click_card(feature):
-    header_style = {"fontSize": "1.5em", "fontWeight": "bold"}
-
-    if feature is not None:
-        header_text = html.Span(
-            f"ZIP Code {feature['properties']['ZCTA5CE10']}", style=header_style
-        )
-        body_contents = [
-            html.Strong("Total funds contributed for Mayor's race (all candidates): "),
-            html.Span(
-                locale.currency(
-                    feature["properties"]["total_mayor_donations"], grouping=True
-                )
-            ),
-        ]
-    else:
-        header_text = html.Span(f"No ZIP Selected")
-        body_contents = [html.Em("No info to display")]
-
-    card_content = [
-        dbc.CardHeader(
-            [
-                header_text,
-                dbc.Button(
-                    " X ",
-                    outline=True,
-                    color="danger",
-                    id="zip-box-close",
-                    style={"float": "right"},
-                ),
-            ]
-        ),
-        dbc.CardBody(body_contents),
-    ]
-
-    zip_card = dbc.Card(card_content, color="dark", outline=True, id="floatbox")
-    return zip_card

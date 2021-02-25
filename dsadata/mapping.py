@@ -43,7 +43,7 @@ def get_colorbar():
         colorscale=bootstrap_stuff.fundraising_colorscale,
         width=400,
         height=30,
-        position="topright"
+        position="bottomright"
     )
     return colorbar
 
@@ -52,7 +52,6 @@ def get_zip_geojson():
     ns = Namespace("dlx", "choropleth")
     zip_geobuf_path = "static/geobuf/stl-region-zip.pbf"
     zip_geojson = dl.GeoJSON(
-        url=zip_geobuf_path,
         format="geobuf",
         options=dict(style=ns("style")),  # how to style each polygon
         # options=dict(style=dict(color="blue")),
@@ -69,7 +68,6 @@ def get_precinct_geojson():
     ns = Namespace("dlx", "choropleth")
     precincts_geobuf_path = "static/geobuf/stl-city-and-county-precincts.pbf"
     precincts_geojson = dl.GeoJSON(
-        url=precincts_geobuf_path,
         format="geobuf",
         options=dict(style=ns("style")),
         hoverStyle=arrow_function(dict(weight=5, color="#666", dashArray="")),
@@ -83,7 +81,6 @@ def get_neighborhood_geojson():
     ns = Namespace("dlx", "choropleth")
     neighborhoods_geobuf_path = "static/geobuf/neighborhoods-and-municipalities.pbf"
     neighborhoods_geojson = dl.GeoJSON(
-        url=neighborhoods_geobuf_path,
         format="geobuf",
         options=dict(style=ns("style")),
         hoverStyle=arrow_function(dict(weight=5, color="#666", dashArray="")),
@@ -129,21 +126,21 @@ def get_map_panel_layout():
     )
 
     precinct_card = dbc.Card(
-        children=bootstrap_stuff.get_floatbox_card_contents("precinct"),
+        children=bootstrap_stuff.get_floatbox_card_contents("precinct", "", "Mayor", {}),
         color="dark",
         outline=True,
         id="floatbox-precinct",
         className="displayNone",
     )
     neighborhood_card = dbc.Card(
-        children=bootstrap_stuff.get_floatbox_card_contents("neighborhood"),
+        children=bootstrap_stuff.get_floatbox_card_contents("neighborhood", "", "Mayor", {}),
         color="dark",
         outline=True,
         id="floatbox-neighborhood",
         className="displayNone",
     )
     zip_card = dbc.Card(
-        children=bootstrap_stuff.get_floatbox_card_contents("zip"),
+        children=bootstrap_stuff.get_floatbox_card_contents("zip", "", "Mayor", {}),
         color="dark",
         outline=True,
         id="floatbox-zip",
