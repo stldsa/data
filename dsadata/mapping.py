@@ -166,7 +166,7 @@ def get_map_panel_layout():
 
 def get_precinct_overlay():
     # original file was wrong hand rule, whis one was rewound with geojson-rewind:
-    precinct_pbf_url = "static/geobuf/stl-city-precincts.pbf"
+    precinct_pbf_url = url_for("static", filename="geobuf/stl-city-precincts.pbf")
     ns = Namespace("dlx", "choropleth")
     precincts = dl.GeoJSON(
         url=precinct_pbf_url,
