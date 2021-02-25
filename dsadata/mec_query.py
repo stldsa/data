@@ -1,6 +1,5 @@
 import os
 import json
-import numpy as np
 import pandas as pd
 import geopandas as gpd
 import geobuf
@@ -19,11 +18,28 @@ load_dotenv()
 #         return pd.read_sql("contribution", db.engine)
 
 candidate_pac_dict = {
-    "C201175": {"candidate_mec_id":"C201500", "candidate_name":"Lewis Reed", "pac_name": "One St. Louis"},
-    "C201534": {"candidate_mec_id":"C201500", "candidate_name":"Lewis Reed", "pac_name": "Leadership Counts"},
-    "C201113": {"candidate_mec_id":"C201499", "candidate_name":"Tishaura Jones", "pac_name": "314 Forward"},
-    "C211552": {"candidate_mec_id":"C201099", "candidate_name":"Cara Spencer", "pac_name": "Gateway to Progress"},
+    "C201175": {
+        "candidate_mec_id": "C201500",
+        "candidate_name": "Lewis Reed",
+        "pac_name": "One St. Louis",
+    },
+    "C201534": {
+        "candidate_mec_id": "C201500",
+        "candidate_name": "Lewis Reed",
+        "pac_name": "Leadership Counts",
+    },
+    "C201113": {
+        "candidate_mec_id": "C201499",
+        "candidate_name": "Tishaura Jones",
+        "pac_name": "314 Forward",
+    },
+    "C211552": {
+        "candidate_mec_id": "C201099",
+        "candidate_name": "Cara Spencer",
+        "pac_name": "Gateway to Progress",
+    },
 }
+
 
 class Candidate(db.Model):
     mec_id = db.Column(db.String, primary_key=True, unique=True, nullable=False)
@@ -205,7 +221,12 @@ def create_contributions(mec_df):
 
 # This is like the function below, but we don't need to geocode zips
 def build_zip_donation_pbf_from_geojson(
-    contribution_df, contest_name, candidate_mec_ids, contest_pac_ids, polygons_geojson_data, output_geobuf_path
+    contribution_df,
+    contest_name,
+    candidate_mec_ids,
+    contest_pac_ids,
+    polygons_geojson_data,
+    output_geobuf_path,
 ):
     polygons = gpd.read_file(polygons_geojson_data)
     zip_df = contribution_df.groupby(by=["ZIP5", "MECID"]).agg({"Amount": "sum"})
@@ -223,14 +244,17 @@ def build_zip_donation_pbf_from_geojson(
                     this_candidate_donations = 0
                 polygons.loc[
                     index, "mec_donations_" + mec_id
-                ] = this_candidate_donations 
+                ] = this_candidate_donations
                 candidate_geography_totals[mec_id] = this_candidate_donations
                 no_pac_total = no_pac_total + this_candidate_donations
             for pac_id in contest_pac_ids:
                 if pac_id in candidate_pac_dict and pac_id in mec_donations["Amount"]:
                     this_pac = candidate_pac_dict[pac_id]
-                    candidate_geography_totals[this_pac['candidate_mec_id']] = mec_donations["Amount"][pac_id] + candidate_geography_totals[this_pac['candidate_mec_id']]
-            
+                    candidate_geography_totals[this_pac["candidate_mec_id"]] = (
+                        mec_donations["Amount"][pac_id]
+                        + candidate_geography_totals[this_pac["candidate_mec_id"]]
+                    )
+
             # Add pac to totals
             for cand_mec_id in candidate_mec_ids:
                 if cand_mec_id in candidate_geography_totals:
@@ -238,14 +262,14 @@ def build_zip_donation_pbf_from_geojson(
                         index, "mec_donations_" + cand_mec_id + "_with_pacs"
                     ] = candidate_geography_totals[cand_mec_id]
                 else:
-                    polygons.loc[
-                        index, "mec_dotations_" + mec_id + "_with_pacs"
-                    ] = 0
+                    polygons.loc[index, "mec_dotations_" + mec_id + "_with_pacs"] = 0
                 total_monetary_donations = zip_total_df.loc[this_zip].Amount
         else:
             total_monetary_donations = 0
-        polygons.loc[index, "total_monetary_donations_"+contest_name] = no_pac_total
-        polygons.loc[index, "total_monetary_donations_"+contest_name+"_with_pacs"] = total_monetary_donations
+        polygons.loc[index, "total_monetary_donations_" + contest_name] = no_pac_total
+        polygons.loc[
+            index, "total_monetary_donations_" + contest_name + "_with_pacs"
+        ] = total_monetary_donations
 
     polygons_json = polygons.to_json()
     polygon_geojson_data = json.loads(polygons_json)
@@ -255,14 +279,17 @@ def build_zip_donation_pbf_from_geojson(
 
 
 def build_donation_pbf_from_geojson(
-    contribution_gdf, contest_name, candidate_mec_ids, contest_pac_ids, polygons_geojson_paths, output_geobuf_path
+    contribution_gdf,
+    contest_name,
+    candidate_mec_ids,
+    contest_pac_ids,
+    polygons_geojson_paths,
+    output_geobuf_path,
 ):
     # polygons = gpd.read_file(polygons_geojson_path)
     polygons = gpd.GeoDataFrame(
         pd.concat([gpd.read_file(i) for i in polygons_geojson_paths], ignore_index=True)
     )
-
-    mec_ids = list(candidate_mec_ids) + list(contest_pac_ids)
 
     for index, polygon in polygons.iterrows():
         total_monetary_donations = 0
@@ -281,18 +308,23 @@ def build_donation_pbf_from_geojson(
                     donations_this_geography[row.mec_id] = (
                         donations_this_geography[row.mec_id] + row.amount
                     )
-                    no_pac_total = no_pac_total + row.amount 
+                    no_pac_total = no_pac_total + row.amount
                 elif row.mec_id in contest_pac_ids:
                     if row.mec_id not in donations_this_geography:
                         donations_this_geography[row.mec_id] = 0
                     donations_this_geography[row.mec_id] = (
                         donations_this_geography[row.mec_id] + row.amount
                     )
-        polygons.loc[index, "total_monetary_donations_"+contest_name] = no_pac_total
-        polygons.loc[index, "total_monetary_donations_"+contest_name+"_with_pacs"] = total_monetary_donations
+        polygons.loc[index, "total_monetary_donations_" + contest_name] = no_pac_total
+        polygons.loc[
+            index, "total_monetary_donations_" + contest_name + "_with_pacs"
+        ] = total_monetary_donations
 
         for mec_id in candidate_mec_ids:
-            if mec_id in donations_this_geography and donations_this_geography[mec_id] > 0:
+            if (
+                mec_id in donations_this_geography
+                and donations_this_geography[mec_id] > 0
+            ):
                 this_candidate_donations = donations_this_geography[mec_id]
             else:
                 this_candidate_donations = 0
@@ -301,10 +333,15 @@ def build_donation_pbf_from_geojson(
         for pac_id in contest_pac_ids:
             this_pac = candidate_pac_dict[pac_id]
             if pac_id in donations_this_geography:
-                candidate_geography_totals[this_pac['candidate_mec_id']] = candidate_geography_totals[this_pac['candidate_mec_id']] + donations_this_geography[pac_id]
+                candidate_geography_totals[this_pac["candidate_mec_id"]] = (
+                    candidate_geography_totals[this_pac["candidate_mec_id"]]
+                    + donations_this_geography[pac_id]
+                )
         for mec_id in candidate_mec_ids:
 
-            polygons.loc[index, "mec_donations_" + mec_id + "_with_pacs"] = candidate_geography_totals[mec_id]
+            polygons.loc[
+                index, "mec_donations_" + mec_id + "_with_pacs"
+            ] = candidate_geography_totals[mec_id]
 
     polygons_json = polygons.to_json()
     polygon_geojson_data = json.loads(polygons_json)
@@ -372,10 +409,11 @@ def get_contribution_stats_for_candidate(candidate_name):
     }
     return stats
 
+
 def get_standard_contest_name(contest):
     contest_parts = contest.split(" - ")
     if contest_parts[0] == "Alderperson":
-        contest_name = contest_parts[1].replace(" ", "")  
+        contest_name = contest_parts[1].replace(" ", "")
     else:
         contest_name = contest_parts[0]
     return contest_name

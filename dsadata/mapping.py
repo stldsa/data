@@ -51,7 +51,6 @@ def get_colorbar():
 
 def get_zip_geojson():
     ns = Namespace("dlx", "choropleth")
-    zip_geobuf_path = url_for("static", filename="geobuf/stl-region-zip.pbf")
     zip_geojson = dl.GeoJSON(
         format="geobuf",
         options=dict(style=ns("style")),  # how to style each polygon

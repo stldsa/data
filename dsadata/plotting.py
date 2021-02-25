@@ -1,19 +1,16 @@
-from dsadata import mapping, mec_query, db
-from dsadata.mec_query import Candidate, Contribution, Contributor
+from dsadata import mec_query, db
+from dsadata.mec_query import Contribution
 from sqlalchemy import and_
 import pandas as pd
 import plotly.express as px
-import dash_bootstrap_components as dbc
-import dash_leaflet as dl
-import dash_leaflet.express as dlx
 import dash_core_components as dcc
+
 import dash_html_components as html
-from flask import url_for
 
 
 pd.options.plotting.backend = "plotly"
 
-candidate_df = pd.read_csv(url_for("static", filename="candidates_2021-03-02.csv"))
+candidate_df = pd.read_sql("candidate", db.engine)
 
 
 def parse_geography_properties_for_fundraising(geography_properties, mec_id):
@@ -124,13 +121,11 @@ def create_candidate_funds_bar_plot(candidates_df):
 def sidebar_graph_component():
     graph_component = dcc.Graph(
         id="fundraising-graph",
-        # figure=fig,
         className="FundraisingBaseGraph",
         style={"width": "100%"},
         clear_on_unhover=True,
         config={
             "displayModeBar": False,
-            # 'staticPlot': True
         },
     )
     return graph_component
@@ -139,28 +134,10 @@ def sidebar_graph_component():
 def build_candidate_info_graph(mec_id):
     this_candidate = candidate_df.loc[candidate_df["MECID"] == mec_id]
     candidate_name = this_candidate["Candidate Name"].item()
-    contribution_df = pd.read_sql(
-        db.session.query(Contribution).filter("MECID" == mec_id).statement,
-        db.session.bind,
-    )
     return html.Div(["Info on " + candidate_name])
 
 
 def build_contest_info_graph(contest):
-    contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
-    contest_mec_ids = contest_candidates_df["MECID"].unique()
-    candidate_color_map = get_candidate_colors(contest_candidates_df)
-    contribution_df = pd.read_sql(
-        db.session.query(Contribution)
-        .filter(
-            and_(
-                # Contribution.lat != "Nan",
-                Contribution.mec_id.in_(contest_mec_ids)
-            )
-        )
-        .statement,
-        db.session.bind,
-    )
     return html.Div(["Info on " + contest])
 
 

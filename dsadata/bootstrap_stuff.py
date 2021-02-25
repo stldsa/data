@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 from flask import url_for
 
-from dsadata import mapping, plotting, mec_query
+from dsadata import mapping, plotting, mec_query, db
 from dsadata.plotting import sidebar_graph_component
 import locale
 
@@ -149,8 +149,7 @@ def sort_contests(elem):
 
 def get_contest_select():
     dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
-    candidate_df = pd.read_csv(url_for("static", filename="candidates_2021-03-02.csv"))
-    contests = candidate_df["Office Sought"].unique()
+    contests = ["Mayor - City of St. Louis"]
     select_options = [
         {"label": contest, "value": contest}
         for contest in sorted(contests, key=sort_contests)
@@ -171,13 +170,14 @@ def get_contest_select():
 def get_candidate_select():
     dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
     select_options = [{"label": "All mayoral candidates", "value": "all"}]
-    candidate_df = pd.read_csv(url_for("static", filename="candidates_2021-03-02.csv"))
-    mayor_df = candidate_df[
-        candidate_df["Office Sought"] == "Mayor - City of St. Louis"
-    ]
-    for index, row in mayor_df.iterrows():
-        # print(row)
-        select_options.append({"label": row["Candidate Name"], "value": row["MECID"]})
+    # candidate_df = pd.read_sql("candidate", db.engine).rename(
+    #     columns={"office_sought": "Office Sought"}
+    # )
+    # mayor_df = candidate_df[
+    #     candidate_df["Office Sought"] == "Mayor - City of St. Louis"
+    # ]
+    # for index, row in mayor_df.iterrows():
+    #     select_options.append({"label": row["Candidate Name"], "value": row["MECID"]})
     dropdown = html.Div(
         [dbc.Select(id="candidate-select", options=select_options, value="all")],
         style=dropdown_style,

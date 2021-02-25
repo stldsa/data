@@ -1,11 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import pandas as pd
 
 db = SQLAlchemy()
 
 
 def init_app():
-    app = Flask(__name__, static_folder="dsadata")
+    app = Flask(__name__, static_folder="dsadata/static")
     app.config.from_object("config")
     db.init_app(app)
     with app.app_context():
@@ -18,3 +19,7 @@ def init_app():
 
 
 server = init_app()
+
+db = SQLAlchemy(server)
+
+candidate_df = pd.read_sql("candidate", db.engine)

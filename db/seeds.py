@@ -4,32 +4,24 @@ import pandas as pd
 import os
 from sqlalchemy import create_engine
 from glob import glob
-from flask import url_for
+from dsadata import db
 
-db_uri = os.getenv("DATABASE_URL")
-engine = create_engine(db_uri, echo=True)
-# Right now only doing mayoral race, but update as necessary
-candidates = pd.read_csv(url_for("static", filename="candidates_2021-03-02.csv"))
+candidates = pd.read_csv("dsadata/static/candidates_2021-03-02.csv")
 candidates = candidates[
-    [
-        "MECID",
-        "Candidate Name",
-        "Committee Name",
-        # "Office Sought", "Status"
-    ]
-].rename(
-    columns={
-        "MECID": "mec_id",
-        "Candidate Name": "name",
-        "Committee Name": "committee_name",
-        "Office Sought": "office_sought",
-        # "Status": "status"
-    }
-)
+    ["MECID", "Candidate Name", "Committee Name", "Office Sought", "Status"]
+]
+# .rename(
+#     columns={
+#         "MECID": "mec_id",
+#         "Candidate Name": "name",
+#         "Committee Name": "committee_name",
+#         "Office Sought": "office_sought",
+#         "Status": "status",
+#     }
+# )
 
-candidates.to_sql("candidate", engine, if_exists="append", index=False)
-csv_files = glob(url_for("static", filename="mec_geocoded/*")
-# print(csv_files)
+candidates.to_sql("candidate", db.engine, if_exists="replace", index=False)
+csv_files = glob("data/mec_geocoded/*")
 globals().update(
     locals()
 )  # so we can use pandas inside the listcomp below - https://github.com/inducer/pudb/issues/103
@@ -47,22 +39,23 @@ all_contributions = all_contributions[
         "Amount",
         "Contribution Type",
     ]
-].rename(
-    columns={
-        "CD1_A ID": "id",
-        "Date": "date",
-        " MECID": "mec_id",
-        "Latitude": "lat",
-        "Longitude": "lon",
-        "Employer": "employer",
-        "Occupation": "occupation",
-        "Amount": "amount",
-        "Contribution Type": "contribution_type",
-        "Report": "report",
-    }
-)
+]
+# .rename(
+#     columns={
+#         "CD1_A ID": "id",
+#         "Date": "date",
+#         " MECID": "mec_id",
+#         "Latitude": "lat",
+#         "Longitude": "lon",
+#         "Employer": "employer",
+#         "Occupation": "occupation",
+#         "Amount": "amount",
+#         "Contribution Type": "contribution_type",
+#         "Report": "report",
+#     }
+# )
 all_contributions.to_sql(
-    "contribution", engine, if_exists="append", index=False, chunksize=1000
+    "contribution", db.engine, if_exists="replace", index=False, chunksize=1000
 )
 
 # contributions = mec_query.create_contributions(mec_df)

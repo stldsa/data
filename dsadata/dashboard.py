@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from flask.cli import with_appcontext
 from dsadata.bootstrap_stuff import get_sidebar_layout
 from flask import url_for
+from dsadata import db
 
 load_dotenv()
 from dash.dependencies import Output, Input, State
@@ -22,14 +23,17 @@ def init_dashboard(server):
         routes_pathname_prefix="/",
         external_stylesheets=[dbc.themes.BOOTSTRAP],
     )
-    dash_app.layout = get_sidebar_layout()
     # dash_app.layout = html.Div(id="dash-container")
+    init_layout(dash_app)
     init_callbacks(dash_app)
     return dash_app.server
 
 
+def init_layout(app):
+    app.layout = get_sidebar_layout()
+
+
 def init_callbacks(app):
-    # Contest Selected: Look at stat
     @app.callback(
         [
             Output("candidate-select", "options"),
@@ -44,7 +48,7 @@ def init_callbacks(app):
         if contest is None:
             contest = "Mayor - City of St. Louis"
         contest_name = mec_query.get_standard_contest_name(contest)
-        candidate_df = pd.read_sql("candidates")
+        candidate_df = pd.read_sql("candidate", db.engine)
         contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
         contest_candidates_df = contest_candidates_df.sort_values("Candidate Name")
         select_options = [{"label": "All candidates", "value": "all"}]
@@ -55,13 +59,13 @@ def init_callbacks(app):
         return [
             select_options,
             "all",
-            url_for("static", filename="/geobuf/")
+            url_for("static", filename="geobuf/")
             + mec_query.get_standard_contest_name(contest_name)
             + "-stl-city-and-county-precincts.pbf",
-            url_for("static", filename="/geobuf/")
+            url_for("static", filename="geobuf/")
             + mec_query.get_standard_contest_name(contest_name)
             + "-neighborhoods-and-municipalities.pbf",
-            url_for("static", filename="/geobuf/")
+            url_for("static", filename="geobuf/")
             + mec_query.get_standard_contest_name(contest_name)
             + "-stl-region-zip.pbf",
         ]
