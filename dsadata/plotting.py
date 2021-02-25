@@ -133,8 +133,19 @@ def build_candidate_info_graph(mec_id):
 
 def build_contest_info_graph(contest):
     contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
-    contest_mec_ids = contest_candidates_df["MECID"].unique()
+    candidate_mec_ids = contest_candidates_df["MECID"].unique()
     candidate_color_map = get_candidate_colors(contest_candidates_df)
+
+    candidate_pac_dict = mec_query.candidate_pac_dict
+    candidate_pac_df = pd.DataFrame.from_dict(candidate_pac_dict, orient="index")
+    candidate_pac_df = candidate_pac_df.rename(columns={"candidate_name": "Candidate Name", "pac_name": "Committee Name"})
+    pac_mec_ids = candidate_pac_dict.keys()
+
+    contest_candidates_df = contest_candidates_df.set_index("MECID")
+    all_contest_mec_df = pd.concat([contest_candidates_df, candidate_pac_df])
+
+    contest_mec_ids = list(pac_mec_ids) + list(candidate_mec_ids)
+
     contribution_df = pd.read_sql(
         db.session.query(Contribution).filter(
             and_(
@@ -144,9 +155,44 @@ def build_contest_info_graph(contest):
         ).statement, 
         db.session.bind
     )
+
+    contribution_df = contribution_df.merge(all_contest_mec_df, left_on="mec_id", right_index=True)
+    totals_df = contribution_df.groupby(['Candidate Name', 'Committee Name'], as_index=False)[['amount']].agg('sum')
+    # print(totals_df)
+
+    fig = px.bar(totals_df,
+        y="Candidate Name",
+        x="amount",
+        orientation="h",
+        template="simple_white",
+        color="Committee Name",
+        color_discrete_map=candidate_color_map,
+        barmode='stack'
+    )
+    fig.update_layout(
+        showlegend=False,
+    )
+    fig.update_xaxes(fixedrange=True)
+    fig.update_yaxes(visible=False, showticklabels=False, fixedrange=True)
+
+    bar_label_template = '%{y} = $%{x:.3s}'
+    fig.update_traces(
+        # texttemplate=bar_label_template, 
+        # hoverinfo="skip"
+    )
+
+    graph_component = dcc.Graph(
+        id="contest-fundraising-graph",
+        figure=fig,
+        style={"width": "100%"},
+        config={
+            "displayModeBar": False,
+        },
+    )
+
     return html.Div(
         [
-            "Info on "+contest
+            graph_component
         ]
     )
 

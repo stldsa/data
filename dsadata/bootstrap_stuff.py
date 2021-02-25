@@ -293,7 +293,7 @@ def get_candidate_info_card(candidate):
 
 def get_side_panel_info_section():
     info_section_style={
-        "width": "90%", 
+        "width": "100%", 
         "flexGrow": 4, 
         "padding": "20px"
     }
