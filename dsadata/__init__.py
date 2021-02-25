@@ -15,3 +15,6 @@ def init_app():
         app = init_dashboard(app)
 
         return app
+
+
+server = init_app()
