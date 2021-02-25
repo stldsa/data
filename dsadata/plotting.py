@@ -134,6 +134,7 @@ def build_candidate_info_graph(mec_id):
 def build_contest_info_graph(contest):
     contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
     contest_mec_ids = contest_candidates_df["MECID"].unique()
+    candidate_color_map = get_candidate_colors(contest_candidates_df)
     contribution_df = pd.read_sql(
         db.session.query(Contribution).filter(
             and_(
