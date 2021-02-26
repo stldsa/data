@@ -31,12 +31,12 @@ class Candidate(db.Model):
     committee_name = db.Column(db.String)
     office_sought = db.Column(db.String)
     # status = db.Column(db.String)
-    # contributions = db.relationship(
-    #     "Contribution",
-    #     back_populates="candidate",
-    #     cascade="all, delete",
-    #     passive_deletes=True,
-    # )
+    contributions = db.relationship(
+        "Contribution",
+        back_populates="candidate",
+        cascade="all, delete",
+        passive_deletes=True,
+    )
 
     @classmethod
     def df(self):
@@ -47,9 +47,6 @@ class Candidate(db.Model):
 
     @hybrid_property
     def stats(self):
-        # print(self.contributions)
-        # for contribution in self.contributions:
-        #     print(contribution, contribution.amount)
         return {
             "$ Raised": sum(contribution.amount for contribution in self.contributions)
         }
@@ -65,10 +62,10 @@ class Contributor(db.Model):
 class Contribution(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
-    # mec_id = db.Column(db.String, db.ForeignKey("candidate.mec_id"))
-    mec_id = db.Column(db.String)
-    # candidate = db.relationship("Candidate", back_populates="contributions")
-    # contributor_id =:E db.Column(
+    mec_id = db.Column(db.String, db.ForeignKey("candidate.mec_id"))
+    # mec_id = db.Column(db.String)
+    candidate = db.relationship("Candidate", back_populates="contributions")
+    # contributor_id = db.Column(
     #     db.Integer,
     #     db.ForeignKey("contributor.id", ondelete="CASCADE"),
     # )

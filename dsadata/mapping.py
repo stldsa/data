@@ -104,12 +104,12 @@ def get_map_panel_layout():
                             get_precinct_geojson(),
                             name="precinct",
                             id="precinct-baselayer",
-                            checked=True,
                         ),
                         dl.BaseLayer(
                             get_neighborhood_geojson(),
                             name="neighborhood",
                             id="neighborhood-baselayer",
+                            checked=True,
                         ),
                         dl.BaseLayer(get_zip_geojson(), name="zip", id="zip-baselayer"),
                     ],

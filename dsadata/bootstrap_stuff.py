@@ -21,14 +21,14 @@ def get_error_404(pathname):
     )
 
 
-fundraising_classes = [100, 500, 1000, 2000, 5000, 10000, 20000, 50000]
+fundraising_classes = [1, 500, 1000, 2000, 5000, 10000, 20000, 50000]
 fundraising_colorscale = ['#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#99000d']
 fundraising_style = {
     "weight": 2,
     "opacity": 1,
     "color": "white",
     "dashArray": 3,
-    "fillOpacity": 0.8,
+    "fillOpacity": 0.7,
 }
 fundraising_ctg = [
     "${:,}+".format(cls, fundraising_classes[i + 1])
@@ -69,15 +69,15 @@ def get_side_panel_intro():
         "fontSize": "1em",
         "lineHeight": "1.13em",
     }
-    stldsa_link_style = {"color": "red", "fontWeight": "bold", "font": "Roboto"}
+    stldsa_link_style = {"color": "red", "font": "Roboto", "textDecoration":"underline"}
     side_panel_intro = html.Div(
         children=[
             html.Strong("On March 2,"),
-            " St Louis City will have primary elections for several offices, including mayor and more than half of the Board of Alders.",
+            " St Louis City will have primary elections for a number of municipal offices, including mayor, comptroller, and more than half of the Board of Alders.",
             html.Br(),
             html.Br(),
-            html.A("St Louis DSA ", href="https://stldsa.org", style=stldsa_link_style),
-            " is proud to provide this tool to the voters of St Louis. You can use the options below to view campaign contributions for our mayoral candidates. We hope that in democratizing access to this information, voters will be best able to decide who they would like to represent them.",
+            html.A("St Louis DSA ", href="https://stldsa.org", style=stldsa_link_style, target="_blank"),
+            " is proud to provide this tool to the voters of St Louis. You can use the options below to view campaign contributions for candidates in the upcoming municipal elections. We hope that in democratizing access to this information, voters will be best able to decide who they would like to represent them.",
             html.Br(), html.Br(),
             html.Em("Full disclosure: St Louis DSA has endorsed Megan Green for 15th Ward Alderperson.")
         ],
@@ -157,7 +157,6 @@ def get_candidate_select():
     candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
     mayor_df = candidate_df[candidate_df["Office Sought"] == "Mayor - City of St. Louis"]
     for index, row in mayor_df.iterrows():
-        # print(row)
         select_options.append({"label": row["Candidate Name"], "value": row["MECID"]})
     dropdown = html.Div([
         dbc.Select(
@@ -227,17 +226,6 @@ def get_side_panel_layout():
                 get_side_panel_intro(),
                 get_side_panel_info_section(),
             ], style={"height":"100%", "overflowY":"auto"}),
-            # get_candidate_select(candidates),
-            # reset_selection_button(),
-            # side_panel_form,
-            # get_expand_button(),
-            # html.Div([
-            #     html.Strong("CURRENT VIEW:"),
-            #     "Total contributions in each ",
-            #     html.Span("precinct", id="base-layer-name"),
-            #     " for ",
-            #     html.Span("all candidates", id="candidate-name-span")
-            # ], style={"width": "90%"}),
             get_select_layer_section(),
             get_side_panel_footer(),
         ],
@@ -293,9 +281,8 @@ def get_candidate_info_card(candidate):
 
 def get_side_panel_info_section():
     info_section_style={
-        "width": "90%", 
-        "flexGrow": 4, 
-        "padding": "20px"
+        "width": "100%", 
+        "padding": "0 20px"
     }
     return html.Div(
         [
@@ -366,17 +353,28 @@ def get_floatbox_card_contents(id_suffix, header_text="", contest="Mayor - City 
     )
     if bool(feature_properties):
         contest_name = mec_query.get_standard_contest_name(contest)
+        if feature_properties["total_monetary_donations_"+contest_name+"_with_pacs"] > 0:
+            pie_plot = plotting.create_candidate_funds_pie(contest, feature_properties)
+        else:
+            pie_plot = []
         card_contents = dbc.CardBody(
             [
                 html.Div([
-                    html.Strong("Total monetary donations in race for "+contest_name+": "),
+                   
                     html.Div(
-                        locale.currency(
-                            feature_properties["total_monetary_donations_"+contest_name+"_with_pacs"], grouping=True
-                        )
+                        [
+                            html.Strong("Total donations in race for "+contest_name+": "),
+                            html.Span(locale.currency(
+                                feature_properties["total_monetary_donations_"+contest_name+"_with_pacs"], grouping=True
+                            ))
+                        ]
                     ),
                 ]),
-                plotting.create_candidate_funds_pie(contest, feature_properties)
+                pie_plot,
+                html.Div(
+                    html.Em("(Contributions where donor info was missing or invalid are not included on the map)"),
+                    style={"fontSize":".9em", "lineHeight":"1em"}
+                )
             ]
         )
     else:
