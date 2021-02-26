@@ -158,8 +158,8 @@ def create_contributions(mec_df):
 
         if row[mec_col_name] not in candidate_dict:
             this_candidate = Candidate(
-                name=name_dict[row["Committee Name"]],
-                committee_name=row["Committee Name"],
+                name=name_dict[row["committee_name"]],
+                committee_name=row["committee_name"],
                 mec_id=row[mec_col_name],
             )
             candidate_dict[row[mec_col_name]] = this_candidate
