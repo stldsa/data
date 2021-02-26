@@ -69,14 +69,14 @@ def get_side_panel_intro():
         "fontSize": "1em",
         "lineHeight": "1.13em",
     }
-    stldsa_link_style = {"color": "red", "fontWeight": "bold", "font": "Roboto"}
+    stldsa_link_style = {"color": "red", "font": "Roboto", "textDecoration":"underline"}
     side_panel_intro = html.Div(
         children=[
             html.Strong("On March 2,"),
-            " St Louis City will have primary elections for several offices, including mayor and more than half of the Board of Alders.",
+            " St Louis City will have primary elections for a number of municipal offices, including mayor, comptroller, and more than half of the Board of Alders.",
             html.Br(),
             html.Br(),
-            html.A("St Louis DSA ", href="https://stldsa.org", style=stldsa_link_style),
+            html.A("St Louis DSA ", href="https://stldsa.org", style=stldsa_link_style, target="_blank"),
             " is proud to provide this tool to the voters of St Louis. You can use the options below to view campaign contributions for candidates in the upcoming municipal elections. We hope that in democratizing access to this information, voters will be best able to decide who they would like to represent them.",
             html.Br(), html.Br(),
             html.Em("Full disclosure: St Louis DSA has endorsed Megan Green for 15th Ward Alderperson.")
