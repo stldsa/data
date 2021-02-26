@@ -49,12 +49,12 @@ def init_callbacks(app):
             contest = "Mayor - City of St. Louis"
         contest_name = mec_query.get_standard_contest_name(contest)
         candidate_df = pd.read_sql("candidate", db.engine)
-        contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
-        contest_candidates_df = contest_candidates_df.sort_values("Candidate Name")
+        contest_candidates_df = candidate_df[candidate_df["office_sought"] == contest]
+        contest_candidates_df = contest_candidates_df.sort_values("candidate_name")
         select_options = [{"label": "All candidates", "value": "all"}]
         for index, row in contest_candidates_df.iterrows():
             select_options.append(
-                {"label": row["Candidate Name"].title(), "value": row["MECID"]}
+                {"label": row["candidate_name"].title(), "value": row["mec_id"]}
             )
         return [
             select_options,

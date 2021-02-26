@@ -159,11 +159,12 @@ def get_candidate_select():
     dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
     select_options = [{"label": "All mayoral candidates", "value": "all"}]
     candidate_df = pd.read_sql("candidate", db.engine)
+    print(candidate_df)
     mayor_df = candidate_df[
-        candidate_df["Office Sought"] == "Mayor - City of St. Louis"
+        candidate_df["office_sought"] == "Mayor - City of St. Louis"
     ]
     for index, row in mayor_df.iterrows():
-        select_options.append({"label": row["Candidate Name"], "value": row["MECID"]})
+        select_options.append({"label": row["candidate_name"], "value": row["MECID"]})
     dropdown = html.Div(
         [dbc.Select(id="candidate-select", options=select_options, value="all")],
         style=dropdown_style,

@@ -29,16 +29,16 @@ def get_candidate_colors(contest_candidates_df, col_name):
 def create_candidate_funds_pie(contest, geography_properties):
 
     contest_name = mec_query.get_standard_contest_name(contest)
-    contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
-    contest_candidates_df['Candidate Name'] = contest_candidates_df['Candidate Name'].str.title()
-    contest_candidates_df.loc[:, "Fundraising"] = contest_candidates_df.apply(lambda x: parse_geography_properties_for_fundraising(geography_properties, x['MECID']), axis=1 )
-    color_discrete_map = get_candidate_colors(contest_candidates_df, 'Candidate Name')
+    contest_candidates_df = candidate_df[candidate_df["office_sought"] == contest]
+    contest_candidates_df['candidate_name'] = contest_candidates_df['candidate_name'].str.title()
+    contest_candidates_df.loc[:, "Fundraising"] = contest_candidates_df.apply(lambda x: parse_geography_properties_for_fundraising(geography_properties, x['mec_id']), axis=1 )
+    color_discrete_map = get_candidate_colors(contest_candidates_df, 'candidate_name')
     fig = px.pie(
         contest_candidates_df, 
         values='Fundraising', 
-        color='Candidate Name',
-        names='Candidate Name',
-        hover_name='Candidate Name',
+        color='candidate_name',
+        names='candidate_name',
+        hover_name='candidate_name',
         color_discrete_map=color_discrete_map,
         hole=0.3,
         width=250,
@@ -115,16 +115,16 @@ def sidebar_graph_component():
 
 
 def build_candidate_info_graph(mec_id):
-    this_candidate = candidate_df.loc[candidate_df["MECID"] == mec_id]
-    candidate_name = this_candidate["Candidate Name"].item()
+    this_candidate = candidate_df.loc[candidate_df["mec_id"] == mec_id]
+    candidate_name = this_candidate["candidate_name"].item()
     return html.Div(["Info on " + candidate_name])
 
 
 def build_contest_info_graph(contest):
-    contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
-    contest_candidates_df['Candidate Name'] = contest_candidates_df['Candidate Name'].str.title()
-    candidate_mec_ids = contest_candidates_df["MECID"].unique()
-    candidate_color_map = get_candidate_colors(contest_candidates_df, "Candidate Name")
+    contest_candidates_df = candidate_df[candidate_df["office_sought"] == contest]
+    contest_candidates_df['candidate_name'] = contest_candidates_df['candidate_name'].str.title()
+    candidate_mec_ids = contest_candidates_df["mec_id"].unique()
+    candidate_color_map = get_candidate_colors(contest_candidates_df, "candidate_name")
     if contest == "Mayor - City of St. Louis":
         candidate_pac_dict = mec_query.candidate_pac_dict
     else:
@@ -133,8 +133,7 @@ def build_contest_info_graph(contest):
     candidate_pac_df = candidate_pac_df.rename(columns={"pac_name": "committee_name"})
     candidate_pac_df["committee_type"] = "PAC"
 
-    contest_candidates_df = contest_candidates_df.set_index("MECID")
-    contest_candidates_df = contest_candidates_df.rename(columns={"Candidate Name":"candidate_name", "Committee Name":"committee_name"})
+    contest_candidates_df = contest_candidates_df.set_index("mec_id")
     contest_candidates_df["committee_type"] = "Candidate Committee"
 
     all_contest_mec_df = pd.concat([contest_candidates_df, candidate_pac_df])
