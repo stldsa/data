@@ -21,14 +21,14 @@ def get_error_404(pathname):
     )
 
 
-fundraising_classes = [100, 500, 1000, 2000, 5000, 10000, 20000, 50000]
+fundraising_classes = [1, 500, 1000, 2000, 5000, 10000, 20000, 50000]
 fundraising_colorscale = ['#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#99000d']
 fundraising_style = {
     "weight": 2,
     "opacity": 1,
     "color": "white",
     "dashArray": 3,
-    "fillOpacity": 0.8,
+    "fillOpacity": 0.9,
 }
 fundraising_ctg = [
     "${:,}+".format(cls, fundraising_classes[i + 1])
@@ -157,7 +157,6 @@ def get_candidate_select():
     candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
     mayor_df = candidate_df[candidate_df["Office Sought"] == "Mayor - City of St. Louis"]
     for index, row in mayor_df.iterrows():
-        # print(row)
         select_options.append({"label": row["Candidate Name"], "value": row["MECID"]})
     dropdown = html.Div([
         dbc.Select(
@@ -294,7 +293,6 @@ def get_candidate_info_card(candidate):
 def get_side_panel_info_section():
     info_section_style={
         "width": "100%", 
-        "flexGrow": 4, 
         "padding": "20px"
     }
     return html.Div(
@@ -366,17 +364,28 @@ def get_floatbox_card_contents(id_suffix, header_text="", contest="Mayor - City 
     )
     if bool(feature_properties):
         contest_name = mec_query.get_standard_contest_name(contest)
+        if feature_properties["total_monetary_donations_"+contest_name+"_with_pacs"] > 0:
+            pie_plot = plotting.create_candidate_funds_pie(contest, feature_properties)
+        else:
+            pie_plot = []
         card_contents = dbc.CardBody(
             [
                 html.Div([
-                    html.Strong("Total monetary donations in race for "+contest_name+": "),
+                   
                     html.Div(
-                        locale.currency(
-                            feature_properties["total_monetary_donations_"+contest_name+"_with_pacs"], grouping=True
-                        )
+                        [
+                            html.Strong("Total donations in race for "+contest_name+": "),
+                            html.Span(locale.currency(
+                                feature_properties["total_monetary_donations_"+contest_name+"_with_pacs"], grouping=True
+                            ))
+                        ]
                     ),
                 ]),
-                plotting.create_candidate_funds_pie(contest, feature_properties)
+                pie_plot,
+                html.Div(
+                    html.Em("(Contributions where donor info was missing or invalid are not included on the map)"),
+                    style={"fontSize":".9em", "lineHeight":"1em"}
+                )
             ]
         )
     else:
