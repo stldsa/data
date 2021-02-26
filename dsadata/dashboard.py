@@ -98,7 +98,9 @@ def init_callbacks(app):
                 hideout,
                 hideout,
                 hideout,
-                [plotting.build_candidate_info_graph(selected_mec_id)],
+                [
+                    plotting.build_contest_info_graph(contest)
+                ],  # Change this to candidate info at some point
             )
         color_prop = "total_monetary_donations_" + contest_name
         if "include_pacs" in include_pacs:
