@@ -16,29 +16,11 @@ candidate_df = pd.read_sql("candidate", db.engine)
 def parse_geography_properties_for_fundraising(geography_properties, mec_id):
     return geography_properties["mec_donations_" + mec_id + "_with_pacs"]
 
-<<<<<<< HEAD
 
-def get_candidate_colors(contest_candidates_df):
-    colors = [
-        "#66c2a5",
-        "#fc8d62",
-        "#8da0cb",
-        "#e78ac3",
-        "#a6d854",
-        "#ffd92f",
-        "#e5c494",
-        "#b3b3b3",
-    ]
-    color_map = {}
-    contest_candidates_df = contest_candidates_df.sort_values(
-        "Candidate Name"
-    ).reset_index()
-=======
 def get_candidate_colors(contest_candidates_df, col_name):
-    colors = ['#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02']
+    colors = ["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02"]
     color_map = {}
     contest_candidates_df = contest_candidates_df.sort_values(col_name).reset_index()
->>>>>>> 5996cfc62fc22dffcae60ea844e58b7b1f98f97e
     for index, row in contest_candidates_df.iterrows():
         candidate_name = row[col_name]
         color_map[candidate_name] = colors[index]
@@ -49,38 +31,26 @@ def create_candidate_funds_pie(contest, geography_properties):
 
     contest_name = mec_query.get_standard_contest_name(contest)
     contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
-<<<<<<< HEAD
+    contest_candidates_df["Candidate Name"] = contest_candidates_df[
+        "Candidate Name"
+    ].str.title()
     contest_candidates_df.loc[:, "Fundraising"] = contest_candidates_df.apply(
         lambda x: parse_geography_properties_for_fundraising(
             geography_properties, x["MECID"]
         ),
         axis=1,
     )
-    color_discrete_map = get_candidate_colors(contest_candidates_df)
+    color_discrete_map = get_candidate_colors(contest_candidates_df, "Candidate Name")
     fig = px.pie(
         contest_candidates_df,
         values="Fundraising",
         color="Candidate Name",
         names="Candidate Name",
         hover_name="Candidate Name",
-        color_discrete_map=get_candidate_colors(contest_candidates_df),
+        color_discrete_map=color_discrete_map,
         hole=0.3,
         width=250,
         height=250,
-=======
-    contest_candidates_df['Candidate Name'] = contest_candidates_df['Candidate Name'].str.title()
-    contest_candidates_df.loc[:, "Fundraising"] = contest_candidates_df.apply(lambda x: parse_geography_properties_for_fundraising(geography_properties, x['MECID']), axis=1 )
-    color_discrete_map = get_candidate_colors(contest_candidates_df, 'Candidate Name')
-    fig = px.pie(
-        contest_candidates_df, 
-        values='Fundraising', 
-        color='Candidate Name',
-        names='Candidate Name',
-        hover_name='Candidate Name',
-        color_discrete_map=color_discrete_map,
-        hole=.3,
-        width=250, height=250
->>>>>>> 5996cfc62fc22dffcae60ea844e58b7b1f98f97e
     )
     fig.update_traces(
         textinfo="none",
@@ -160,7 +130,9 @@ def build_candidate_info_graph(mec_id):
 
 def build_contest_info_graph(contest):
     contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
-    contest_candidates_df['Candidate Name'] = contest_candidates_df['Candidate Name'].str.title()
+    contest_candidates_df["Candidate Name"] = contest_candidates_df[
+        "Candidate Name"
+    ].str.title()
     candidate_mec_ids = contest_candidates_df["MECID"].unique()
     candidate_color_map = get_candidate_colors(contest_candidates_df, "Candidate Name")
     if contest == "Mayor - City of St. Louis":
@@ -172,47 +144,56 @@ def build_contest_info_graph(contest):
     candidate_pac_df["committee_type"] = "PAC"
 
     contest_candidates_df = contest_candidates_df.set_index("MECID")
-    contest_candidates_df = contest_candidates_df.rename(columns={"Candidate Name":"candidate_name", "Committee Name":"committee_name"})
+    contest_candidates_df = contest_candidates_df.rename(
+        columns={"Candidate Name": "candidate_name", "Committee Name": "committee_name"}
+    )
     contest_candidates_df["committee_type"] = "Candidate Committee"
 
     all_contest_mec_df = pd.concat([contest_candidates_df, candidate_pac_df])
     contest_mec_ids = all_contest_mec_df.index.values
 
     contribution_df = pd.read_sql(
-        db.session.query(Contribution).filter(
+        db.session.query(Contribution)
+        .filter(
             and_(
                 # Contribution.lat != "Nan",
                 Contribution.mec_id.in_(contest_mec_ids)
             )
-        ).statement, 
-        db.session.bind
+        )
+        .statement,
+        db.session.bind,
     )
 
-    contribution_df = contribution_df.merge(all_contest_mec_df, left_on="mec_id", right_index=True)
-    totals_df = contribution_df.groupby(['candidate_name', 'committee_name'], as_index=False).agg({'amount':'sum', 'committee_type':'first'})
+    contribution_df = contribution_df.merge(
+        all_contest_mec_df, left_on="mec_id", right_index=True
+    )
+    totals_df = contribution_df.groupby(
+        ["candidate_name", "committee_name"], as_index=False
+    ).agg({"amount": "sum", "committee_type": "first"})
     totals_df = pd.concat([totals_df, all_contest_mec_df], copy=False)
 
-    fig = px.bar(totals_df,
+    fig = px.bar(
+        totals_df,
         y="candidate_name",
         x="amount",
         orientation="h",
         template="simple_white",
         color="candidate_name",
         color_discrete_map=candidate_color_map,
-        barmode='stack',
-        custom_data=['committee_type', 'committee_name']
+        barmode="stack",
+        custom_data=["committee_type", "committee_name"],
     )
     fig.update_layout(
         showlegend=False,
     )
-    fig.update_xaxes(fixedrange=True, title_text='Funds raised')
-    fig.update_yaxes(visible=True, showline=True, fixedrange=True, title_text='')
+    fig.update_xaxes(fixedrange=True, title_text="Funds raised")
+    fig.update_yaxes(visible=True, showline=True, fixedrange=True, title_text="")
     fig.update_traces(
         marker_line_width=1.5,
-        hovertemplate="<b>%{customdata[1]}</b><br><i>(%{customdata[0]})</i><br><b>Funds raised: </b>$%{x:.3s}<extra></extra>"
+        hovertemplate="<b>%{customdata[1]}</b><br><i>(%{customdata[0]})</i><br><b>Funds raised: </b>$%{x:.3s}<extra></extra>",
     )
 
-    bar_label_template = '%{y} = $%{x:.3s}'
+    bar_label_template = "%{y} = $%{x:.3s}"
 
     graph_component = dcc.Graph(
         id="contest-fundraising-graph",
@@ -228,12 +209,19 @@ def build_contest_info_graph(contest):
             graph_component,
             html.Div(
                 [
-                    html.Em("(Candidate committees that neither recieve nor expend over $500 are not required to report details on their campaign finance)")
+                    html.Em(
+                        "(Candidate committees that neither recieve nor expend over $500 are not required to report details on their campaign finance)"
+                    )
                 ],
-                style={"fontSize":".9em", "lineHeight":"1em", "paddingBottom":"10px"}
-            )
+                style={
+                    "fontSize": ".9em",
+                    "lineHeight": "1em",
+                    "paddingBottom": "10px",
+                },
+            ),
         ]
     )
+
 
 # def create_candidate_funds_bar_plot(candidates, mec_df):
 #     cand_df = contrib.sum_funds_by_mecid(mec_df)
