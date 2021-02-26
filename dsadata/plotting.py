@@ -198,7 +198,13 @@ def build_contest_info_graph(contest):
 
     return html.Div(
         [
-            graph_component
+            graph_component,
+            html.Div(
+                [
+                    html.Em("(Candidate committees that neither recieve nor expend over $500 are not required to report details on their campaign finance)")
+                ],
+                style={"fontSize":".9em", "lineHeight":"1em", "paddingBottom":"10px"}
+            )
         ]
     )
 

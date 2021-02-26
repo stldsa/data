@@ -28,7 +28,7 @@ fundraising_style = {
     "opacity": 1,
     "color": "white",
     "dashArray": 3,
-    "fillOpacity": 0.9,
+    "fillOpacity": 0.7,
 }
 fundraising_ctg = [
     "${:,}+".format(cls, fundraising_classes[i + 1])
@@ -77,7 +77,7 @@ def get_side_panel_intro():
             html.Br(),
             html.Br(),
             html.A("St Louis DSA ", href="https://stldsa.org", style=stldsa_link_style),
-            " is proud to provide this tool to the voters of St Louis. You can use the options below to view campaign contributions for our mayoral candidates. We hope that in democratizing access to this information, voters will be best able to decide who they would like to represent them.",
+            " is proud to provide this tool to the voters of St Louis. You can use the options below to view campaign contributions for candidates in the upcoming municipal elections. We hope that in democratizing access to this information, voters will be best able to decide who they would like to represent them.",
             html.Br(), html.Br(),
             html.Em("Full disclosure: St Louis DSA has endorsed Megan Green for 15th Ward Alderperson.")
         ],
@@ -226,17 +226,6 @@ def get_side_panel_layout():
                 get_side_panel_intro(),
                 get_side_panel_info_section(),
             ], style={"height":"100%", "overflowY":"auto"}),
-            # get_candidate_select(candidates),
-            # reset_selection_button(),
-            # side_panel_form,
-            # get_expand_button(),
-            # html.Div([
-            #     html.Strong("CURRENT VIEW:"),
-            #     "Total contributions in each ",
-            #     html.Span("precinct", id="base-layer-name"),
-            #     " for ",
-            #     html.Span("all candidates", id="candidate-name-span")
-            # ], style={"width": "90%"}),
             get_select_layer_section(),
             get_side_panel_footer(),
         ],
@@ -293,7 +282,7 @@ def get_candidate_info_card(candidate):
 def get_side_panel_info_section():
     info_section_style={
         "width": "100%", 
-        "padding": "20px"
+        "padding": "0 20px"
     }
     return html.Div(
         [
