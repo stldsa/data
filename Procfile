@@ -1,1 +1,1 @@
-web: gunicorn dsadata:server
+web: gunicorn wsgi:app
