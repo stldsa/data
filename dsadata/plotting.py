@@ -125,7 +125,6 @@ def sidebar_graph_component():
 def build_candidate_info_graph(mec_id):
     this_candidate = candidate_df.loc[candidate_df["MECID"] == mec_id]
     candidate_name = this_candidate["Candidate Name"].item()
-    return html.Div(["Info on " + candidate_name])
 
 
 def build_contest_info_graph(contest):

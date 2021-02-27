@@ -160,8 +160,8 @@ def create_contributions(mec_df):
 
         if row[mec_col_name] not in candidate_dict:
             this_candidate = Candidate(
-                name=name_dict[row["Committee Name"]],
-                committee_name=row["Committee Name"],
+                name=name_dict[row["committee_name"]],
+                committee_name=row["committee_name"],
                 mec_id=row[mec_col_name],
             )
             candidate_dict[row[mec_col_name]] = this_candidate
@@ -249,9 +249,10 @@ def build_zip_donation_pbf_from_geojson(
             for pac_id in contest_pac_ids:
                 if pac_id in candidate_pac_dict and pac_id in mec_donations["Amount"]:
                     this_pac = candidate_pac_dict[pac_id]
+
                     candidate_geography_totals[this_pac["Candidate MECID"]] = (
                         mec_donations["Amount"][pac_id]
-                        + candidate_geography_totals[this_pac["Candidate MECID"]]
+                        + candidate_geography_totals[this_pac["Candidate MECID"]
                     )
 
             # Add pac to totals
