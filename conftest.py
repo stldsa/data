@@ -1,11 +1,8 @@
 import os
 import pytest
 from flask import Flask
-from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-from dsadata.mec_query import Candidate, Contribution
-
-load_dotenv()
+from dsadata import init_app
 
 
 @pytest.fixture(scope="session")
@@ -24,18 +21,7 @@ def db_url():
 
 @pytest.fixture(scope="session")
 def app():
-    app = Flask(__name__)
-    database = SQLAlchemy()
-    database.init_app(app)
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    with app.app_context():
-        from dsadata.dashboard import init_dashboard
-
-        app = init_dashboard(app)
-
-        return app
-    return app
+    app = init_app()
 
 
 @pytest.fixture(scope="session")
@@ -47,13 +33,15 @@ def _db(app):
 
 
 @pytest.fixture(scope="session")
-def tishaura():
-    return Candidate(name="Tishaura Jones")
+def tishaura(app):
+    with app.app_context():
+        return Candidate(name="Tishaura Jones")
 
 
 @pytest.fixture(scope="session")
-def contributions_df():
-    return Contribution.df
+def contributions_df(app):
+    with app.app_context():
+        return Contribution.df
 
 
 @pytest.fixture(scope="session")

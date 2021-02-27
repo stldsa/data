@@ -1,4 +1,3 @@
-from dsadata import init_app
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
