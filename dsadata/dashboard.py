@@ -6,12 +6,10 @@ from dotenv import load_dotenv
 from dsadata.bootstrap_stuff import get_sidebar_layout
 from flask import url_for
 from dsadata import db
-
-load_dotenv()
 from dash.dependencies import Output, Input, State
-
 from dsadata import bootstrap_stuff, mec_query, plotting
 
+load_dotenv()
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
 
