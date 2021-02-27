@@ -1,1 +1,1 @@
-export FLASK_APP=wsgi:app
+export FLASK_APP="dsadata:init_app"
