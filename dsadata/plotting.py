@@ -140,14 +140,11 @@ def build_contest_info_graph(contest):
     else:
         candidate_pac_dict = {}
     candidate_pac_df = pd.DataFrame.from_dict(candidate_pac_dict, orient="index")
-    candidate_pac_df = candidate_pac_df.rename(columns={"pac_name": "committee_name"})
-    candidate_pac_df["committee_type"] = "PAC"
+    candidate_pac_df = candidate_pac_df.rename(columns={"PAC Name": "Committee Name"})
+    candidate_pac_df["Committee Type"] = "PAC"
 
     contest_candidates_df = contest_candidates_df.set_index("MECID")
-    contest_candidates_df = contest_candidates_df.rename(
-        columns={"Candidate Name": "candidate_name", "Committee Name": "committee_name"}
-    )
-    contest_candidates_df["committee_type"] = "Candidate Committee"
+    contest_candidates_df["Committee Type"] = "Candidate Committee"
 
     all_contest_mec_df = pd.concat([contest_candidates_df, candidate_pac_df])
     contest_mec_ids = all_contest_mec_df.index.values
@@ -163,25 +160,24 @@ def build_contest_info_graph(contest):
         .statement,
         db.session.bind,
     )
-
     contribution_df = contribution_df.merge(
-        all_contest_mec_df, left_on="mec_id", right_index=True
+        all_contest_mec_df, left_on=" MECID", right_on="Candidate MECID"
     )
+    print(contribution_df["Candidate Name"])
     totals_df = contribution_df.groupby(
-        ["candidate_name", "committee_name"], as_index=False
-    ).agg({"amount": "sum", "committee_type": "first"})
+        ["Candidate Name", "Committee Name"], as_index=False
+    ).agg({"Amount": "sum", "Committee Type": "first"})
     totals_df = pd.concat([totals_df, all_contest_mec_df], copy=False)
-
     fig = px.bar(
         totals_df,
-        y="candidate_name",
-        x="amount",
+        y="Candidate Name",
+        x="Amount",
         orientation="h",
         template="simple_white",
-        color="candidate_name",
+        color="Candidate Name",
         color_discrete_map=candidate_color_map,
         barmode="stack",
-        custom_data=["committee_type", "committee_name"],
+        custom_data=["Committee Type", "Committee Name"],
     )
     fig.update_layout(
         showlegend=False,
