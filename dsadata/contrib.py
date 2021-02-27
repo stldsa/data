@@ -8,6 +8,7 @@ import dash_leaflet as dl
 import dash_leaflet.express as dlx
 import dash_core_components as dcc
 import dash_html_components as html
+from flask import url_for
 
 connection_url = "postgresql://meagles:password@localhost:5432/dsadata"
 
@@ -55,7 +56,7 @@ def build_zip_amount_geojson(df, mec_id=None):
     else:
         cand_df = df[df["mec_id"] == mec_id]
         zip_df = cand_df.groupby(by=["zip5"]).agg({"amount": "sum"})
-    zip_geojson_path = "static/stl-region-zip_rw.geojson"
+    zip_geojson_path = url_for("static", filename="stl-region-zip_rw.geojson")
     with open(zip_geojson_path) as read_file:
         zip_geojson_data = json.load(read_file)
 

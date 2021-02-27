@@ -6,6 +6,8 @@ import pandas as pd
 from dotenv import load_dotenv
 from flask.cli import with_appcontext
 from dsadata.bootstrap_stuff import get_sidebar_layout
+from flask import url_for
+from dsadata import db
 
 load_dotenv()
 from dash.dependencies import Output, Input, State
@@ -19,16 +21,19 @@ def init_dashboard(server):
     dash_app = dash.Dash(
         server=server,
         routes_pathname_prefix="/",
-        external_stylesheets=[dbc.themes.BOOTSTRAP]
+        external_stylesheets=[dbc.themes.BOOTSTRAP],
     )
-    dash_app.layout = get_sidebar_layout()
     # dash_app.layout = html.Div(id="dash-container")
+    init_layout(dash_app)
     init_callbacks(dash_app)
     return dash_app.server
 
 
+def init_layout(app):
+    app.layout = get_sidebar_layout()
+
+
 def init_callbacks(app):
-    # Contest Selected: Look at stat
     @app.callback(
         [
             Output("candidate-select", "options"),
@@ -37,26 +42,33 @@ def init_callbacks(app):
             Output("neighborhood-geojson", "url"),
             Output("zip-geojson", "url"),
         ],
-        [Input("contest-select", "value")]
+        [Input("contest-select", "value")],
     )
     def select_contest(contest):
         if contest is None:
             contest = "Mayor - City of St. Louis"
         contest_name = mec_query.get_standard_contest_name(contest)
-        candidate_df = pd.read_csv("data/candidates_2021-03-02.csv")
+        candidate_df = pd.read_sql("candidate", db.engine)
         contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
         contest_candidates_df = contest_candidates_df.sort_values("Candidate Name")
-        select_options = [{"label":"All candidates", "value": "all"}]
+        select_options = [{"label": "All candidates", "value": "all"}]
         for index, row in contest_candidates_df.iterrows():
-            select_options.append({"label": row["Candidate Name"].title(), "value": row["MECID"]})
+            select_options.append(
+                {"label": row["Candidate Name"].title(), "value": row["MECID"]}
+            )
         return [
-            select_options, 
-            "all", 
-            "static/geobuf/"+mec_query.get_standard_contest_name(contest_name)+"-stl-city-and-county-precincts.pbf",
-            "static/geobuf/"+mec_query.get_standard_contest_name(contest_name)+"-neighborhoods-and-municipalities.pbf",
-            "static/geobuf/"+mec_query.get_standard_contest_name(contest_name)+"-stl-region-zip.pbf"
+            select_options,
+            "all",
+            url_for("static", filename="geobuf/")
+            + mec_query.get_standard_contest_name(contest_name)
+            + "-stl-city-and-county-precincts.pbf",
+            url_for("static", filename="geobuf/")
+            + mec_query.get_standard_contest_name(contest_name)
+            + "-neighborhoods-and-municipalities.pbf",
+            url_for("static", filename="geobuf/")
+            + mec_query.get_standard_contest_name(contest_name)
+            + "-stl-region-zip.pbf",
         ]
-
 
     # Candidate Selected: Look at stats from that candidate
     @app.callback(
@@ -66,39 +78,41 @@ def init_callbacks(app):
             Output("precincts-geojson", "hideout"),
             Output("neighborhood-geojson", "hideout"),
             Output("zip-geojson", "hideout"),
-            Output("side-panel-info-section", "children")
+            Output("side-panel-info-section", "children"),
         ],
         [Input("candidate-select", "value"), Input("include-pacs-toggle", "value")],
-        [State("contest-select", "value")]
+        [State("contest-select", "value")],
     )
     def candidate_selected(selected_mec_id, include_pacs, contest):
         if contest is None:
             contest = "Mayor - City of St. Louis"
         contest_name = mec_query.get_standard_contest_name(contest)
         if selected_mec_id != "all":
-            color_prop = "mec_donations_" + selected_mec_id 
+            color_prop = "mec_donations_" + selected_mec_id
             if "include_pacs" in include_pacs:
                 color_prop = color_prop + "_with_pacs"
             hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
             return (
                 True,
-                [], # [bootstrap_stuff.get_candidate_info_card(candidate_row)],
+                [],  # [bootstrap_stuff.get_candidate_info_card(candidate_row)],
                 hideout,
                 hideout,
                 hideout,
-                [plotting.build_contest_info_graph(contest)] # Change this to candidate info at some point
+                [
+                    plotting.build_contest_info_graph(contest)
+                ],  # Change this to candidate info at some point
             )
-        color_prop = "total_monetary_donations_"+contest_name
+        color_prop = "total_monetary_donations_" + contest_name
         if "include_pacs" in include_pacs:
             color_prop = color_prop + "_with_pacs"
         hideout = bootstrap_stuff.build_choropleth_hideout(color_prop)
         return (
-            False, 
-            [], 
-            hideout, 
-            hideout, 
+            False,
+            [],
             hideout,
-            [plotting.build_contest_info_graph(contest)]
+            hideout,
+            hideout,
+            [plotting.build_contest_info_graph(contest)],
         )
 
     @app.callback(
@@ -136,8 +150,7 @@ def init_callbacks(app):
             Input("neighborhood-geojson", "click_feature"),
             Input("card-box-close-neighborhood", "n_clicks"),
         ],
-        [State("contest-select", "value")]
-
+        [State("contest-select", "value")],
     )
     def neighborhood_click(feature, n_clicks, contest):
         class_name = "displayNone"
@@ -171,7 +184,7 @@ def init_callbacks(app):
             Input("precincts-geojson", "click_feature"),
             Input("card-box-close-precinct", "n_clicks"),
         ],
-        [State("contest-select", "value")]
+        [State("contest-select", "value")],
     )
     def precinct_click(feature, n_clicks, contest):
         class_name = "displayNone"
@@ -203,7 +216,7 @@ def init_callbacks(app):
             Input("zip-geojson", "click_feature"),
             Input("card-box-close-zip", "n_clicks"),
         ],
-        [State("contest-select", "value")]
+        [State("contest-select", "value")],
     )
     def zip_click(feature, n_clicks, contest):
         class_name = "displayNone"

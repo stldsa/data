@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import pandas as pd
 
 db = SQLAlchemy()
 
@@ -15,3 +16,10 @@ def init_app():
         app = init_dashboard(app)
 
         return app
+
+
+server = init_app()
+
+db = SQLAlchemy(server)
+
+candidate_df = pd.read_sql("candidate", db.engine)
