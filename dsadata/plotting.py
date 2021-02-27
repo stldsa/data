@@ -29,7 +29,6 @@ def get_candidate_colors(contest_candidates_df, col_name):
 
 def create_candidate_funds_pie(contest, geography_properties):
 
-    contest_name = mec_query.get_standard_contest_name(contest)
     contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
     contest_candidates_df["Candidate Name"] = contest_candidates_df[
         "Candidate Name"
@@ -122,17 +121,11 @@ def sidebar_graph_component():
     return graph_component
 
 
-def build_candidate_info_graph(mec_id):
-    this_candidate = candidate_df.loc[candidate_df["MECID"] == mec_id]
-    candidate_name = this_candidate["Candidate Name"].item()
-
-
 def build_contest_info_graph(contest):
     contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
     contest_candidates_df["Candidate Name"] = contest_candidates_df[
         "Candidate Name"
     ].str.title()
-    candidate_mec_ids = contest_candidates_df["MECID"].unique()
     candidate_color_map = get_candidate_colors(contest_candidates_df, "Candidate Name")
     if contest == "Mayor - City of St. Louis":
         candidate_pac_dict = mec_query.candidate_pac_dict
@@ -184,10 +177,9 @@ def build_contest_info_graph(contest):
     fig.update_yaxes(visible=True, showline=True, fixedrange=True, title_text="")
     fig.update_traces(
         marker_line_width=1.5,
-        hovertemplate="<b>%{customdata[1]}</b><br><i>(%{customdata[0]})</i><br><b>Funds raised: </b>$%{x:.3s}<extra></extra>",
+        hovertemplate="<b>%{customdata[1]}</b><br><i>(%{customdata[0]})</i>"
+        + "<br><b>Funds raised: </b>$%{x:.3s}<extra></extra>",
     )
-
-    bar_label_template = "%{y} = $%{x:.3s}"
 
     graph_component = dcc.Graph(
         id="contest-fundraising-graph",
@@ -204,7 +196,8 @@ def build_contest_info_graph(contest):
             html.Div(
                 [
                     html.Em(
-                        "(Candidate committees that neither recieve nor expend over $500 are not required to report details on their campaign finance)"
+                        "(Candidate committees that neither recieve nor expend over $"
+                        + "500 are not required to report details on their campaign finance)"
                     )
                 ],
                 style={

@@ -2,10 +2,8 @@ import re
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
-from flask import url_for
 
 from dsadata import mapping, plotting, mec_query, db
-from dsadata.plotting import sidebar_graph_component
 import locale
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
@@ -86,7 +84,9 @@ def get_side_panel_intro():
     side_panel_intro = html.Div(
         children=[
             html.Strong("On March 2,"),
-            " St Louis City will have primary elections for a number of municipal offices, including mayor, comptroller, and more than half of the Board of Alders.",
+            " St Louis City will have primary elections for a number of "
+            + "municipal offices, including mayor, comptroller, and more than "
+            + "half of the Board of Alders.",
             html.Br(),
             html.Br(),
             html.A(
@@ -95,7 +95,11 @@ def get_side_panel_intro():
                 style=stldsa_link_style,
                 target="_blank",
             ),
-            " is proud to provide this tool to the voters of St Louis. You can use the options below to view campaign contributions for candidates in the upcoming municipal elections. We hope that in democratizing access to this information, voters will be best able to decide who they would like to represent them.",
+            " is proud to provide this tool to the voters of St Louis. "
+            + "You can use the options below to view campaign contributions "
+            + "for candidates in the upcoming municipal elections. We hope that "
+            + "in democratizing access to this information, voters will be best able "
+            + "to decide who they would like to represent them.",
             html.Br(),
             html.Br(),
             html.Em(

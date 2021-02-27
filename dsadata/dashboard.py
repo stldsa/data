@@ -1,10 +1,8 @@
 import dash
-import dash_html_components as html
 import dash_bootstrap_components as dbc
 import locale
 import pandas as pd
 from dotenv import load_dotenv
-from flask.cli import with_appcontext
 from dsadata.bootstrap_stuff import get_sidebar_layout
 from flask import url_for
 from dsadata import db
@@ -12,7 +10,7 @@ from dsadata import db
 load_dotenv()
 from dash.dependencies import Output, Input, State
 
-from dsadata import init_app, bootstrap_stuff, mec_query, plotting
+from dsadata import bootstrap_stuff, mec_query, plotting
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
@@ -196,7 +194,10 @@ def init_callbacks(app):
             if (
                 "WARD10" in feature["properties"] and feature["properties"]["WARD10"]
             ):  # STL City precinct
-                header_text = f"STL City: Ward {feature['properties']['WARD10']}, Precinct {feature['properties']['PREC10']}"
+                header_text = (
+                    f"STL City: Ward {feature['properties']['WARD10']}, "
+                    f" Precinct {feature['properties']['PREC10']}"
+                )
             elif feature["properties"]["PRECINCTID"]:  # STL County precinct
                 header_text = (
                     f"STL County: Precinct {feature['properties']['PRECINCTID']}"
