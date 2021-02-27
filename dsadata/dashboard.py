@@ -49,12 +49,13 @@ def init_callbacks(app):
             contest = "Mayor - City of St. Louis"
         contest_name = mec_query.get_standard_contest_name(contest)
         candidate_df = pd.read_sql("candidate", db.engine)
-        contest_candidates_df = candidate_df[candidate_df["office_sought"] == contest]
-        contest_candidates_df = contest_candidates_df.sort_values("candidate_name")
+
+        contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
+        contest_candidates_df = contest_candidates_df.sort_values("Candidate Name")
         select_options = [{"label": "All candidates", "value": "all"}]
         for index, row in contest_candidates_df.iterrows():
             select_options.append(
-                {"label": row["candidate_name"].title(), "value": row["mec_id"]}
+                {"label": row["Candidate Name"].title(), "value": row["MECID"]}
             )
         return [
             select_options,
@@ -98,7 +99,9 @@ def init_callbacks(app):
                 hideout,
                 hideout,
                 hideout,
-                [plotting.build_contest_info_graph(contest)] # Change this to candidate info at some point
+                [
+                    plotting.build_contest_info_graph(contest)
+                ],  # Change this to candidate info at some point
             )
         color_prop = "total_monetary_donations_" + contest_name
         if "include_pacs" in include_pacs:

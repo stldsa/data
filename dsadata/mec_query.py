@@ -19,33 +19,35 @@ load_dotenv()
 
 candidate_pac_dict = {
     "C201175": {
-        "candidate_mec_id": "C201500",
-        "candidate_name": "Lewis Reed",
-        "pac_name": "One St. Louis",
+        "Candidate MECID": "C201500",
+        "Candidate Name": "Lewis Reed",
+        "PAC Name": "One St. Louis",
     },
     "C201534": {
-        "candidate_mec_id": "C201500",
-        "candidate_name": "Lewis Reed",
-        "pac_name": "Leadership Counts",
+        "Candidate MECID": "C201500",
+        "Candidate Name": "Lewis Reed",
+        "PAC Name": "Leadership Counts",
     },
     "C201113": {
-        "candidate_mec_id": "C201499",
-        "candidate_name": "Tishaura Jones",
-        "pac_name": "314 Forward",
+        "Candidate MECID": "C201499",
+        "Candidate Name": "Tishaura Jones",
+        "PAC Name": "314 Forward",
     },
     "C211552": {
-        "candidate_mec_id": "C201099",
-        "candidate_name": "Cara Spencer",
-        "pac_name": "Gateway to Progress",
+        "Candidate MECID": "C201099",
+        "Candidate Name": "Cara Spencer",
+        "PAC Name": "Gateway to Progress",
     },
 }
 
 
 class Candidate(db.Model):
-    mec_id = db.Column(db.String, primary_key=True, unique=True, nullable=False)
-    name = db.Column(db.String)
-    committee_name = db.Column(db.String)
-    office_sought = db.Column(db.String)
+    mec_id = db.Column(
+        "MECID", db.String, primary_key=True, unique=True, nullable=False
+    )
+    name = db.Column("Candidate Name", db.String)
+    committee_name = db.Column("Committee Name", db.String)
+    office_sought = db.Column("Office Sought", db.String)
     # status = db.Column(db.String)
     contributions = db.relationship(
         "Contribution",
@@ -76,9 +78,9 @@ class Contributor(db.Model):
 
 
 class Contribution(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, nullable=False)
-    mec_id = db.Column(db.String, db.ForeignKey("candidate.mec_id"))
+    id = db.Column("CD1_A ID", db.Integer, primary_key=True)
+    date = db.Column("Date", db.Date, nullable=False)
+    mec_id = db.Column(" MECID", db.String, db.ForeignKey("candidate.MECID"))
     # mec_id = db.Column(db.String)
     candidate = db.relationship("Candidate", back_populates="contributions")
     # contributor_id = db.Column(
@@ -88,12 +90,12 @@ class Contribution(db.Model):
     # contributor = db.relationship(
     #     "Contributor", backref=db.backref("contributions", lazy=True)
     # )
-    lat = db.Column(db.Float)
-    lon = db.Column(db.Float)
-    employer = db.Column(db.String)
-    occupation = db.Column(db.String)
-    amount = db.Column(db.Float)
-    contribution_type = db.Column(db.String)
+    lat = db.Column("Latitude", db.Float)
+    lon = db.Column("Longitude", db.Float)
+    employer = db.Column("Employer", db.String)
+    occupation = db.Column("Occupation", db.String)
+    amount = db.Column("Amount", db.Float)
+    contribution_type = db.Column("Contribution Type", db.String)
     # report = db.Column(db.String)
 
     # @hybrid_property
@@ -104,7 +106,7 @@ class Contribution(db.Model):
 
     @hybrid_property
     def sum(self):
-        self.df["amount"].sum()
+        self.df["Amount"].sum()
 
 
 def build_mec_df(mec_ids):
@@ -247,9 +249,10 @@ def build_zip_donation_pbf_from_geojson(
             for pac_id in contest_pac_ids:
                 if pac_id in candidate_pac_dict and pac_id in mec_donations["Amount"]:
                     this_pac = candidate_pac_dict[pac_id]
-                    candidate_geography_totals[this_pac["candidate_mec_id"]] = (
+
+                    candidate_geography_totals[this_pac["Candidate MECID"]] = (
                         mec_donations["Amount"][pac_id]
-                        + candidate_geography_totals[this_pac["candidate_mec_id"]]
+                        + candidate_geography_totals[this_pac["Candidate MECID"]
                     )
 
             # Add pac to totals
@@ -330,8 +333,8 @@ def build_donation_pbf_from_geojson(
         for pac_id in contest_pac_ids:
             this_pac = candidate_pac_dict[pac_id]
             if pac_id in donations_this_geography:
-                candidate_geography_totals[this_pac["candidate_mec_id"]] = (
-                    candidate_geography_totals[this_pac["candidate_mec_id"]]
+                candidate_geography_totals[this_pac["Candidate MECID"]] = (
+                    candidate_geography_totals[this_pac["Candidate MECID"]]
                     + donations_this_geography[pac_id]
                 )
         for mec_id in candidate_mec_ids:

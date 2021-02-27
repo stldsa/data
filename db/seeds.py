@@ -9,15 +9,8 @@ from dsadata import db
 candidates = pd.read_csv("dsadata/static/candidates_2021-03-02.csv")
 candidates = candidates[
     ["MECID", "Candidate Name", "Committee Name", "Office Sought", "Status"]
-].rename(
-    columns={
-        "MECID": "mec_id",
-        "Candidate Name": "candidate_name",
-        "Committee Name": "committee_name",
-        "Office Sought": "office_sought",
-        "Status": "status",
-    }
-)
+
+]
 
 candidates.to_sql("candidate", db.engine, if_exists="replace", index=False)
 csv_files = glob("data/mec_geocoded/*")
