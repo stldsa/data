@@ -162,7 +162,6 @@ def build_contest_info_graph(contest):
     contribution_df = contribution_df.merge(
         all_contest_mec_df, left_on=" MECID", right_on="Candidate MECID"
     )
-    print(contribution_df["Candidate Name"])
     totals_df = contribution_df.groupby(
         ["Candidate Name", "Committee Name"], as_index=False
     ).agg({"Amount": "sum", "Committee Type": "first"})

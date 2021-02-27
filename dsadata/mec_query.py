@@ -252,7 +252,7 @@ def build_zip_donation_pbf_from_geojson(
 
                     candidate_geography_totals[this_pac["Candidate MECID"]] = (
                         mec_donations["Amount"][pac_id]
-                        + candidate_geography_totals[this_pac["Candidate MECID"]
+                        + candidate_geography_totals[this_pac["Candidate MECID"]]
                     )
 
             # Add pac to totals
