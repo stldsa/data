@@ -49,6 +49,7 @@ def init_callbacks(app):
             contest = "Mayor - City of St. Louis"
         contest_name = mec_query.get_standard_contest_name(contest)
         candidate_df = pd.read_sql("candidate", db.engine)
+
         contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
         contest_candidates_df = contest_candidates_df.sort_values("Candidate Name")
         select_options = [{"label": "All candidates", "value": "all"}]
