@@ -73,11 +73,12 @@ def get_side_panel_header():
 
 def get_side_panel_intro():
     side_panel_intro_style = {
-        "padding": "20px",
-        "fontSize": "1em",
+        "padding": "14px",
+        "fontSize": "1.05em",
         "lineHeight": "1.13em",
         "color": "white",
         "backgroundColor": "red",
+        "borderTop": "1px dashed white"
     }
     stldsa_link_style = {
         "color": "red",
@@ -87,12 +88,12 @@ def get_side_panel_intro():
     side_panel_intro = html.Div(
         children=[
             """
-                Use the options below to select which race you would like to see info on. The map will update to show the amount of funds raised in each area.
+                Use the options below to select which race you would like to view; the map will update to show the funds raised in that area. 
             """,
             html.Br(),
             html.Br(),
             """
-                You can also choose a specific candidate to see how many funds that candidate alone raised.
+                You can also choose a specific candidate to filter the map to only that candidate's fundraising, or click an area on the map to display additional information on the clicked area.
             """
         ],
         style=side_panel_intro_style,
@@ -292,7 +293,7 @@ def get_candidate_info_card(candidate):
 
 
 def get_side_panel_info_section():
-    info_section_style = {"width": "90%", "flexGrow": 4, "padding": "20px"}
+    info_section_style = {"width": "95%", "flexGrow": 4, "padding": "20px"}
     return html.Div(
         [
             html.Div(id="side-panel-info-section"),
