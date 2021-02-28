@@ -76,6 +76,8 @@ def get_side_panel_intro():
         "padding": "20px",
         "fontSize": "1em",
         "lineHeight": "1.13em",
+        "color": "white",
+        "backgroundColor": "red",
     }
     stldsa_link_style = {
         "color": "red",
@@ -84,28 +86,14 @@ def get_side_panel_intro():
     }
     side_panel_intro = html.Div(
         children=[
-            html.Strong("On March 2,"),
-            " St Louis City will have primary elections for a number of "
-            + "municipal offices, including mayor, comptroller, and more than "
-            + "half of the Board of Alders.",
+            """
+                Use the options below to select which race you would like to see info on. The map will update to show the amount of funds raised in each area.
+            """,
             html.Br(),
             html.Br(),
-            html.A(
-                "St Louis DSA ",
-                href="https://stldsa.org",
-                style=stldsa_link_style,
-                target="_blank",
-            ),
-            " is proud to provide this tool to the voters of St Louis. "
-            + "You can use the options below to view campaign contributions "
-            + "for candidates in the upcoming municipal elections. We hope that "
-            + "in democratizing access to this information, voters will be best able "
-            + "to decide who they would like to represent them.",
-            html.Br(),
-            html.Br(),
-            html.Em(
-                "Full disclosure: St Louis DSA has endorsed Megan Green for 15th Ward Alderperson."
-            ),
+            """
+                You can also choose a specific candidate to see how many funds that candidate alone raised.
+            """
         ],
         style=side_panel_intro_style,
     )
@@ -248,13 +236,8 @@ def get_side_panel_layout():
     side_panel_layout = html.Div(
         children=[
             get_side_panel_header(),
-            html.Div(
-                [
-                    # get_side_panel_intro(),
-                    get_side_panel_info_section(),
-                ],
-                style={"height": "100%"},
-            ),
+            get_side_panel_intro(),
+            get_side_panel_info_section(),
             get_select_layer_section(),
             get_side_panel_footer(),
         ],
@@ -363,9 +346,9 @@ def get_sidebar_layout():
                             html.P(
                                 [
                                     "On ",
-                                    html.B("March 2"),
+                                    html.B("March 2,"),
                                     """
-                                    , St Louis City will have primary elections for a number of municipal offices, 
+                                    St Louis City will have primary elections for a number of municipal offices, 
                                     including mayor, comptroller, and more than half of the Board of Alders.
                                     """,
                                 ]
@@ -402,6 +385,8 @@ def get_sidebar_layout():
                 ],
                 id="modal",
                 is_open=True,
+                size="lg",
+                style={"padding": "20px","fontSize": "1em","lineHeight": "1.2em"}
             ),
             dbc.Row(
                 [

@@ -38,13 +38,14 @@ candidate_pac_dict = {
         "Candidate Name": "Cara Spencer",
         "PAC Name": "Gateway to Progress",
     },
-    # Only one I could find for an alder
-    "C190976": {
-        "Candidiate MECID": "C141580",
-        "Candidate Name": "John Coatar",
-        "PAC Name": "Jack PAC"
-    }
 }
+
+    # Only one I could find for an alder
+    # "C190976": {
+    #     "Candidiate MECID": "C141580",
+    #     "Candidate Name": "John Coatar",
+    #     "PAC Name": "Jack PAC"
+    # }
 
 
 class Candidate(db.Model):
