@@ -123,9 +123,6 @@ def sidebar_graph_component():
 
 def build_contest_info_graph(contest):
     contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
-    contest_candidates_df["Candidate Name"] = contest_candidates_df[
-        "Candidate Name"
-    ].str.title()
     candidate_color_map = get_candidate_colors(contest_candidates_df, "Candidate Name")
     if contest == "Mayor - City of St. Louis":
         candidate_pac_dict = mec_query.candidate_pac_dict
@@ -152,6 +149,7 @@ def build_contest_info_graph(contest):
         .statement,
         db.session.bind,
     )
+    print(all_contest_mec_df.columns)
     contribution_df = contribution_df.merge(
         all_contest_mec_df, left_on=" MECID", right_on="Candidate MECID"
     )

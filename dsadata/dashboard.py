@@ -235,3 +235,12 @@ def init_callbacks(app):
             class_name = "displayNone"
 
         return [card_contents, class_name]
+
+    @app.callback(
+        Output("modal", "is_open"),
+        [Input("close", "n_clicks")],
+    )
+    def toggle_modal(n_clicks):
+        if n_clicks:
+            return False
+        return True

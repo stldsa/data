@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 
 from dsadata import mapping, plotting, mec_query, db
+from dsadata.mec_query import Candidate
 import locale
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
@@ -162,7 +163,8 @@ def sort_contests(elem):
 
 def get_contest_select():
     dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
-    contests = ["Mayor - City of St. Louis"]
+    df = Candidate.df()
+    contests = df["Office Sought"].unique()
     select_options = [
         {"label": contest, "value": contest}
         for contest in sorted(contests, key=sort_contests)
@@ -182,16 +184,9 @@ def get_contest_select():
 
 def get_candidate_select():
     dropdown_style = {"padding": "4px", "maxWidth": "90%", "margin": "auto"}
-    select_options = [{"label": "All mayoral candidates", "value": "all"}]
-    candidate_df = pd.read_sql("candidate", db.engine)
 
-    mayor_df = candidate_df[
-        candidate_df["Office Sought"] == "Mayor - City of St. Louis"
-    ]
-    for index, row in mayor_df.iterrows():
-        select_options.append({"label": row["Candidate Name"], "value": row["MECID"]})
     dropdown = html.Div(
-        [dbc.Select(id="candidate-select", options=select_options, value="all")],
+        [dbc.Select(id="candidate-select", value="all")],
         style=dropdown_style,
     )
     return dropdown
@@ -255,10 +250,10 @@ def get_side_panel_layout():
             get_side_panel_header(),
             html.Div(
                 [
-                    get_side_panel_intro(),
+                    # get_side_panel_intro(),
                     get_side_panel_info_section(),
                 ],
-                style={"height": "100%", "overflowY": "auto"},
+                style={"height": "100%"},
             ),
             get_select_layer_section(),
             get_side_panel_footer(),
@@ -360,13 +355,61 @@ def get_side_panel_footer():
 def get_sidebar_layout():
     return dbc.Container(
         [
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("St Louis DSA Open Data Project"),
+                    dbc.ModalBody(
+                        [
+                            html.P(
+                                [
+                                    "On ",
+                                    html.B("March 2"),
+                                    """
+                                    , St Louis City will have primary elections for a number of municipal offices, 
+                                    including mayor, comptroller, and more than half of the Board of Alders.
+                                    """,
+                                ]
+                            ),
+                            html.P(
+                                [
+                                    html.A(
+                                        "St Louis DSA",
+                                        href="https://stldsa.org",
+                                        style={
+                                            "color": "red",
+                                            "font": "Roboto",
+                                            "textDecoration": "underline",
+                                        },
+                                    ),
+                                    """
+                                     is proud to provide this tool to the voters of St Louis.
+                                    You can use the options below to view campaign contributions for candidates 
+                                    in the upcoming municipal elections. We hope that in democratizing access to 
+                                    this information, voters will be best able to decide who they would like to represent them.
+                                    """,
+                                ]
+                            ),
+                            html.P(
+                                html.I(
+                                    "St Louis DSA has endorsed Megan Green for 15th Ward Alderperson."
+                                ),
+                            ),
+                        ],
+                    ),
+                    dbc.ModalFooter(
+                        dbc.Button("Close", id="close", className="ml-auto")
+                    ),
+                ],
+                id="modal",
+                is_open=True,
+            ),
             dbc.Row(
                 [
                     dbc.Col(get_side_panel_layout(), md=5, lg=4),
                     dbc.Col(mapping.get_map_panel_layout(), md=7, lg=8),
                 ],
                 no_gutters=True,
-            )
+            ),
         ],
         fluid=True,
         className="remove-padding",

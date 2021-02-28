@@ -98,11 +98,10 @@ class Contribution(db.Model):
     contribution_type = db.Column("Contribution Type", db.String)
     # report = db.Column(db.String)
 
-    # @hybrid_property
-    # def df(self):
-    #     with app.app_context():
-    #         df = pd.read_sql("contribution", db.engine.connect())
-    #     return
+    @classmethod
+    def df(self):
+        df = pd.read_sql("contribution", db.engine)
+        return df
 
     @hybrid_property
     def sum(self):
