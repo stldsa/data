@@ -136,7 +136,7 @@ def init_callbacks(app):
         elif "zip-button" in changed_id:
             return [False, False, True, False, False, True]
         else:
-            return [True, False, False, True, False, False]
+            return [False, True, False, False, True, False]
 
     @app.callback(
         [
@@ -224,7 +224,6 @@ def init_callbacks(app):
         card_contents = bootstrap_stuff.get_floatbox_card_contents("zip")
 
         if feature:
-            print(feature)
             header_text = f"ZIP Code {feature['properties']['ZCTA5CE10']}"
             class_name = "floatbox"
             card_contents = bootstrap_stuff.get_floatbox_card_contents(

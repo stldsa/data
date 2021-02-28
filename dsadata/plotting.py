@@ -149,7 +149,6 @@ def build_contest_info_graph(contest):
         .statement,
         db.session.bind,
     )
-    print(all_contest_mec_df)
     contribution_df = contribution_df.merge(
         all_contest_mec_df, left_on=" MECID", right_index=True, how="left"
     )
