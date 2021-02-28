@@ -57,13 +57,13 @@ def init_callbacks(app):
             select_options,
             "all",
             url_for("static", filename="geobuf/")
-            + mec_query.get_standard_contest_name(contest_name)
+            + contest_name
             + "-stl-city-and-county-precincts.pbf",
             url_for("static", filename="geobuf/")
-            + mec_query.get_standard_contest_name(contest_name)
+            + contest_name
             + "-neighborhoods-and-municipalities.pbf",
             url_for("static", filename="geobuf/")
-            + mec_query.get_standard_contest_name(contest_name)
+            + contest_name
             + "-stl-region-zip.pbf",
         ]
 

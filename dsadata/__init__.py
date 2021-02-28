@@ -21,5 +21,3 @@ def init_app():
 server = init_app()
 
 db = SQLAlchemy(server)
-
-candidate_df = pd.read_sql("candidate", db.engine)
