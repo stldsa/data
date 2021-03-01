@@ -1,5 +1,5 @@
 from dsadata import mec_query, db
-from dsadata.mec_query import Contribution
+from dsadata.mec_query import Contribution, Candidate
 from sqlalchemy import and_
 import pandas as pd
 import plotly.express as px
@@ -9,8 +9,6 @@ import dash_html_components as html
 
 
 pd.options.plotting.backend = "plotly"
-
-candidate_df = pd.read_sql("candidate", db.engine)
 
 
 def parse_geography_properties_for_fundraising(geography_properties, mec_id):
@@ -29,6 +27,7 @@ def get_candidate_colors(contest_candidates_df, col_name):
 
 def create_candidate_funds_pie(contest, geography_properties):
 
+    candidate_df = Candidate.df()
     contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
     contest_candidates_df["Candidate Name"] = contest_candidates_df[
         "Candidate Name"
@@ -122,6 +121,7 @@ def sidebar_graph_component():
 
 
 def build_contest_info_graph(contest):
+    candidate_df = Candidate.df()
     contest_candidates_df = candidate_df[candidate_df["Office Sought"] == contest]
     candidate_color_map = get_candidate_colors(contest_candidates_df, "Candidate Name")
     if contest == "Mayor - City of St. Louis":
@@ -149,9 +149,8 @@ def build_contest_info_graph(contest):
         .statement,
         db.session.bind,
     )
-    print(all_contest_mec_df.columns)
     contribution_df = contribution_df.merge(
-        all_contest_mec_df, left_on=" MECID", right_on="Candidate MECID"
+        all_contest_mec_df, left_on=" MECID", right_index=True, how="left"
     )
     totals_df = contribution_df.groupby(
         ["Candidate Name", "Committee Name"], as_index=False

@@ -70,6 +70,7 @@ def get_precinct_geojson():
         format="geobuf",
         options=dict(style=ns("style")),
         hoverStyle=arrow_function(dict(weight=5, color="#666", dashArray="")),
+        zoomToBoundsOnClick=False,  # when true, zooms to bounds of feature (e.g. polygon) on click
         hideout=bootstrap_stuff.build_choropleth_hideout("total_monetary_donations"),
         id="precincts-geojson",
     )
@@ -82,6 +83,7 @@ def get_neighborhood_geojson():
         format="geobuf",
         options=dict(style=ns("style")),
         hoverStyle=arrow_function(dict(weight=5, color="#666", dashArray="")),
+        zoomToBoundsOnClick=False,  # when true, zooms to bounds of feature (e.g. polygon) on click
         hideout=bootstrap_stuff.build_choropleth_hideout("total_monetary_donations"),
         id="neighborhood-geojson",
     )

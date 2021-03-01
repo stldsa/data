@@ -40,6 +40,13 @@ candidate_pac_dict = {
     },
 }
 
+    # Only one I could find for an alder
+    # "C190976": {
+    #     "Candidiate MECID": "C141580",
+    #     "Candidate Name": "John Coatar",
+    #     "PAC Name": "Jack PAC"
+    # }
+
 
 class Candidate(db.Model):
     mec_id = db.Column(

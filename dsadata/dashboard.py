@@ -57,13 +57,13 @@ def init_callbacks(app):
             select_options,
             "all",
             url_for("static", filename="geobuf/")
-            + mec_query.get_standard_contest_name(contest_name)
+            + contest_name
             + "-stl-city-and-county-precincts.pbf",
             url_for("static", filename="geobuf/")
-            + mec_query.get_standard_contest_name(contest_name)
+            + contest_name
             + "-neighborhoods-and-municipalities.pbf",
             url_for("static", filename="geobuf/")
-            + mec_query.get_standard_contest_name(contest_name)
+            + contest_name
             + "-stl-region-zip.pbf",
         ]
 
@@ -136,7 +136,7 @@ def init_callbacks(app):
         elif "zip-button" in changed_id:
             return [False, False, True, False, False, True]
         else:
-            return [True, False, False, True, False, False]
+            return [False, True, False, False, True, False]
 
     @app.callback(
         [
@@ -224,7 +224,6 @@ def init_callbacks(app):
         card_contents = bootstrap_stuff.get_floatbox_card_contents("zip")
 
         if feature:
-            print(feature)
             header_text = f"ZIP Code {feature['properties']['ZCTA5CE10']}"
             class_name = "floatbox"
             card_contents = bootstrap_stuff.get_floatbox_card_contents(
