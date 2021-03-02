@@ -74,7 +74,7 @@ def get_side_panel_header():
 def get_side_panel_intro():
     side_panel_intro_style = {
         "padding": "14px",
-        "fontSize": "1.05em",
+        "fontSize": ".8em",
         "lineHeight": "1.13em",
         "color": "white",
         "backgroundColor": "red",
@@ -294,7 +294,7 @@ def get_candidate_info_card(candidate):
 
 def get_side_panel_info_section():
     info_section_style = {
-        "width": "95%",
+        "width": "100%",
         "flexGrow": 4,
         "padding": "20px",
         "overflowY": "scroll",
