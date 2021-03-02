@@ -9,23 +9,18 @@ from dash.testing.application_runners import import_app
 #     dash_duo.start_server(app)
 
 
-def test_layout():
-    from dsadata.bootstrap_stuff import get_sidebar_layout
+def test_layout(app):
+    with app.app_context():
+        from dsadata.bootstrap_stuff import get_sidebar_layout
 
-    layout = get_sidebar_layout()
-    assert layout.className == "remove-padding"
-    main_div = layout.children
-    assert len(main_div) == 1
-    row = main_div[0]
-    assert len(row.children) == 2
-
-    info_bar = row.children[0]
-    map = row.children[1]
-
-    print(dir(info_bar))
-    print(dir(map))
+        layout = get_sidebar_layout()
+        assert layout.className == "remove-padding"
+        main_div = layout.children
+        assert len(main_div) == 2
+        row = main_div[0]
+        assert len(row.children) == 3
 
 
-def test_ward_click(dash_duo):
-    app = import_app("app")
-    dash_duo.start_server(app)
+# def test_ward_click(dash_duo):
+#     app = import_app("app")
+#     dash_duo.start_server(app)

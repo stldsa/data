@@ -3,6 +3,7 @@ import pytest
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from dsadata import init_app
+from dsadata.mec_query import Candidate, Contribution
 
 
 @pytest.fixture(scope="session")
@@ -22,6 +23,7 @@ def db_url():
 @pytest.fixture(scope="session")
 def app():
     app = init_app()
+    return app
 
 
 @pytest.fixture(scope="session")

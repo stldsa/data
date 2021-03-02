@@ -1,5 +1,4 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from dsadata import init_app
 
 
 def test_root_route(client):
@@ -9,9 +8,7 @@ def test_root_route(client):
 
 
 def test_init_app():
-    app = Flask(__name__)
-    database = SQLAlchemy()
-    database.init_app(app)
+    app = init_app()
     assert app.config["SQLALCHEMY_DATABASE_URI"]
 
 
