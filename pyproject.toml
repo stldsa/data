@@ -27,7 +27,7 @@ dash = "^1.19.0"
 psycopg2 = "^2.8.6"
 geobuf = "^1.1.1"
 Flask-DB = "^0.3.0"
-flask-talisman = "^0.7.0"
+Flask-SSLify = "^0.1.5"
 
 
 [tool.poetry.dev-dependencies]
