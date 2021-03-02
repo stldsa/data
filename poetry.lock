@@ -603,6 +603,17 @@ Flask = ">=0.10"
 SQLAlchemy = ">=0.8.0"
 
 [[package]]
+name = "flask-talisman"
+version = "0.7.0"
+description = "HTTP security headers for Flask."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+six = ">=1.9.0"
+
+[[package]]
 name = "future"
 version = "0.18.2"
 description = "Clean single-source support for Python 3 and 2"
@@ -2122,7 +2133,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.9.1"
-content-hash = "517b8044ae2ef839b92d3665319c6d3ad12f127bd528d38c62cdf6c31f1bdbae"
+content-hash = "66de805a154f9e717f8fbc315ac5a0f5226937f3737c4cb145050c43f5e49946"
 
 [metadata.files]
 aiohttp = [
@@ -2473,6 +2484,10 @@ flask-db = [
 flask-sqlalchemy = [
     {file = "Flask-SQLAlchemy-2.4.4.tar.gz", hash = "sha256:bfc7150eaf809b1c283879302f04c42791136060c6eeb12c0c6674fb1291fae5"},
     {file = "Flask_SQLAlchemy-2.4.4-py2.py3-none-any.whl", hash = "sha256:05b31d2034dd3f2a685cbbae4cfc4ed906b2a733cff7964ada450fd5e462b84e"},
+]
+flask-talisman = [
+    {file = "flask-talisman-0.7.0.tar.gz", hash = "sha256:468131464a249274ed226efc21b372518f442487e58918ccab8357eaa638fd1f"},
+    {file = "flask_talisman-0.7.0-py2.py3-none-any.whl", hash = "sha256:eaa754f4b771dfbe473843391d69643b79e3a38c865790011ac5e4179c68e3ec"},
 ]
 future = [
     {file = "future-0.18.2.tar.gz", hash = "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"},

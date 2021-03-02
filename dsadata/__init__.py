@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_talisman import Talisman
 import pandas as pd
 
 db = SQLAlchemy()
@@ -7,6 +8,7 @@ db = SQLAlchemy()
 
 def init_app():
     app = Flask(__name__)
+    app = Talisman(app)
     app.config.from_object("config")
     db.init_app(app)
     with app.app_context():
