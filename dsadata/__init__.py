@@ -4,8 +4,6 @@ from dotenv import load_dotenv
 
 db = SQLAlchemy()
 
-load_dotenv()
-
 
 def init_app():
     app = Flask(__name__)
