@@ -166,7 +166,6 @@ def build_contest_info_graph(contest):
         color_discrete_map=candidate_color_map,
         barmode="stack",
         custom_data=["Committee Type", "Committee Name"],
-        categoryorder="total ascending",
     )
     fig.update_layout(
         showlegend=False,
@@ -176,7 +175,13 @@ def build_contest_info_graph(contest):
         margin_b=25,
     )
     fig.update_xaxes(fixedrange=True, title_text="Funds raised")
-    fig.update_yaxes(visible=True, showline=True, fixedrange=True, title_text="")
+    fig.update_yaxes(
+        visible=True,
+        showline=True,
+        fixedrange=True,
+        title_text="",
+        categoryorder="total ascending",
+    )
     fig.update_traces(
         marker_line_width=1.5,
         hovertemplate="<b>%{customdata[1]}</b><br><i>(%{customdata[0]})</i>"
