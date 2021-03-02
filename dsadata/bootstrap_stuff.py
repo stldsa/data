@@ -78,7 +78,7 @@ def get_side_panel_intro():
         "lineHeight": "1.13em",
         "color": "white",
         "backgroundColor": "red",
-        "borderTop": "1px dashed white"
+        "borderTop": "1px dashed white",
     }
     stldsa_link_style = {
         "color": "red",
@@ -94,7 +94,7 @@ def get_side_panel_intro():
             html.Br(),
             """
                 You can also choose a specific candidate to filter the map to only that candidate's fundraising, or click an area on the map to display additional information on the clicked area.
-            """
+            """,
         ],
         style=side_panel_intro_style,
     )
@@ -238,8 +238,8 @@ def get_side_panel_layout():
         children=[
             get_side_panel_header(),
             get_side_panel_intro(),
-            get_side_panel_info_section(),
             get_select_layer_section(),
+            get_side_panel_info_section(),
             get_side_panel_footer(),
         ],
         className="SidePanel_NotExpanded",
@@ -387,7 +387,7 @@ def get_sidebar_layout():
                 id="modal",
                 is_open=True,
                 size="lg",
-                style={"padding": "20px","fontSize": "1em","lineHeight": "1.2em"}
+                style={"padding": "20px", "fontSize": "1em", "lineHeight": "1.2em"},
             ),
             dbc.Row(
                 [
