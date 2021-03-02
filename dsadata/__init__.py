@@ -6,6 +6,7 @@ db = SQLAlchemy()
 
 
 def init_app():
+    load_dotenv()
     app = Flask(__name__)
     app.config.from_object("config")
     db.init_app(app)
