@@ -170,9 +170,9 @@ def build_contest_info_graph(contest):
     fig.update_layout(
         showlegend=False,
         margin_r=0,
-        margin_l=25,
+        margin_l=0,
         margin_t=0,
-        margin_b=25,
+        margin_b=0,
     )
     fig.update_xaxes(fixedrange=True, title_text="Funds raised")
     fig.update_yaxes(
