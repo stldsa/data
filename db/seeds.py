@@ -13,7 +13,7 @@ candidates = candidates[
 candidates["Candidate Name"] = candidates["Candidate Name"].str.title()
 
 candidates.to_sql("candidate", db.engine, if_exists="replace", index=False)
-csv_files = glob("data/mec_geocoded/*")
+csv_files = glob("data/mec/*")
 globals().update(
     locals()
 )  # so we can use pandas inside the listcomp below - https://github.com/inducer/pudb/issues/103
@@ -24,8 +24,6 @@ all_contributions = all_contributions[
         "CD1_A ID",
         "Date",
         " MECID",
-        "Latitude",
-        "Longitude",
         "Employer",
         "Occupation",
         "Amount",

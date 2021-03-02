@@ -40,12 +40,12 @@ candidate_pac_dict = {
     },
 }
 
-    # Only one I could find for an alder
-    # "C190976": {
-    #     "Candidiate MECID": "C141580",
-    #     "Candidate Name": "John Coatar",
-    #     "PAC Name": "Jack PAC"
-    # }
+# Only one I could find for an alder
+# "C190976": {
+#     "Candidiate MECID": "C141580",
+#     "Candidate Name": "John Coatar",
+#     "PAC Name": "Jack PAC"
+# }
 
 
 class Candidate(db.Model):
@@ -97,8 +97,8 @@ class Contribution(db.Model):
     # contributor = db.relationship(
     #     "Contributor", backref=db.backref("contributions", lazy=True)
     # )
-    lat = db.Column("Latitude", db.Float)
-    lon = db.Column("Longitude", db.Float)
+    # lat = db.Column("Latitude", db.Float)
+    # lon = db.Column("Longitude", db.Float)
     employer = db.Column("Employer", db.String)
     occupation = db.Column("Occupation", db.String)
     amount = db.Column("Amount", db.Float)
