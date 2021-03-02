@@ -72,6 +72,7 @@ def create_candidate_funds_bar_plot(candidates_df):
     df = candidates_df
     fig = px.bar(
         df,
+        width=0.5,
         x="$ Raised",
         y="Candidate",
         template="simple_white",
@@ -82,7 +83,7 @@ def create_candidate_funds_bar_plot(candidates_df):
         "rgb(120,10,224)",
         "rgb(40,90,24)",
     ]
-    bar_line_width = 1.5
+    bar_line_width = 0.5
     bar_line_color = "rgb(8,47,107)"
     bar_opacity = 0.7
 
@@ -168,11 +169,7 @@ def build_contest_info_graph(contest):
         custom_data=["Committee Type", "Committee Name"],
     )
     fig.update_layout(
-        showlegend=False,
-        margin_r=0,
-        margin_l=0,
-        margin_t=0,
-        margin_b=0,
+        showlegend=False, margin_r=0, margin_l=0, margin_t=0, margin_b=0, height=150
     )
     fig.update_xaxes(fixedrange=True, title_text="Funds raised")
     fig.update_yaxes(

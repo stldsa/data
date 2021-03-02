@@ -297,7 +297,7 @@ def get_side_panel_info_section():
         "width": "100%",
         "flexGrow": 4,
         "padding": "20px",
-        "overflowY": "scroll",
+        "overflowY": "auto",
     }
     return html.Div(
         [
