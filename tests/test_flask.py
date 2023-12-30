@@ -1,4 +1,4 @@
-from dsadata import init_app
+from donation_map import init_app
 
 
 def test_root_route(client):

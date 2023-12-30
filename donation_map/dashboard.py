@@ -3,11 +3,11 @@ import dash_bootstrap_components as dbc
 import locale
 import pandas as pd
 from dotenv import load_dotenv
-from dsadata.bootstrap_stuff import get_sidebar_layout
+from donation_map.bootstrap_stuff import get_sidebar_layout
 from flask import url_for
-from dsadata import db
+from donation_map import db
 from dash.dependencies import Output, Input, State
-from dsadata import bootstrap_stuff, mec_query, plotting
+from donation_map import bootstrap_stuff, mec_query, plotting
 
 load_dotenv()
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")

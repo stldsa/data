@@ -11,7 +11,7 @@ from dash.testing.application_runners import import_app
 
 def test_layout(app):
     with app.app_context():
-        from dsadata.bootstrap_stuff import get_sidebar_layout
+        from donation_map.bootstrap_stuff import get_sidebar_layout
 
         layout = get_sidebar_layout()
         assert layout.className == "remove-padding"

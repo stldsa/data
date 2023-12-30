@@ -3,8 +3,8 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
 
-from dsadata import mapping, plotting, mec_query, db
-from dsadata.mec_query import Candidate
+from donation_map import mapping, plotting, mec_query, db
+from donation_map.mec_query import Candidate
 import locale
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
@@ -88,7 +88,7 @@ def get_side_panel_intro():
     side_panel_intro = html.Div(
         children=[
             """
-                Use the options below to select which race you would like to view; the map will update to show the funds raised in that area. 
+                Use the options below to select which race you would like to view; the map will update to show the funds raised in that area.
             """,
             html.Br(),
             html.Br(),
@@ -354,7 +354,7 @@ def get_sidebar_layout():
                                     "On ",
                                     html.B("March 2,"),
                                     """
-                                    St Louis City will have primary elections for a number of municipal offices, 
+                                    St Louis City will have primary elections for a number of municipal offices,
                                     including mayor, comptroller, and more than half of the Board of Alders.
                                     """,
                                 ]
@@ -372,8 +372,8 @@ def get_sidebar_layout():
                                     ),
                                     """
                                      is proud to provide this tool to the voters of St Louis.
-                                    You can use the options below to view campaign contributions for candidates 
-                                    in the upcoming municipal elections. We hope that in democratizing access to 
+                                    You can use the options below to view campaign contributions for candidates
+                                    in the upcoming municipal elections. We hope that in democratizing access to
                                     this information, voters will be best able to decide who they would like to represent them.
                                     """,
                                 ]

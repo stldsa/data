@@ -9,10 +9,10 @@ import sys
 sys.path = ["", ".."] + sys.path[1:]
 
 
-import dsadata
+import donation_map
 
 # There's no access to current_app here so we must create our own app.
-app = dsadata.init_app()
+app = donation_map.init_app()
 db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
 db = app.extensions["sqlalchemy"].db
 

@@ -11,7 +11,7 @@ import dash_bootstrap_components as dbc
 from dash_extensions.javascript import arrow_function, Namespace
 import dash_daq as daq
 
-from dsadata import plotting, bootstrap_stuff, contrib
+from donation_map import plotting, bootstrap_stuff, contrib
 
 import plotly.express as px
 

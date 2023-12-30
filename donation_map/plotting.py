@@ -1,5 +1,5 @@
-from dsadata import mec_query, db
-from dsadata.mec_query import Contribution, Candidate
+from donation_map import mec_query, db
+from donation_map.mec_query import Contribution, Candidate
 from sqlalchemy import and_
 import pandas as pd
 import plotly.express as px

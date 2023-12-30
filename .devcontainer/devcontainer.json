@@ -1,0 +1,40 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "Python 3",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/python:1-3.12-bullseye",
+	"features": {
+		"ghcr.io/devcontainers-contrib/features/hatch:2": {}
+	},
+	"customizations": {
+		"vscode": {
+		  "extensions": [
+			"ms-python.python",
+			"ms-toolsai.datawrangler",
+			"charliermarsh.ruff",
+			"GitHub.copilot",
+			"tamasfe.even-better-toml",
+			"redhat.vscode-yaml",
+			"mechatroner.rainbow-csv",
+			"github.vscode-github-actions",
+			"GitHub.vscode-pull-request-github",
+			"eamodio.gitlens"
+		  ],
+		  "settings": {
+			"[python]": {
+			  "editor.formatOnSave": true,
+			  "editor.codeActionsOnSave": {
+				"source.fixAll.ruff": true,
+				"source.organizeImports.ruff": true
+			  },
+			  "editor.defaultFormatter": "charliermarsh.ruff"
+			},
+			"python.defaultInterpreterPath": ".pixi/env/bin/python",
+			"jupyter.notebookFileRoot": "${containerWorkspaceFolder}",
+			"terminal.integrated.defaultProfile.linux": "bash"
+		  }
+		}
+	  }
+
+}

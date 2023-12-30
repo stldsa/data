@@ -1,10 +1,10 @@
 import os
-from dsadata.mec_query import Candidate
+from donation_map.mec_query import Candidate
 import pandas as pd
 import os
 from sqlalchemy import create_engine
 from glob import glob
-from dsadata import db
+from donation_map import db
 
 candidates = pd.read_csv("dsadata/static/candidates_2021-03-02.csv")
 candidates = candidates[

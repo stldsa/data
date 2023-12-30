@@ -2,8 +2,8 @@ import os
 import pytest
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from dsadata import init_app
-from dsadata.mec_query import Candidate, Contribution
+from donation_map import init_app
+from donation_map.mec_query import Candidate, Contribution
 
 
 @pytest.fixture(scope="session")
