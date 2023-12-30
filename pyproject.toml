@@ -6,7 +6,7 @@ authors = [
     {name="Tyler Schlichenmeyer", email="ty.schlich@gmail.com"},
     {name="Mitch Eagles"}
 ]
-license = "GPLv3"
+license = "GPL-3.0-or-later"
 dependencies = [
     "dash-leaflet",
     "pandas",
@@ -25,6 +25,8 @@ dependencies = [
     "descartes",
     "dash",
     "pycycle",
+    "pydantic",
+    "duckdb",
 ]
 
 
